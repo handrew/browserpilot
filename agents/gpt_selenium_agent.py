@@ -1,7 +1,4 @@
-"""
-TODO add prompt modularization
-"""
-
+"""GPT Selenium Agent abstraction."""
 import pdb
 import os
 import re
@@ -18,7 +15,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.relative_locator import locate_with
-from compilers.instruction_compiler import InstructionCompiler, NO_RESPONSE_TOKEN
+from compilers.instruction_compiler import InstructionCompiler
 
 
 class GPTSeleniumAgent:
@@ -41,7 +38,7 @@ class GPTSeleniumAgent:
     """Functions meant for the client to call."""
 
     def run(self):
-        while self.instruction_compiler.instruction_queue:
+        while self.instruction_compiler.instructions_queue:
             # `step` will try the instruction for the first time.
             step = self.instruction_compiler.step()
             
@@ -274,18 +271,13 @@ class GPTSeleniumAgent:
 
 
 def main():
-    # Get environment variable.
     openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-#     instructions = """Go to https://www.google.com/ .
-# Type in "Bob Ross" and press ENTER.
-# Scroll down once.
-# Click the first search result.
-# Wait for 5 seconds."""
+    # Load the instructions from `prompts/examples/nytimes_click_login.txt`.
+    with open("prompts/examples/nytimes_click_login.txt", "r") as f:
+        instructions = f.read()
 
-    instructions = """Go to https://www.nytimes.com/.
-Find all the buttons and links on a page, and click on the first one that says "Log in" or similar."""
-
+    # Instantiate and run.
     env = GPTSeleniumAgent(instructions, "./chromedriver")
     env.run()
 

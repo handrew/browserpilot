@@ -12,8 +12,6 @@ NO_RESPONSE_TOKEN = "<NONE>"  # To denote that empty response from model.
 RUN_PROMPT_TOKEN = "<RUN_PROMPT>"  # To denote command to run subroutine.
 
 # Suffixes to add to the base prompt.
-CURRENT_INSTRUCTION_SUFFIX = "\n\nCURRENT INSTRUCTION: "
-OUTPUT_SUFFIX = "\n\nOUTPUT: "
 STACK_TRACE_SUFFIX = "\n\nSTACK TRACE: "
 RETRY_SUFFIX = "\n\nAttempting again.\n\nOUTPUT: "
 
@@ -46,7 +44,10 @@ Your code must obey the following constraints:
 4. Only write code.
 5. Only do what I instructed you to do.
 
-"""
+INSTRUCTIONS:
+{instructions}
+
+OUTPUT: ```python"""
 
 PROMPT_TO_FIND_ELEMENT = """Given the HTML under the heading "== HTML ==", write one line of Selenium code that uses `env.driver.find_element` to precisely locate the element which is best described by the following description: {description}.
 
@@ -79,20 +80,77 @@ class InstructionCompiler:
         self.base_prompt = BASE_PROMPT
         self.prompt_to_find_element = PROMPT_TO_FIND_ELEMENT
         self.verbose = verbose
-        self.instructions = instructions.split("\n")
+        self.instructions = instructions
 
         # Keep track of the instructions that we have left and the ones that
         # we have completed.
-        self.instruction_queue = self.instructions.copy()
+        self.functions = {}
+        self.instructions_queue = self._parse_instructions_into_queue(instructions)
         self.finished_instructions = []
         self.history = []  # Keep track of the history of actions.
 
+    def _parse_instructions_into_queue(self, instructions):
+        """Parse the instructions into a list of instructions."""
+        first_pass_queue = instructions.split("\n")
+        second_pass_queue = []
+        final_queue = []
+
+        # First, parse all the functions, which are denoted by a line that
+        # starts with "BEGIN_FUNCTION name" and ends with "# END_FUNCTION".
+        # Load them into self.functions, the dict of function name to function
+        # body.
+        # Start with a first pass over the queue to find all the functions.
+        # For anything that is not a function, just add it to the second pass
+        # queue.
+        while first_pass_queue:
+            line = first_pass_queue.pop(0)
+            if line.startswith("BEGIN_FUNCTION"):
+                function_name = line.split(" ")[-1]
+                function_body = ""
+                while first_pass_queue:
+                    line = first_pass_queue.pop(0)
+                    if line.startswith("END_FUNCTION"):
+                        break
+                    function_body += line + "\n"
+                self.functions[function_name] = function_body
+            else:
+                second_pass_queue.append(line)
+        # Then parse the rest of the instructions. Every contiguous set of
+        # lines that do not start with "RUN FUNCTION" should be collated
+        # into a single block. For any line that starts with
+        # "RUN FUNCTION name", then replace it with the respective function
+        # body from the dict.
+        while second_pass_queue:
+            line = second_pass_queue.pop(0)
+            if not line:
+                continue
+
+            if line.startswith("RUN_FUNCTION"):
+                function_name = line.split(" ")[-1]
+                function_body = self.functions[function_name]
+                final_queue.append(function_body)
+            else:
+                # Otherwise, just add all contiguous lines that do not start with
+                # "# RUN FUNCTION".
+                instruction_block = line
+                while second_pass_queue:
+                    line = second_pass_queue.pop(0)
+                    if line.startswith("RUN_FUNCTION"):
+                        # Add it back to the queue.
+                        second_pass_queue.insert(0, line)
+                        break
+                    instruction_block += line
+                final_queue.append(instruction_block)
+
+        return final_queue
+
     def get_completion(self, prompt, temperature=0, model="text-davinci-003"):
+        """Wrapper over OpenAI's completion API."""
         try:
             response = openai.Completion.create(
                 model=model,
                 prompt=prompt,
-                max_tokens=1024,
+                max_tokens=512,
                 top_p=1,
                 frequency_penalty=0,
                 presence_penalty=0,
@@ -106,13 +164,12 @@ class InstructionCompiler:
             text = self.get_completion(prompt, temperature, model)
         return text
 
-    def get_action_output(self, instruction):
-        prompt = self.base_prompt + CURRENT_INSTRUCTION_SUFFIX + instruction.strip()
-        prompt = prompt + OUTPUT_SUFFIX
+    def get_action_output(self, instructions):
+        prompt = self.base_prompt.format(instructions=instructions)
         completion = self.get_completion(prompt).strip()
         action_output = completion.split("\n\n")[0].strip()
         return {
-            "instruction": instruction,
+            "instruction": instructions,
             "action_output": action_output,
         }
 
@@ -120,29 +177,27 @@ class InstructionCompiler:
         """Run the compiler."""
         # For each instruction, give the base prompt the current instruction.
         # Then, get the completion for that instruction.
-        instruction = self.instruction_queue.pop(0)
-        if instruction.strip():
-            instruction = instruction.strip()
-            action_info = self.get_action_output(instruction)
+        instructions = self.instructions_queue.pop(0)
+        if instructions.strip():
+            instructions = instructions.strip()
+            action_info = self.get_action_output(instructions)
             self.history.append(action_info)
 
             # Optimistically count the instruction as finished.
-            self.finished_instructions.append(instruction)
+            self.finished_instructions.append(instructions)
             return action_info
 
     def retry(self, stack_trace_str):
         """Revert the compiler to the previous state and run the instruction again."""
         # Pop off the last instruction and add it back to the queue.
-        last_instruction = self.finished_instructions.pop()
+        last_instructions = self.finished_instructions.pop()
 
         # Get the last action to append to the prompt.
         last_action = self.history.pop()
 
         # Append the failure suffixes to the prompt.
-        prompt = (
-            self.base_prompt + CURRENT_INSTRUCTION_SUFFIX + last_instruction.strip()
-        )
-        prompt = prompt + OUTPUT_SUFFIX + last_action["action_output"]
+        prompt = self.base_prompt.format(instructions=last_instructions)
+        prompt = prompt + last_action["action_output"]
         prompt = prompt + STACK_TRACE_SUFFIX + " " + stack_trace_str
         prompt = prompt + RETRY_SUFFIX
 
@@ -151,19 +206,21 @@ class InstructionCompiler:
         self.history.append(action_info)
 
         # Optimistically count the instruction as finished.
-        self.finished_instructions.append(last_instruction)
+        self.finished_instructions.append(last_instructions)
         return action_info
 
 
 if __name__ == "__main__":
-    # Instantiate.
-    instructions = """Go to https://www.google.com/
-Type in "Bob Ross" and press ENTER
-Click the first result"""
+    import pprint
+    pp = pprint.PrettyPrinter(indent=4)
+    
+    with open("prompts/examples/buffalo_wikipedia.txt", "r") as f:
+        instructions = f.read()
 
-    # Instantiate InstructionCompiler with keyword arguments.
     compiler = InstructionCompiler(instructions=instructions)
+    for item in compiler.instructions_queue:
+        print(item)
 
-    while compiler.instruction_queue:
+    while compiler.instructions_queue:
         action_info = compiler.step()
-        print(action_info)
+        pp.pprint(action_info)

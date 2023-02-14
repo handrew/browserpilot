@@ -1,0 +1,8 @@
+BEGIN_FUNCTION search_buffalo
+Go to Google.com
+Click the text box, type in "buffalo buffalo buffalo buffalo buffalo"
+Find a list of all of the search results and click on the first result.
+END_FUNCTION
+
+RUN_FUNCTION search_buffalo
+Wait for 10 seconds.
