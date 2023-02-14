@@ -1,0 +1,5 @@
+openai
+selenium
+tqdm
+beautifulsoup4
+lxml
