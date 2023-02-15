@@ -1,4 +1,4 @@
-# 🐿️ AI Browser
+# 🛫 BrowserPilot
 
 An intelligent web browsing agent controlled by natural language.
 
