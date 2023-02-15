@@ -30,6 +30,7 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 1. `pip install -r requirements.txt`
 2. Download Chromedriver (latest stable release) from [here](https://sites.google.com/chromium.org/driver/) and place it in the same folder as this file. Unzip.
 3. In Finder, right click the unpacked chromedriver and click "Open". This will remove the restrictive default permissions and allow Python to access it.
+4. Create an environment variable in your favorite manner setting OPENAI_API_KEY to your API key.
 
 
 ## 🦭 Usage
