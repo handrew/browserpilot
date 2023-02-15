@@ -329,8 +329,7 @@ class GPTSeleniumAgent:
 def main():
     openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-    # Load the instructions from `prompts/examples/nytimes_click_login.txt`.
-    with open("output.yaml", "r") as instructions:
+    with open("prompts/examples/buffalo_wikipedia.yaml", "r") as instructions:
         # Instantiate and run.
         env = GPTSeleniumAgent(
             instructions, "./chromedriver", debug=True

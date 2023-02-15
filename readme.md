@@ -1,12 +1,15 @@
 # 🐿️ LLM-Based Web Browsing Agent
 
-Create a web browsing agent with natural language.
+![demo](assets/demo_buffalo.gif)
 
-Language is the most natural interface by which humans give and receive instructions. Creating and adding agents should be as simple as defining sequences of instructions in plain text, and then chaining together those subroutines. 
+An intelligent web browsing agent controlled by natural language.
+
+Language is the most natural interface by which humans give and receive instructions. Instead of writing bespoke automation or scraping code which is brittle to changes in a website, creating and adding agents should be as simple as defining sequences of instructions in plain English, and then chaining together those subroutines. 
+
 
 ## ⛩️ Motivation and Architecture
 
-This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/ActGPT), [Adept.ai](https://adept.ai/), and [Nat Friedman](https://github.com/nat/natbot). In particular, the basic abstractions were built off of Yihui's hackathon code. Adept and Nat Friedman, of course, broke ground with their demos.
+This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/ActGPT), [Adept.ai](https://adept.ai/), and [Nat Friedman](https://github.com/nat/natbot). In particular, the basic abstractions were built off of Yihui's hackathon code; TODO. The idea to preprocess HTML and use GPT-3 to 
 
 TODO describe the prompts, the abstractions, and the relationship between text prompts and the agent capabilities.
 
@@ -20,7 +23,7 @@ TODO describe the prompts, the abstractions, and the relationship between text p
 
 ## 🦭 Usage
 ### 🗺️ API
-The form factor is fairly simple (see below). The harder (but funner) part is writing the natural language prompts.
+The form factor is fairly simple (see below).
 
 ```python
 from agents.gpt_selenium_agent import GPTSeleniumAgent
@@ -39,9 +42,11 @@ agent = GPTSeleniumAgent(instructions, "/path/to/chromedriver")
 agent.run()
 ```
 
+The harder (but funner) part is writing the natural language prompts.
+
 ### 📑 Writing Prompts
 
-It helps if you are familiar with how Selenium works and programming in general, because effectively I am using GPT-3 to translate natural language into code, so you should be as precise as you can. In this way, it is more like writing code with Copilot than it is talking to a friend; for instance, it helps to refer to things as text boxes (vs. "search box") or buttons which say "Log in" rather than "the login button". Sometimes, it will also not pick up on specific words that are important, so it helps to break them out into separate lines. Instead of "find all the visible text boxes", you do "find all the text boxes" and then "find the first visible text box".
+It helps if you are familiar with how Selenium works and programming in general, because, effectively, this project uses GPT-3 to translate natural language into code, so you should be as precise as you can. In this way, it is more like writing code with Copilot than it is talking to a friend; for instance, it helps to refer to things as text boxes (vs. "search box") or buttons which say "Log in" rather than "the login button". Sometimes, it will also not pick up on specific words that are important, so it helps to break them out into separate lines. Instead of "find all the visible text boxes", you do "find all the text boxes" and then "find the first visible text box".
 
 You can look at some examples in `prompts/examples` to get started.
 
@@ -71,8 +76,7 @@ There are two ways I envision folks contributing.
 
 ## 🚧 TODOs and Future Work
 In order of easiest to hardest.
-- [ ] Finish the README.
-- [ ] Make gif.
+- [ ] Finish the README and write documentation.
 - [x] GPTSeleniumAgent should be able to load prompts and cached successful runs in the form of yaml files. InstructionCompiler should be able to save instructions to yaml.
 - [ ] Demo/test something where it has to ask the LLM to synthesize something it reads online.
 - [ ] 💭 Give the agent a memory which it can use to store information for read/write purposes.
