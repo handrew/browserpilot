@@ -32,9 +32,9 @@ WebElement has functions:
 3. `element.find_elements(by='id', value=None)` it's the same as `env.driver.find_elements()` except that it only searches the children of the element.
 4. `element.is_displayed()` returns if the element is visible.
 
-The xpath of a textbox is usually "//div[@role = 'textarea']|//div[@role = 'textbox']|//input".
+The xpath of a text box is usually "//div[@role = 'textarea']|//div[@role = 'textbox']|//input".
 The xpath of text is usually "//*[string-length(text()) > 0]".
-The xpath for a button is usually "//div[@role = 'button']|//button".
+The xpath for a button usually "//div[@role = 'button']|//button", but it may sometimes also be styled as an anchor.
 The xpath for an element whose text is "text" is "//*[text() = 'text']".
 
 Your code must obey the following constraints:

@@ -20,10 +20,12 @@ from compilers.instruction_compiler import InstructionCompiler
 
 class GPTSeleniumAgent:
     def __init__(
-        self, instructions, chromedriver_path, user_data_dir="user_data", headless=False
+        self, instructions, chromedriver_path, user_data_dir="user_data", headless=False, debug=False
     ):
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument(f"user-data-dir={user_data_dir}")
+        self.debug = debug
+        self.headless = headless
         if headless:
             chrome_options.add_argument("--headless")
 
@@ -66,8 +68,13 @@ class GPTSeleniumAgent:
                     exec(action, globals(), ldict)
                     break
                 except:
-                    print("Failed to execute action. Retrying.")
                     stack_trace = "\n".join(traceback.format_exc().split("\n")[3:])
+                    print(stack_trace)
+                    print("Failed to execute action. Stack trace above. Retrying.")
+
+                    if self.debug:
+                        pdb.set_trace()
+
                     step = self.instruction_compiler.retry(stack_trace)
                     instruction = step["instruction"]
                     action = step["action_output"]
@@ -76,7 +83,7 @@ class GPTSeleniumAgent:
                         "Instruction: {instruction}\nAction: {action}\n".format(
                             instruction=instruction, action=action
                         )
-                    )
+                )
 
     """Functions exposed to the agent via the text prompt."""
 
@@ -278,7 +285,7 @@ def main():
         instructions = f.read()
 
     # Instantiate and run.
-    env = GPTSeleniumAgent(instructions, "./chromedriver")
+    env = GPTSeleniumAgent(instructions, "./chromedriver", debug=True)
     env.run()
 
 

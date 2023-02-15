@@ -35,15 +35,22 @@ agent.run()
 
 ### Writing Prompts
 
-It helps if you are familiar with how Selenium works and programming in general, because effectively I am using GPT-3 to translate natural language into code, so you should be as precise as you can. You can look at some examples TODO to get started.
+It helps if you are familiar with how Selenium works and programming in general, because effectively I am using GPT-3 to translate natural language into code, so you should be as precise as you can. In this way, it is more like writing code with Copilot than it is talking to a friend; for instance, it helps to refer to things as text boxes (vs. "search box") or buttons which say "Log in" rather than "the login button". Sometimes, it will also not pick up on specific words that are important, so it helps to break them out into separate lines. Instead of "find all the visible text boxes", you do "find all the text boxes" and then "find the first visible text box".
+
+You can look at some examples TODO to get started.
 
 Create "functions" by enclosing instructions in ```BEGIN_FUNCTION func_name``` and ```END_FUNCTION```, and then call them by starting a line with ```RUN_FUNCTION```. Below is an example:
 
 ```
 BEGIN_FUNCTION search_buffalo
 Go to Google.com
-Click the text box, type in "buffalo buffalo buffalo buffalo buffalo"
-Find a list of all of the search results and click on the first result.
+Find all text boxes.
+Find the first visible text box.
+Click on the first visible text box.
+Type in "buffalo buffalo buffalo buffalo buffalo" and press enter.
+Wait 2 seconds.
+Get all anchors on the page that contain the word "buffalo".
+Click on the first link.
 END_FUNCTION
 
 RUN_FUNCTION search_buffalo
@@ -53,3 +60,12 @@ Wait for 10 seconds.
 ## Contributing
 
 Read "Writing Prompts" above and simply make a pull request to add something to `prompts/`!
+
+## TODO
+
+- [ ] Finish the README
+- [ ] Add logging capabilities which can describe a historical run
+- [ ] Add a loading feature which can take in prompts and cached successful runs. Maybe just structure it as a JSON. 
+- [ ] 🚨 If anyone can figure out how to feed the content of the HTML page into the GPT-3 context window and have it reliably pick out from it, that would be great!
+- [ ] Get the specific point in the stack trace that something failed, and start executing from there
+- [ ] Better stack trace virtualization to make it easier to debug
