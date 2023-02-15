@@ -31,7 +31,7 @@ class GPTSeleniumAgent:
         """Initialize the agent."""
         # Helpful instance variables.
         assert (
-            instruction_output_file.endswith(".yaml") or instruction_output_file is None
+            instruction_output_file is None or instruction_output_file.endswith(".yaml")
         ), "Instruction output file must be a YAML file or None."
         self.instruction_output_file = instruction_output_file
         self.debug = debug
@@ -56,9 +56,10 @@ class GPTSeleniumAgent:
 
     def __run_compiled_instructions(self):
         """Runs the Python code previously compiled by InstructionCompiler."""
+        print("Found cached instructions. Running...")
         ldict = {"env": self}
         instructions = self.instruction_compiler.compiled_instructions
-        instructions = "\n".join(instructions)
+        instructions = "\n".join(instructions).replace("```", "")
         self._check_danger(instructions)
         exec(instructions, globals(), ldict)
 
@@ -66,6 +67,7 @@ class GPTSeleniumAgent:
         """In contrast to `__run_compiled_instructions`, this function will
         step through the instructions one at a time, calling the LLM for each
         instruction."""
+        print("No cached instructions found. Running...")
         ldict = {"env": self}
         while self.instruction_compiler.instructions_queue:
             # `step` will try the instruction for the first time.
@@ -328,10 +330,10 @@ def main():
     openai.api_key = os.environ.get("OPENAI_API_KEY")
 
     # Load the instructions from `prompts/examples/nytimes_click_login.txt`.
-    with open("prompts/examples/buffalo_wikipedia.yaml", "r") as instructions:
+    with open("output.yaml", "r") as instructions:
         # Instantiate and run.
         env = GPTSeleniumAgent(
-            instructions, "./chromedriver", debug=True, instruction_output_file="output.yaml"
+            instructions, "./chromedriver", debug=True
         )
         env.run()
 
