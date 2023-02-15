@@ -4,8 +4,7 @@ An intelligent web browsing agent controlled by natural language.
 
 ![demo](assets/demo_buffalo.gif)
 
-Language is the most natural interface by which humans give and receive instructions. Instead of writing bespoke automation or scraping code which is brittle to changes in a website, creating and adding agents should be as simple as defining sequences of instructions in plain English, and then chaining together those subroutines. 
-
+Language is the most natural interface through which humans give and receive instructions. Instead of writing bespoke automation or scraping code which is brittle to changes, creating and adding agents should be as simple as writing plain English.
 
 ## ⛩️ Architecture and Prompt Patterns
 
