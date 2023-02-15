@@ -1,0 +1,7 @@
+instructions:
+- "Go to nytimes.com"
+- "Wait for 2 seconds."
+- "Find all of the anchors that go to a link that starts with https://www.nytimes.com"
+- "Get the text of each of these anchors and join them into a comma-delimited string. Store this string in a called `text`"
+- "Create a `prompt` string which starts with 'Given the below headlines separated by commas, find all of the headlines about politics: ' and append the `text`"
+- "Ask the AI about `prompt` and print the results" 

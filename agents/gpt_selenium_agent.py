@@ -76,7 +76,7 @@ class GPTSeleniumAgent:
             instruction = step["instruction"]
             action = step["action_output"]
             print(
-                "Instruction: {instruction}\nAction: {action}\n".format(
+                "Instruction: {instruction}\n\nAction: {action}\n".format(
                     instruction=instruction, action=action
                 )
             )
@@ -329,7 +329,7 @@ class GPTSeleniumAgent:
 def main():
     openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-    with open("prompts/examples/buffalo_wikipedia.yaml", "r") as instructions:
+    with open("prompts/examples/nytimes_headline_list.yaml", "r") as instructions:
         # Instantiate and run.
         env = GPTSeleniumAgent(
             instructions, "./chromedriver", debug=True

@@ -167,14 +167,14 @@ class InstructionCompiler:
             else:
                 # Otherwise, just add all contiguous lines that do not start with
                 # "# RUN FUNCTION".
-                instruction_block = line
+                instruction_block = line + "\n"
                 while second_pass_queue:
                     line = second_pass_queue.pop(0)
                     if line.startswith("RUN_FUNCTION"):
                         # Add it back to the queue.
                         second_pass_queue.insert(0, line)
                         break
-                    instruction_block += line
+                    instruction_block += line + "\n"
                 final_queue.append(instruction_block)
 
         return final_queue
@@ -189,7 +189,7 @@ class InstructionCompiler:
                 top_p=1,
                 frequency_penalty=0,
                 presence_penalty=0,
-                best_of=3,
+                best_of=1,
                 temperature=temperature,
             )
             text = response["choices"][0]["text"]
@@ -203,7 +203,7 @@ class InstructionCompiler:
         """Get the action output for the given instructions."""
         prompt = self.base_prompt.format(instructions=instructions)
         completion = self.get_completion(prompt).strip()
-        action_output = completion.split("\n\n")[0].strip()
+        action_output = completion.strip()
         return {
             "instruction": instructions,
             "action_output": action_output,
