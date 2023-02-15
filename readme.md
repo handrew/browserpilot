@@ -59,7 +59,7 @@ The harder (but funner) part is writing the natural language prompts.
 
 ### 📑 Writing Prompts
 
-It helps if you are familiar with how Selenium works and programming in general, because, effectively, this project uses GPT-3 to translate natural language into code, so you should be as precise as you can. In this way, it is more like writing code with Copilot than it is talking to a friend; for instance, it helps to refer to things as text boxes (vs. "search box") or buttons which say "Log in" rather than "the login button". Sometimes, it will also not pick up on specific words that are important, so it helps to break them out into separate lines. Instead of "find all the visible text boxes", you do "find all the text boxes" and then "find the first visible text box".
+It helps if you are familiar with how Selenium works and programming in general. This is because this project uses GPT-3 to translate natural language into code, so you should be as precise as you can. In this way, it is more like writing code with Copilot than it is talking to a friend; for instance, it helps to refer to things as text boxes (vs. "search box") or "button which says 'Log in'" rather than "the login button". Sometimes, it will also not pick up on specific words that are important, so it helps to break them out into separate lines. Instead of "find all the visible text boxes", you do "find all the text boxes" and then "find the first visible text box".
 
 You can look at some examples in `prompts/examples` to get started.
 
@@ -85,13 +85,12 @@ Wait for 10 seconds.
 There are two ways I envision folks contributing.
 
 - **Adding to the Prompt Library**: Read "Writing Prompts" above and simply make a pull request to add something to `prompts/`! At some point, I will figure out a protocol for folder naming conventions and the evaluation of submitted code (for security, accuracy, etc). This would be a particularly attractive option for those who aren't as familiar with coding.
-- **Contributing code**: I am happy to take suggestions! The main way to add to the repository is to extend the capabilities of the agent. The best way to do this is to familiarize yourself with "Architecture and Prompt Patterns" above, and to (a) expand the list of capabilities in the base prompt in `InstructionCompiler` and (b) write the corresponding method in `GPTSeleniumAgent`. 
+- **Contributing code**: I am happy to take suggestions! The main way to add to the repository is to extend the capabilities of the agent, or to create new agents entirely. The best way to do this is to familiarize yourself with "Architecture and Prompt Patterns" above, and to (a) expand the list of capabilities in the base prompt in `InstructionCompiler` and (b) write the corresponding method in `GPTSeleniumAgent`. 
 
 ## 🚧 TODOs and Future Work
 In order of easiest to hardest.
 - [x] GPTSeleniumAgent should be able to load prompts and cached successful runs in the form of yaml files. InstructionCompiler should be able to save instructions to yaml.
-- [ ] Demo/test something where it has to ask the LLM to synthesize something it reads online.
-- [ ] 💪🏻 Enable the agent to save files as JSON or CSV.
+- [x] Demo/test something where it has to ask the LLM to synthesize something it reads online.
 - [ ] 💭 Give the agent a memory which it can use to store information for read/write purposes.
 - [ ] 🎯 Get the specific point in the stack trace that something failed, and start executing from there.
 - [ ] 🥞 Better stack trace virtualization to make it easier to debug.
