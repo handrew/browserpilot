@@ -3,4 +3,4 @@ selenium
 tqdm
 beautifulsoup4
 lxml
-yaml
+pyyaml
