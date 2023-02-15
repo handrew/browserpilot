@@ -13,12 +13,12 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 - The prompts used can be found in [instruction compiler](agents/compilers/instruction_compiler.py). The base prompt describes in plain English a set of actions that the browsing agent can take, some general conventions on how to write code, and some constraints on its behavior. **These actions correspond one-for-one with methods in `GPTSeleniumAgent`**. Those actions, to-date, include:
     - `env.driver.find_elements(by='id', value=None)` which finds and returns list of WebElement.
     - `env.find_nearest(e, xpath)` can only be used to locate an element that matches the xpath near element e. 
-    - `env.send_keys(text)` is only used to type in string `text`. string ENTER is Keys.ENTER
+    - `env.send_keys(text)` is only used to type in string `text`. 
     - `env.get(url)` goes to url.
     - `env.get_llm_response(text)` that asks AI about a string `text`.
     - `env.click(element)` clicks the element.
     - `env.wait(seconds)` waits for `seconds` seconds.
-    - `env.scroll(direction)` scrolls the page. `direction` is either "up" or "down".
+    - `env.scroll(direction)` scrolls the page.
     - 🚧 (in development) `env.ask_llm_to_find_element` asks GPT-3 to find specific elements in preprocessed HTML.
 - The rest of the code is basically middleware which exposes a Selenium object to GPT-3. **For each action mentioned in the base prompt, there is a corresponding method in GPTSeleniumAgent.**
     - An `InstructionCompiler` is used to parse user input into semantically cogent blocks of actions.

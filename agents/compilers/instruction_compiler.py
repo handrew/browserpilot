@@ -193,9 +193,9 @@ class InstructionCompiler:
                 temperature=temperature,
             )
             text = response["choices"][0]["text"]
-        except openai.error.RateLimitError:
-            print("Rate limit error. Sleeping for 10 seconds.")
-            time.sleep(10)
+        except openai.error.RateLimitError as exc:
+            print("Rate limit error: {exc}. Sleeping for a few seconds.".format(exc=str(exc)))
+            time.sleep(5)
             text = self.get_completion(prompt, temperature, model)
         return text
 
