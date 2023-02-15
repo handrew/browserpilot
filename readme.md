@@ -80,6 +80,10 @@ RUN_FUNCTION search_buffalo
 Wait for 10 seconds.
 ```
 
+You may also choose to create a yaml file with a list of instructions. In general, it needs to have an `instructions` field, and optionally a `compiled` field which has the processed code. See [buffalo wikipedia example](prompts/examples/buffalo_wikipedia.yaml). 
+
+You may pass a `instruction_output_file` to the constructor of GPTSeleniumAgent which will output a yaml file with the compiled instructions from GPT-3, to avoid having to pay API costs. 
+
 ## ✋🏼 Contributing
 There are two ways I envision folks contributing.
 
