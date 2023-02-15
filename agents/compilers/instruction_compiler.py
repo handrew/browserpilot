@@ -7,7 +7,7 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 
 """Set up all the prompt variables."""
 
-# Designated tokens. 
+# Designated tokens.
 NO_RESPONSE_TOKEN = "<NONE>"  # To denote that empty response from model.
 RUN_PROMPT_TOKEN = "<RUN_PROMPT>"  # To denote command to run subroutine.
 
@@ -49,7 +49,8 @@ INSTRUCTIONS:
 
 OUTPUT: ```python"""
 
-PROMPT_TO_FIND_ELEMENT = """Given the HTML under the heading "== HTML ==", write one line of Selenium code that uses `env.driver.find_element` to precisely locate the element which is best described by the following description: {description}.
+PROMPT_TO_FIND_ELEMENT = (
+    """Given the HTML under the heading "== HTML ==", write one line of Selenium code that uses `env.driver.find_element` to precisely locate the element which is best described by the following description: {description}.
 
 If there are no appropriate HTML elements found, please return "%s".
 
@@ -57,7 +58,9 @@ If there are no appropriate HTML elements found, please return "%s".
 {cleaned_html}
 
 == OUTPUT ==
-""" % NO_RESPONSE_TOKEN
+"""
+    % NO_RESPONSE_TOKEN
+)
 
 
 class InstructionCompiler:
@@ -212,8 +215,9 @@ class InstructionCompiler:
 
 if __name__ == "__main__":
     import pprint
+
     pp = pprint.PrettyPrinter(indent=4)
-    
+
     with open("prompts/examples/buffalo_wikipedia.txt", "r") as f:
         instructions = f.read()
 

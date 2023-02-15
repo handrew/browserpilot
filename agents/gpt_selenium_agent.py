@@ -20,7 +20,12 @@ from compilers.instruction_compiler import InstructionCompiler
 
 class GPTSeleniumAgent:
     def __init__(
-        self, instructions, chromedriver_path, user_data_dir="user_data", headless=False, debug=False
+        self,
+        instructions,
+        chromedriver_path,
+        user_data_dir="user_data",
+        headless=False,
+        debug=False,
     ):
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument(f"user-data-dir={user_data_dir}")
@@ -43,7 +48,7 @@ class GPTSeleniumAgent:
         while self.instruction_compiler.instructions_queue:
             # `step` will try the instruction for the first time.
             step = self.instruction_compiler.step()
-            
+
             instruction = step["instruction"]
             action = step["action_output"]
             print(
@@ -83,7 +88,7 @@ class GPTSeleniumAgent:
                         "Instruction: {instruction}\nAction: {action}\n".format(
                             instruction=instruction, action=action
                         )
-                )
+                    )
 
     """Functions exposed to the agent via the text prompt."""
 
@@ -168,7 +173,9 @@ class GPTSeleniumAgent:
 
     def ask_llm_to_find_element(self, element_description):
         """Clean the HTML from self.driver, chunk it up, and send it to OpenAI."""
-        raise NotImplementedError("This function is implemented, but I would not yet recommend using it.")
+        raise NotImplementedError(
+            "This function is implemented, but I would not yet recommend using it."
+        )
         # Clean the HTML.
         soup = self._clean_html()
         html_chunks = self._chunk_html(soup)
