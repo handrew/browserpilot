@@ -90,6 +90,7 @@ There are two ways I envision folks contributing.
 In order of easiest to hardest.
 - [x] GPTSeleniumAgent should be able to load prompts and cached successful runs in the form of yaml files. InstructionCompiler should be able to save instructions to yaml.
 - [ ] Demo/test something where it has to ask the LLM to synthesize something it reads online.
+- [ ] 💪🏻 Enable the agent to save files as JSON or CSV.
 - [ ] 💭 Give the agent a memory which it can use to store information for read/write purposes.
 - [ ] 🎯 Get the specific point in the stack trace that something failed, and start executing from there.
 - [ ] 🥞 Better stack trace virtualization to make it easier to debug.
