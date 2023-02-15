@@ -1,4 +1,4 @@
-# 🐿️ LLM-Based Web Browsing Agent
+# 🐿️ AI Browser
 
 ![demo](assets/demo_buffalo.gif)
 
