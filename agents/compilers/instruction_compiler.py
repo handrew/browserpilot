@@ -1,6 +1,9 @@
 import os
 import time
 import openai
+import yaml
+import io
+
 
 """Set the OpenAI API key."""
 openai.api_key = os.environ["OPENAI_API_KEY"]
@@ -64,7 +67,7 @@ If there are no appropriate HTML elements found, please return "%s".
 
 
 class InstructionCompiler:
-    def __init__(self, instructions=None, base_prompt=BASE_PROMPT, verbose=False):
+    def __init__(self, instructions=None, base_prompt=BASE_PROMPT, use_compiled=True):
         """Initialize the compiler. The compiler handles the sequencing of
         each set of newline-delimited instructions which are injected into
         the base prompt.
@@ -76,14 +79,43 @@ class InstructionCompiler:
         model to get the output for that action.
 
         It returns a dict containing the instruction, action, and action output.
+
+        Args:
+            instructions (str): The newline-delimited instructions to compile.
+            base_prompt (str): The base prompt to use. Defaults to BASE_PROMPT.
+            use_compiled (bool): Whether to use the compiled instructions, if
+                any.
         """
-        # Assert that none of the parameters are None.
+        # Assert that none of the parameters are None and that the
+        # instructions are either of type string or file buffer.
         assert instructions is not None
         assert base_prompt is not None
+        assert isinstance(instructions, str) or isinstance(
+            instructions, io.TextIOWrapper
+        )
+
+        # Instance variables.
         self.base_prompt = BASE_PROMPT
         self.prompt_to_find_element = PROMPT_TO_FIND_ELEMENT
-        self.verbose = verbose
+        self.use_compiled = use_compiled
         self.instructions = instructions
+
+        # If the instructions are a file buffer, then read it as a yaml.
+        self.compiled_instructions = []
+        if isinstance(instructions, io.TextIOWrapper):
+            try:
+                instructions_dict = yaml.safe_load(instructions)
+            except yaml.YAMLError as exc:
+                raise Exception("Error parsing: %s" % instructions)
+            # Assert that the dict has the key "instructions".
+            assert "instructions" in instructions_dict, "No instructions found."
+            # Join the instructions into a string by newline.
+            instructions = "\n".join(instructions_dict["instructions"])
+
+            # If the dict has the key "compiled", then load the compiled
+            # instructions.
+            if "compiled" in instructions_dict:
+                self.compiled_instructions = instructions_dict["compiled"]
 
         # Keep track of the instructions that we have left and the ones that
         # we have completed.
@@ -168,6 +200,7 @@ class InstructionCompiler:
         return text
 
     def get_action_output(self, instructions):
+        """Get the action output for the given instructions."""
         prompt = self.base_prompt.format(instructions=instructions)
         completion = self.get_completion(prompt).strip()
         action_output = completion.split("\n\n")[0].strip()
@@ -211,6 +244,20 @@ class InstructionCompiler:
         # Optimistically count the instruction as finished.
         self.finished_instructions.append(last_instructions)
         return action_info
+
+    def save_compiled_instructions(self, filename):
+        """Save the compiled instructions to a file."""
+        assert filename.endswith(".yaml"), "Filename must end with .yaml."
+        instructions = [item["instruction"] for item in self.history]
+        compiled_instructions = [item["action_output"] for item in self.history]
+        with open(filename, "w") as f:
+            yaml.dump(
+                {
+                    "instructions": instructions,
+                    "compiled": compiled_instructions,
+                },
+                f,
+            )
 
 
 if __name__ == "__main__":

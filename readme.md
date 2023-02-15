@@ -25,8 +25,13 @@ The form factor is fairly simple (see below). The harder (but funner) part is wr
 from agents.gpt_selenium_agent import GPTSeleniumAgent
 
 instructions = """Go to Google.com
-Click the text box, type in "buffalo buffalo buffalo buffalo buffalo"
-Find a list of all of the search results and click on the first result.
+Find all text boxes.
+Find the first visible text box.
+Click on the first visible text box.
+Type in "buffalo buffalo buffalo buffalo buffalo" and press enter.
+Wait 2 seconds.
+Find all anchor elements that link to Wikipedia.
+Click on the first one.
 Wait for 10 seconds."""
 
 agent = GPTSeleniumAgent(instructions, "/path/to/chromedriver")
@@ -62,10 +67,12 @@ Wait for 10 seconds.
 Read "Writing Prompts" above and simply make a pull request to add something to `prompts/`!
 
 ## TODO
-
+In order of easiest to hardest.
 - [ ] Finish the README
-- [ ] Add logging capabilities which can describe a historical run
-- [ ] Add a loading feature which can take in prompts and cached successful runs. Maybe just structure it as a JSON. 
-- [ ] 🚨 If anyone can figure out how to feed the content of the HTML page into the GPT-3 context window and have it reliably pick out from it, that would be great!
+- [ ] Make gif
+- [x] Add a loading feature which can take in prompts and cached successful runs.
+    - [x] Make `use_compiled` actually work
+    - [x] Add collation and output for InstructionCompiler to yaml
 - [ ] Get the specific point in the stack trace that something failed, and start executing from there
 - [ ] Better stack trace virtualization to make it easier to debug
+- [ ] 🚨 If anyone can figure out how to feed the content of the HTML page into the GPT-3 context window and have it reliably pick out from it, that would be great!

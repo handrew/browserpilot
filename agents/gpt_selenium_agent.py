@@ -26,10 +26,19 @@ class GPTSeleniumAgent:
         user_data_dir="user_data",
         headless=False,
         debug=False,
+        instruction_output_file=None,
     ):
+        """Initialize the agent."""
+        # Helpful instance variables.
+        assert (
+            instruction_output_file.endswith(".yaml") or instruction_output_file is None
+        ), "Instruction output file must be a YAML file or None."
+        self.instruction_output_file = instruction_output_file
+        self.debug = debug
+
+        # Set up the driver.
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument(f"user-data-dir={user_data_dir}")
-        self.debug = debug
         self.headless = headless
         if headless:
             chrome_options.add_argument("--headless")
@@ -38,13 +47,26 @@ class GPTSeleniumAgent:
         service = Service(chromedriver_path)
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
 
+        # Fire up the compiler.
         self.instruction_compiler = InstructionCompiler(
-            instructions=instructions, verbose=True
+            instructions=instructions
         )
 
     """Functions meant for the client to call."""
 
-    def run(self):
+    def __run_compiled_instructions(self):
+        """Runs the Python code previously compiled by InstructionCompiler."""
+        ldict = {"env": self}
+        instructions = self.instruction_compiler.compiled_instructions
+        instructions = "\n".join(instructions)
+        self._check_danger(instructions)
+        exec(instructions, globals(), ldict)
+
+    def __step_through_instructions(self):
+        """In contrast to `__run_compiled_instructions`, this function will
+        step through the instructions one at a time, calling the LLM for each
+        instruction."""
+        ldict = {"env": self}
         while self.instruction_compiler.instructions_queue:
             # `step` will try the instruction for the first time.
             step = self.instruction_compiler.step()
@@ -57,13 +79,8 @@ class GPTSeleniumAgent:
                 )
             )
 
-            # Prepare for eval.
-            ldict = {"env": self}
             action = action.replace("```", "")
-            if self._is_potentially_dangerous(action):
-                print("Action is potentially dangerous. Exiting.")
-                print("Action: {action}".format(action=action))
-                sys.exit(1)
+            self._check_danger(action)
 
             # Attempt evals.
             attempts = 0
@@ -89,6 +106,20 @@ class GPTSeleniumAgent:
                             instruction=instruction, action=action
                         )
                     )
+
+        if self.instruction_output_file:
+            self.instruction_compiler.save_compiled_instructions(
+                self.instruction_output_file
+            )
+
+    def run(self):
+        """Run the agent."""
+        should_use_compiled = self.instruction_compiler.use_compiled
+        compiled = self.instruction_compiler.compiled_instructions
+        if should_use_compiled and compiled:
+            self.__run_compiled_instructions()
+        else:
+            self.__step_through_instructions()
 
     """Functions exposed to the agent via the text prompt."""
 
@@ -175,6 +206,8 @@ class GPTSeleniumAgent:
         """Clean the HTML from self.driver, chunk it up, and send it to OpenAI."""
         raise NotImplementedError(
             "This function is implemented, but I would not yet recommend using it."
+            "If for whatever reason are reading this, I'd love if you could"
+            "help build this feature out :)"
         )
         # Clean the HTML.
         soup = self._clean_html()
@@ -200,6 +233,13 @@ class GPTSeleniumAgent:
         return response
 
     """Helper functions"""
+
+    def _check_danger(self, action_str):
+        """Check that the action is not dangerous. If so, just quit."""
+        if self._is_potentially_dangerous(action_str):
+            print("Action is potentially dangerous. Exiting.")
+            print("Action: {action}".format(action=action_str))
+            sys.exit(1)
 
     def _is_potentially_dangerous(self, code_str):
         """Isaac Asimov is rolling over in his grave."""
@@ -288,12 +328,12 @@ def main():
     openai.api_key = os.environ.get("OPENAI_API_KEY")
 
     # Load the instructions from `prompts/examples/nytimes_click_login.txt`.
-    with open("prompts/examples/nytimes_click_login.txt", "r") as f:
-        instructions = f.read()
-
-    # Instantiate and run.
-    env = GPTSeleniumAgent(instructions, "./chromedriver", debug=True)
-    env.run()
+    with open("prompts/examples/buffalo_wikipedia.yaml", "r") as instructions:
+        # Instantiate and run.
+        env = GPTSeleniumAgent(
+            instructions, "./chromedriver", debug=True, instruction_output_file="output.yaml"
+        )
+        env.run()
 
 
 if __name__ == "__main__":
