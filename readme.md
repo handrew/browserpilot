@@ -6,30 +6,13 @@ An intelligent web browsing agent controlled by natural language.
 
 Language is the most natural interface through which humans give and receive instructions. Instead of writing bespoke automation or scraping code which is brittle to changes, creating and adding agents should be as simple as writing plain English.
 
-## ⛩️ Architecture and Prompt Patterns
-
-This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/ActGPT), [Adept.ai](https://adept.ai/), and [Nat Friedman](https://github.com/nat/natbot). In particular, the basic abstractions and prompts used were built off of Yihui's hackathon code. The idea to preprocess HTML and use GPT-3 to intelligently pick elements out is from Nat (though I haven't yet gotten this working). 
-
-- The prompts used can be found in [instruction compiler](agents/compilers/instruction_compiler.py). The base prompt describes in plain English a set of actions that the browsing agent can take, some general conventions on how to write code, and some constraints on its behavior. **These actions correspond one-for-one with methods in `GPTSeleniumAgent`**. Those actions, to-date, include:
-    - `env.driver.find_elements(by='id', value=None)` which finds and returns list of WebElement.
-    - `env.find_nearest(e, xpath)` can only be used to locate an element that matches the xpath near element e. 
-    - `env.send_keys(text)` is only used to type in string `text`. 
-    - `env.get(url)` goes to url.
-    - `env.get_llm_response(text)` that asks AI about a string `text`.
-    - `env.click(element)` clicks the element.
-    - `env.wait(seconds)` waits for `seconds` seconds.
-    - `env.scroll(direction)` scrolls the page.
-    - 🚧 (in development) `env.ask_llm_to_find_element` asks GPT-3 to find specific elements in preprocessed HTML.
-- The rest of the code is basically middleware which exposes a Selenium object to GPT-3. **For each action mentioned in the base prompt, there is a corresponding method in GPTSeleniumAgent.**
-    - An `InstructionCompiler` is used to parse user input into semantically cogent blocks of actions.
-
-
 ## 🏗️ Installation
 
-1. `pip install -r requirements.txt`
-2. Download Chromedriver (latest stable release) from [here](https://sites.google.com/chromium.org/driver/) and place it in the same folder as this file. Unzip.
-3. In Finder, right click the unpacked chromedriver and click "Open". This will remove the restrictive default permissions and allow Python to access it.
-4. Create an environment variable in your favorite manner setting OPENAI_API_KEY to your API key.
+1. Clone this repo.
+2. `pip install -r requirements.txt`
+3. Download Chromedriver (latest stable release) from [here](https://sites.google.com/chromium.org/driver/) and place it in the same folder as this file. Unzip.
+4. In Finder, right click the unpacked chromedriver and click "Open". This will remove the restrictive default permissions and allow Python to access it.
+5. Create an environment variable in your favorite manner setting OPENAI_API_KEY to your API key.
 
 
 ## 🦭 Usage
@@ -90,6 +73,24 @@ There are two ways I envision folks contributing.
 - **Adding to the Prompt Library**: Read "Writing Prompts" above and simply make a pull request to add something to `prompts/`! At some point, I will figure out a protocol for folder naming conventions and the evaluation of submitted code (for security, accuracy, etc). This would be a particularly attractive option for those who aren't as familiar with coding.
 - **Contributing code**: I am happy to take suggestions! The main way to add to the repository is to extend the capabilities of the agent, or to create new agents entirely. The best way to do this is to familiarize yourself with "Architecture and Prompt Patterns" above, and to (a) expand the list of capabilities in the base prompt in `InstructionCompiler` and (b) write the corresponding method in `GPTSeleniumAgent`. 
 
+## ⛩️ Architecture and Prompt Patterns
+
+This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/ActGPT), [Adept.ai](https://adept.ai/), and [Nat Friedman](https://github.com/nat/natbot). In particular, the basic abstractions and prompts used were built off of Yihui's hackathon code. The idea to preprocess HTML and use GPT-3 to intelligently pick elements out is from Nat (though I haven't yet gotten this working). 
+
+- The prompts used can be found in [instruction compiler](agents/compilers/instruction_compiler.py). The base prompt describes in plain English a set of actions that the browsing agent can take, some general conventions on how to write code, and some constraints on its behavior. **These actions correspond one-for-one with methods in `GPTSeleniumAgent`**. Those actions, to-date, include:
+    - `env.driver.find_elements(by='id', value=None)` which finds and returns list of WebElement.
+    - `env.find_nearest(e, xpath)` can only be used to locate an element that matches the xpath near element e. 
+    - `env.send_keys(text)` is only used to type in string `text`. 
+    - `env.get(url)` goes to url.
+    - `env.get_llm_response(text)` that asks AI about a string `text`.
+    - `env.click(element)` clicks the element.
+    - `env.wait(seconds)` waits for `seconds` seconds.
+    - `env.scroll(direction)` scrolls the page.
+    - 🚧 (in development) `env.ask_llm_to_find_element` asks GPT-3 to find specific elements in preprocessed HTML.
+- The rest of the code is basically middleware which exposes a Selenium object to GPT-3. **For each action mentioned in the base prompt, there is a corresponding method in GPTSeleniumAgent.**
+    - An `InstructionCompiler` is used to parse user input into semantically cogent blocks of actions.
+
+
 ## 🚧 TODOs and Future Work
 In order of easiest to hardest.
 - [x] GPTSeleniumAgent should be able to load prompts and cached successful runs in the form of yaml files. InstructionCompiler should be able to save instructions to yaml.
@@ -98,3 +99,4 @@ In order of easiest to hardest.
 - [ ] 🎯 Get the specific point in the stack trace that something failed, and start executing from there.
 - [ ] 🥞 Better stack trace virtualization to make it easier to debug.
 - [ ] 🚨 If anyone can figure out how to feed the content of the HTML page into the GPT-3 context window and have it reliably pick out specific elements from it, that would be great!
+
