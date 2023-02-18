@@ -140,6 +140,9 @@ class InstructionCompiler:
         # queue.
         while first_pass_queue:
             line = first_pass_queue.pop(0)
+            if line.startswith("# "):
+                continue  # Skip comments.
+
             if line.startswith("BEGIN_FUNCTION"):
                 function_name = line.split(" ")[-1]
                 function_body = ""
