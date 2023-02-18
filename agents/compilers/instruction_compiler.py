@@ -24,10 +24,11 @@ BASE_PROMPT = """You have an instance `env` with the following methods:
 - `env.find_nearest(e, xpath)` can only be used to locate an element that matches the xpath near element e. 
 - `env.send_keys(text)` is only used to type in string `text`. string ENTER is Keys.ENTER
 - `env.get(url)` goes to url.
-- `env.get_llm_response(text)` that asks AI about a string `text`.
 - `env.click(element)` clicks the element.
 - `env.wait(seconds)` waits for `seconds` seconds.
 - `env.scroll(direction)` scrolls the page. `direction` is either "up" or "down".
+- `env.get_llm_response(text)` that asks AI about a string `text`.
+- `env.summarize_page(entire_page=True)` that summarizes all the text on a given web page if entire_page=True and only text in paragraph pages if False.`
 
 WebElement has functions:
 1. `element.text` returns the text of the element.

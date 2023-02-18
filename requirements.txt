@@ -4,3 +4,5 @@ tqdm
 beautifulsoup4
 lxml
 pyyaml
+gpt-index
+html2text

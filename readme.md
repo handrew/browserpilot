@@ -93,10 +93,11 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 ## 🚧 TODOs and Future Work
 In order of easiest to hardest.
-- [x] GPTSeleniumAgent should be able to load prompts and cached successful runs in the form of yaml files. InstructionCompiler should be able to save instructions to yaml.
-- [x] Demo/test something where it has to ask the LLM to synthesize something it reads online.
-- [ ] 💭 Give the agent a memory which it can use to store information for read/write purposes.
 - [ ] 🎯 Get the specific point in the stack trace that something failed, and start executing from there.
 - [ ] 🥞 Better stack trace virtualization to make it easier to debug.
 - [ ] 🚨 If anyone can figure out how to feed the content of the HTML page into the GPT-3 context window and have it reliably pick out specific elements from it, that would be great!
 
+### 🎉 Finished
+- [x] GPTSeleniumAgent should be able to load prompts and cached successful runs in the form of yaml files. InstructionCompiler should be able to save instructions to yaml.
+- [x] Demo/test something where it has to ask the LLM to synthesize something it reads online.
+- [x] 💭 Add a summarization capability to the agent.

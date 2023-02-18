@@ -6,9 +6,11 @@ import sys
 import time
 import openai
 import traceback
+import html2text
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 from bs4.element import Tag
+from gpt_index import Document, GPTSimpleVectorIndex
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -178,6 +180,24 @@ class GPTSeleniumAgent:
             element
         ).perform()
 
+    def summarize_page(self, entire_page=False):
+        """Summarizes the webpage using GPT Index."""
+        # First, we get the HTML of the page and use html2text to convert it
+        # to text.
+        if entire_page:
+            html = self.driver.page_source
+            text = html2text.html2text(html)
+        else:
+            # Only the paragraph elements.
+            soup = BeautifulSoup(self.driver.page_source, "lxml")
+            text = "\n".join([p.text for p in soup.find_all("p")])
+
+        # Then we use GPT Index to summarize the text.
+        doc = Document(text)
+        index = GPTSimpleVectorIndex([doc])
+        resp = index.query("Summarize the text on the page.")
+        return resp.response
+
     def get_llm_response(self, prompt, model="text-davinci-003"):
         try:
             if "write code" not in prompt:
@@ -334,7 +354,7 @@ class GPTSeleniumAgent:
 def main():
     openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-    with open("prompts/examples/nytimes_headline_list.yaml", "r") as instructions:
+    with open("prompts/examples/summarization_wikipedia_example.yaml", "r") as instructions:
         # Instantiate and run.
         env = GPTSeleniumAgent(
             instructions, "./chromedriver", debug=True
