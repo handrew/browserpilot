@@ -195,7 +195,7 @@ class GPTSeleniumAgent:
         # Then we use GPT Index to summarize the text.
         doc = Document(text)
         index = GPTSimpleVectorIndex([doc])
-        resp = index.query("Summarize the text on the page.")
+        resp = index.query("Summarize:")
         return resp.response
 
     def get_llm_response(self, prompt, model="text-davinci-003"):
@@ -357,7 +357,7 @@ def main():
     with open("prompts/examples/summarization_wikipedia_example.yaml", "r") as instructions:
         # Instantiate and run.
         env = GPTSeleniumAgent(
-            instructions, "./chromedriver", debug=True
+            instructions, "./chromedriver", debug=True, instruction_output_file="summarization_wikipedia_example.yaml"
         )
         env.run()
 
