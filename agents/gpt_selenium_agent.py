@@ -19,6 +19,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.relative_locator import locate_with
 from compilers.instruction_compiler import InstructionCompiler
 
+NO_RESPONSE_TOKEN = "<NONE>"  # To denote that empty response from model.
+
 
 class GPTSeleniumAgent:
     def __init__(
@@ -32,8 +34,8 @@ class GPTSeleniumAgent:
     ):
         """Initialize the agent."""
         # Helpful instance variables.
-        assert (
-            instruction_output_file is None or instruction_output_file.endswith(".yaml")
+        assert instruction_output_file is None or instruction_output_file.endswith(
+            ".yaml"
         ), "Instruction output file must be a YAML file or None."
         self.instruction_output_file = instruction_output_file
         self.debug = debug
@@ -50,26 +52,20 @@ class GPTSeleniumAgent:
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
 
         # Fire up the compiler.
-        self.instruction_compiler = InstructionCompiler(
-            instructions=instructions
-        )
+        self.instruction_compiler = InstructionCompiler(instructions=instructions)
 
     """Functions meant for the client to call."""
 
-    def __run_compiled_instructions(self):
-        """Runs the Python code previously compiled by InstructionCompiler."""
-        print("Found cached instructions. Running...")
+    def __run_compiled_instructions(self, instructions):
+        """Runs Python code previously compiled by InstructionCompiler."""
         ldict = {"env": self}
-        instructions = self.instruction_compiler.compiled_instructions
-        instructions = "\n".join(instructions).replace("```", "")
         self._check_danger(instructions)
         exec(instructions, globals(), ldict)
 
     def __step_through_instructions(self):
         """In contrast to `__run_compiled_instructions`, this function will
-        step through the instructions one at a time, calling the LLM for each
-        instruction."""
-        print("No cached instructions found. Running...")
+        step through the instructions queue one at a time, calling the LLM for
+        each instruction."""
         ldict = {"env": self}
         while self.instruction_compiler.instructions_queue:
             # `step` will try the instruction for the first time.
@@ -121,8 +117,12 @@ class GPTSeleniumAgent:
         should_use_compiled = self.instruction_compiler.use_compiled
         compiled = self.instruction_compiler.compiled_instructions
         if should_use_compiled and compiled:
-            self.__run_compiled_instructions()
+            print("Found cached instructions. Running...")
+            instructions = self.instruction_compiler.compiled_instructions
+            instructions = "\n".join(instructions).replace("```", "")
+            self.__run_compiled_instructions(instructions)
         else:
+            print("No cached instructions found. Running...")
             self.__step_through_instructions()
 
     """Functions exposed to the agent via the text prompt."""
@@ -196,7 +196,7 @@ class GPTSeleniumAgent:
         doc = Document(text)
         index = GPTSimpleVectorIndex([doc])
         resp = index.query("Summarize:")
-        return resp.response
+        return resp.response.strip()
 
     def get_llm_response(self, prompt, model="text-davinci-003"):
         try:
@@ -225,39 +225,38 @@ class GPTSeleniumAgent:
             # Finally, we return the response.
             return text
         except openai.error.RateLimitError as exc:
-            print("Rate limit error: {exc}. Sleeping for 10 seconds.".format(exc=str(exc)))
+            print(
+                "Rate limit error: {exc}. Sleeping for 10 seconds.".format(exc=str(exc))
+            )
             time.sleep(5)
             return self.get_llm_response(prompt, model)
 
     def ask_llm_to_find_element(self, element_description):
-        """Clean the HTML from self.driver, chunk it up, and send it to OpenAI."""
-        raise NotImplementedError(
-            "This function is implemented, but I would not yet recommend using it."
-            "If for whatever reason are reading this, I'd love if you could"
-            "help build this feature out :)"
-        )
-        # Clean the HTML.
+        """Clean the HTML from self.driver, ask GPT-Index to find the element,
+        and return Selenium code to access it. Return a WebElement."""
         soup = self._clean_html()
-        html_chunks = self._chunk_html(soup)
+        # Get all of the elements which don't have children.
+        elements = soup.find_all(lambda tag: not tag.contents)
 
-        found_element = False
-        for chunk in html_chunks:
-            # Structure the prompt.
-            prompt = self.instruction_compiler.prompt_to_find_element.format(
-                description=element_description, html=chunk
-            )
-            # Ask large language model.
-            response = self.get_llm_response(prompt).strip()
-            if "<NONE>" in response:
-                continue
+        # Create a list of documents of each element prettified.
+        docs = [Document(element.prettify()) for element in elements]
 
-            # If we get here, we've found the element.
-            found_element = True
-            break
-
-        if not found_element:
+        # Set up the index and query it.
+        index = GPTSimpleVectorIndex(docs)
+        query = "Find element: {element_description}. If no element matches the description, then return {no_resp_token}.".format(
+            element_description=element_description, no_resp_token=NO_RESPONSE_TOKEN
+        )
+        resp = index.query(query)
+        resp = resp.response.strip()
+        if NO_RESPONSE_TOKEN in resp:
             return None
-        return response
+
+        # Get the argument to the find_element_by_xpath function.
+        prompt = self.instruction_compiler.prompt_to_find_element.format(
+            cleaned_html=resp
+        )
+        response = self.get_llm_response(prompt).strip().replace('"', "")
+        return self.driver.find_element(by="xpath", value=response)
 
     """Helper functions"""
 
@@ -331,33 +330,18 @@ class GPTSeleniumAgent:
 
         return soup
 
-    def _chunk_html(self, soup):
-        """Chunk a BeautifulSoup element into 2048 character chunks for
-        OpenAI. Make sure that it is HTML element aware."""
-        chunks = []
-        current_chunk = ""
-        for element in soup.recursiveChildGenerator():
-            if isinstance(element, NavigableString):
-                if len(current_chunk) + len(element) > 2048:
-                    chunks.append(current_chunk)
-                    current_chunk = ""
-                current_chunk += str(element)
-            elif isinstance(element, Tag):
-                if len(current_chunk) + len(str(element)) > 2048:
-                    chunks.append(current_chunk)
-                    current_chunk = ""
-                current_chunk += str(element)
-        chunks.append(current_chunk)
-        return chunks
-
 
 def main():
     openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-    with open("prompts/examples/summarization_wikipedia_example.yaml", "r") as instructions:
+    with open(
+        "prompts/examples/buffalo_wikipedia_ask_llm_to_find_element_example.yaml", "r"
+    ) as instructions:
         # Instantiate and run.
         env = GPTSeleniumAgent(
-            instructions, "./chromedriver", debug=True, instruction_output_file="summarization_wikipedia_example.yaml"
+            instructions,
+            "./chromedriver",
+            debug=True
         )
         env.run()
 

@@ -11,7 +11,6 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 """Set up all the prompt variables."""
 
 # Designated tokens.
-NO_RESPONSE_TOKEN = "<NONE>"  # To denote that empty response from model.
 RUN_PROMPT_TOKEN = "<RUN_PROMPT>"  # To denote command to run subroutine.
 
 # Suffixes to add to the base prompt.
@@ -29,6 +28,7 @@ BASE_PROMPT = """You have an instance `env` with the following methods:
 - `env.scroll(direction)` scrolls the page. `direction` is either "up" or "down".
 - `env.get_llm_response(text)` that asks AI about a string `text`.
 - `env.summarize_page(entire_page=True)` that summarizes all the text on a given web page if entire_page=True and only text in paragraph pages if False.`
+- `env.ask_llm_to_find_element(description)` that asks AI to write Selenium code to find an element that matches the description.
 
 WebElement has functions:
 1. `element.text` returns the text of the element.
@@ -53,19 +53,13 @@ INSTRUCTIONS:
 
 OUTPUT: ```python"""
 
-PROMPT_TO_FIND_ELEMENT = (
-    """Given the HTML under the heading "== HTML ==", write one line of Selenium code that uses `env.driver.find_element` to precisely locate the element which is best described by the following description: {description}.
+PROMPT_TO_FIND_ELEMENT = """Given the HTML below, write the `value` argument to the Python Selenium function `env.driver.find_elements(by='xpath', value=value)` to precisely locate the element.
 
-If there are no appropriate HTML elements found, please return "%s".
+Do not use any other method besides `env.driver.find_element`. Again, write only the *string argument for `value`* to the function.
 
-== HTML ==
-{cleaned_html}
+HTML: {cleaned_html}
 
-== OUTPUT ==
-"""
-    % NO_RESPONSE_TOKEN
-)
-
+OUTPUT:"""
 
 class InstructionCompiler:
     def __init__(self, instructions=None, base_prompt=BASE_PROMPT, use_compiled=True):

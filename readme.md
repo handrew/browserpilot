@@ -82,22 +82,23 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
     - `env.find_nearest(e, xpath)` can only be used to locate an element that matches the xpath near element e. 
     - `env.send_keys(text)` is only used to type in string `text`. 
     - `env.get(url)` goes to url.
-    - `env.get_llm_response(text)` that asks AI about a string `text`.
     - `env.click(element)` clicks the element.
     - `env.wait(seconds)` waits for `seconds` seconds.
     - `env.scroll(direction)` scrolls the page.
-    - 🚧 (in development) `env.ask_llm_to_find_element` asks GPT-3 to find specific elements in preprocessed HTML.
+    - `env.summarize_page(entire_page=True)` that summarizes text on a given page.
+    - `env.get_llm_response(text)` that asks AI about a string `text`.
+    - `env.ask_llm_to_find_element` asks AI to find specific elements in preprocessed HTML.
 - The rest of the code is basically middleware which exposes a Selenium object to GPT-3. **For each action mentioned in the base prompt, there is a corresponding method in GPTSeleniumAgent.**
     - An `InstructionCompiler` is used to parse user input into semantically cogent blocks of actions.
 
 
 ## 🚧 TODOs and Future Work
-In order of easiest to hardest.
 - [ ] 🎯 Get the specific point in the stack trace that something failed, and start executing from there.
 - [ ] 🥞 Better stack trace virtualization to make it easier to debug.
-- [ ] 🚨 If anyone can figure out how to feed the content of the HTML page into the GPT-3 context window and have it reliably pick out specific elements from it, that would be great!
+- [ ] Variable templating?
 
 ### 🎉 Finished
 - [x] GPTSeleniumAgent should be able to load prompts and cached successful runs in the form of yaml files. InstructionCompiler should be able to save instructions to yaml.
-- [x] Demo/test something where it has to ask the LLM to synthesize something it reads online.
 - [x] 💭 Add a summarization capability to the agent.
+- [x] Demo/test something where it has to ask the LLM to synthesize something it reads online.
+- [x] 🚨 Figured out how to feed the content of the HTML page into the GPT-3 context window and have it reliably pick out specific elements from it, that would be great!
