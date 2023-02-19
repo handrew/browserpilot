@@ -24,7 +24,7 @@ BASE_PROMPT = """You have an instance `env` with the following methods:
 - `env.scroll(direction)` scrolls the page. `direction` is either "up" or "down".
 - `env.get_llm_response(text)` that asks AI about a string `text`.
 - `env.summarize_page(entire_page=True)` that summarizes all the text on a given web page if entire_page=True and only text in paragraph pages if False.`
-- `env.ask_llm_to_find_element(description)` that asks AI to write Selenium code to find an element that matches the description.
+- `env.ask_llm_to_find_element(description)` that asks AI to write Selenium code to find an element that matches the description. It returns None if it cannot find an element that matches the description, so you must check for that.
 
 WebElement has functions:
 1. `element.text` returns the text of the element.
@@ -227,7 +227,7 @@ class InstructionCompiler:
 
         # Append the failure suffixes to the prompt.
         prompt = self.base_prompt.format(instructions=last_instructions)
-        prompt = prompt + last_action["action_output"]
+        prompt = prompt + "\n" + last_action["action_output"]
         prompt = prompt + STACK_TRACE_SUFFIX + " " + stack_trace_str
         prompt = prompt + RETRY_SUFFIX
 

@@ -235,14 +235,16 @@ class GPTSeleniumAgent:
 
         # Set up the index and query it.
         index = GPTSimpleVectorIndex(docs)
-        query = "Find element: {element_description}. If no element matches the description, then return {no_resp_token}.".format(
+        query = "Find element that matches description: {element_description}. If no element matches the description, then return {no_resp_token}.".format(
             element_description=element_description, no_resp_token=NO_RESPONSE_TOKEN
         )
         resp = index.query(query)
         resp = resp.response.strip()
         if NO_RESPONSE_TOKEN in resp:
+            print("GPT-Index could not find element. Returning None.")
             return None
 
+        print("Asked GPT-Index to find element. Response: {resp}".format(resp=resp))
         # Get the argument to the find_element_by_xpath function.
         prompt = self.instruction_compiler.prompt_to_find_element.format(
             cleaned_html=resp
