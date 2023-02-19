@@ -4,10 +4,6 @@ import openai
 import yaml
 import io
 
-
-"""Set the OpenAI API key."""
-openai.api_key = os.environ["OPENAI_API_KEY"]
-
 """Set up all the prompt variables."""
 
 # Designated tokens.
