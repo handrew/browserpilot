@@ -2,6 +2,9 @@ import time
 import openai
 import yaml
 import io
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 """Set up all the prompt variables."""
 
@@ -188,7 +191,7 @@ class InstructionCompiler:
             )
             text = response["choices"][0]["text"]
         except openai.error.RateLimitError as exc:
-            print("Rate limit error: {exc}. Sleeping for a few seconds.".format(exc=str(exc)))
+            logging.info("Rate limit error: {exc}. Sleeping for a few seconds.".format(exc=str(exc)))
             time.sleep(5)
             text = self.get_completion(prompt, temperature, model)
         return text
@@ -269,8 +272,6 @@ if __name__ == "__main__":
         instructions = f.read()
 
     compiler = InstructionCompiler(instructions=instructions)
-    for item in compiler.instructions_queue:
-        print(item)
 
     while compiler.instructions_queue:
         action_info = compiler.step()
