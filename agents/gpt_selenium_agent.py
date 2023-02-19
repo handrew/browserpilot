@@ -138,6 +138,7 @@ class GPTSeleniumAgent:
         ldict = {"env": self}
         self._check_danger(instructions)
         exec(instructions, globals(), ldict)
+        exec("env.driver.quit()", globals(), ldict)
 
     def __print_instruction_and_action(self, instruction, action):
         """Logging the instruction and action."""
@@ -186,6 +187,8 @@ class GPTSeleniumAgent:
             self.instruction_compiler.save_compiled_instructions(
                 self.instruction_output_file
             )
+        
+        exec("env.driver.quit()", globals(), ldict)
 
     """Functions meant for the client to call."""
 
