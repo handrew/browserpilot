@@ -17,7 +17,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.relative_locator import locate_with
-from compilers.instruction_compiler import InstructionCompiler
+from .compilers.instruction_compiler import InstructionCompiler
 
 NO_RESPONSE_TOKEN = "<NONE>"  # To denote that empty response from model.
 
