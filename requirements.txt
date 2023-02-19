@@ -6,3 +6,4 @@ lxml
 pyyaml
 gpt-index
 html2text
+nltk

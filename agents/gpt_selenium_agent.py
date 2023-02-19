@@ -6,6 +6,8 @@ import time
 import openai
 import traceback
 import html2text
+import nltk
+from nltk.tokenize import sent_tokenize
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 from bs4.element import Tag
@@ -17,6 +19,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.relative_locator import locate_with
 from .compilers.instruction_compiler import InstructionCompiler
+
+nltk.download("punkt")
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -265,10 +269,28 @@ class GPTSeleniumAgent:
             soup = BeautifulSoup(self.driver.page_source, "lxml")
             text = "\n".join([p.text for p in soup.find_all("p")])
 
+        # Check for iframes too.
+        iframes = self.driver.find_elements(by=By.TAG_NAME, value="iframe")
+        for iframe in iframes:
+            self.driver.switch_to.frame(iframe)
+            soup = BeautifulSoup(self.driver.page_source, "lxml")
+            text = text + "\n" + "\n".join([p.text for p in soup.find_all("p")])
+            self.driver.switch_to.default_content()
+
+        # Tokenize by sentence, and then load each set of three sentences as
+        # a doc.
+        sentences = sent_tokenize(text)
+        docs = []
+        for i in range(0, len(sentences), 5):
+            doc = " ".join(sentences[i : i + 5])
+            docs.append(Document(doc))
+
         # Then we use GPT Index to summarize the text.
-        doc = Document(text)
-        index = GPTSimpleVectorIndex([doc])
-        resp = index.query(prompt)
+        logging.info("Found {num_docs} documents for indexing.".format(num_docs=len(docs)))
+        index = GPTSimpleVectorIndex(docs)
+        print(text[:150])
+        logging.info("Retrieving information with prompt: \"{prompt}\"".format(prompt=prompt))
+        resp = index.query(prompt, similarity_top_k=3)
         return resp.response.strip()
 
     def get_llm_response(self, prompt, temperature=0.7, model="text-davinci-003"):
