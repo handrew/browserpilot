@@ -1,33 +1,24 @@
 compiled:
-- "env.get('https://www.google.com')\ntext_boxes = env.driver.find_elements(by='xpath',\
-  \ value=\"//div[@role = 'textarea']|//div[@role = 'textbox']|//input\")\nvisible_text_box\
-  \ = None\nfor text_box in text_boxes:\n    if text_box.is_displayed():\n       \
-  \ visible_text_box = text_box\n        break\nenv.click(visible_text_box)\nenv.send_keys(\"\
-  buttered cat paradox\" + Keys.ENTER)\nenv.wait(2)\nanchors = env.driver.find_elements(by='xpath',\
-  \ value=\"//a[contains(@href, 'wikipedia')]\")\nenv.click(anchors[0])\n```"
-- 'env.wait(2)
-
-  summary = env.summarize_page()
-
-  print(summary)
-
-  ```'
+- env.get("https://www.google.com")
+- text_boxes = env.driver.find_elements(by="xpath", value="//div[@role = 'textarea']|//div[@role
+  = 'textbox']|//input")
+- visible_text_boxes = [text_box for text_box in text_boxes if text_box.is_displayed()]
+- env.click(visible_text_boxes[0])
+- env.send_keys("buttered cat paradox" + Keys.ENTER)
+- env.wait(2)
+- anchors = env.driver.find_elements(by="xpath", value="//a[contains(@href, 'wikipedia')]")
+- env.click(anchors[0])
+- env.wait(2)
+- summary = env.retrieve_information("Summarize:", entire_page=False)
+- print(summary)
 instructions:
-- 'Go to Google.com
-
-  Find all text boxes.
-
-  Find the first visible text box.
-
-  Click on the first visible text box.
-
-  Type in "buttered cat paradox" and press enter.
-
-  Wait 2 seconds.
-
-  Find all anchor elements that link to Wikipedia.
-
-  Click on the first one.'
-- 'Wait for 2 seconds.
-
-  Summarize the page and print out the summary.'
+- Go to Google.com
+- Find all text boxes.
+- Find the first visible text box.
+- Click on the first visible text box.
+- Type in "buttered cat paradox" and press enter.
+- Wait 2 seconds.
+- Find all anchor elements that link to Wikipedia.
+- Click on the first one.
+- Wait for 2 seconds.
+- Summarize the page and print out the summary.

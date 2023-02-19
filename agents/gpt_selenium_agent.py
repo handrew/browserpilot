@@ -180,8 +180,8 @@ class GPTSeleniumAgent:
             element
         ).perform()
 
-    def summarize_page(self, entire_page=False):
-        """Summarizes the webpage using GPT Index."""
+    def retrieve_information(self, prompt, entire_page=False):
+        """Retrieves information using using GPT-Index embeddings from a page."""
         # First, we get the HTML of the page and use html2text to convert it
         # to text.
         if entire_page:
@@ -195,7 +195,7 @@ class GPTSeleniumAgent:
         # Then we use GPT Index to summarize the text.
         doc = Document(text)
         index = GPTSimpleVectorIndex([doc])
-        resp = index.query("Summarize:")
+        resp = index.query(prompt)
         return resp.response.strip()
 
     def get_llm_response(self, prompt, temperature=0.7, model="text-davinci-003"):
@@ -208,7 +208,6 @@ class GPTSeleniumAgent:
                 top_p=1,
                 frequency_penalty=0,
                 presence_penalty=0,
-                stop=["```"],
                 best_of=3,
             )
 
@@ -327,22 +326,3 @@ class GPTSeleniumAgent:
             remove_blacklisted_attributes(tag, blacklisted_attributes)
 
         return soup
-
-
-def main():
-    openai.api_key = os.environ.get("OPENAI_API_KEY")
-
-    with open(
-        "prompts/examples/buffalo_wikipedia_ask_llm_to_find_element_example.yaml", "r"
-    ) as instructions:
-        # Instantiate and run.
-        env = GPTSeleniumAgent(
-            instructions,
-            "./chromedriver",
-            debug=True
-        )
-        env.run()
-
-
-if __name__ == "__main__":
-    main()

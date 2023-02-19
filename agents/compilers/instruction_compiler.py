@@ -22,8 +22,8 @@ BASE_PROMPT = """You have an instance `env` with the following methods:
 - `env.wait(seconds)` waits for `seconds` seconds.
 - `env.scroll(direction)` scrolls the page. `direction` is either "up" or "down".
 - `env.get_llm_response(text)` that asks AI about a string `text`.
-- `env.summarize_page(entire_page=True)` that summarizes all the text on a given web page if entire_page=True and only text in paragraph pages if False.`
-- `env.ask_llm_to_find_element(description)` that asks AI to write Selenium code to find an element that matches the description. It returns None if it cannot find an element that matches the description, so you must check for that.
+- `env.retrieve_information(prompt, entire_page=False)` retrieves info from a page given a prompt. Use prompt="Summarize:" for summaries. Uses all the text if entire_page=True and only text in paragraphs if False. To save tokens, use entire_page=False.
+- `env.ask_llm_to_find_element(description)` that asks AI to find an element that matches the description. It returns None if it cannot find an element that matches the description, so you must check for that.
 
 WebElement has functions:
 1. `element.text` returns the text of the element.
@@ -184,6 +184,7 @@ class InstructionCompiler:
                 presence_penalty=0,
                 best_of=1,
                 temperature=temperature,
+                stop=["```"]
             )
             text = response["choices"][0]["text"]
         except openai.error.RateLimitError as exc:
@@ -241,8 +242,14 @@ class InstructionCompiler:
     def save_compiled_instructions(self, filename):
         """Save the compiled instructions to a file."""
         assert filename.endswith(".yaml"), "Filename must end with .yaml."
-        instructions = [item["instruction"] for item in self.history]
-        compiled_instructions = [item["action_output"] for item in self.history]
+        instructions = []
+        for item in self.history:
+            instructions.extend(item["instruction"].split("\n"))
+
+        compiled_instructions = []
+        for item in self.history:
+            compiled_instructions.extend(item["action_output"].split("\n"))
+
         with open(filename, "w") as f:
             yaml.dump(
                 {
