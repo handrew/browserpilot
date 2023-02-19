@@ -1,6 +1,7 @@
 .env
 chromedriver
 user_data/
+private/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
