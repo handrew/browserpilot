@@ -99,7 +99,7 @@ class GPTSeleniumAgent:
 
                     step = self.instruction_compiler.retry(stack_trace)
                     instruction = step["instruction"]
-                    action = step["action_output"]
+                    action = step["action_output"].replace("```", "")
                     print("RETRYING...")
                     print(
                         "Instruction: {instruction}\nAction: {action}\n".format(
@@ -198,16 +198,8 @@ class GPTSeleniumAgent:
         resp = index.query("Summarize:")
         return resp.response.strip()
 
-    def get_llm_response(self, prompt, model="text-davinci-003"):
+    def get_llm_response(self, prompt, temperature=0.7, model="text-davinci-003"):
         try:
-            if "write code" not in prompt:
-                temperature = 0.7
-                lines = prompt.splitlines()
-                if len(lines) > 10:
-                    prompt = " ".join(lines)[:300]
-            else:
-                temperature = 0
-
             response = openai.Completion.create(
                 model=model,
                 prompt=prompt,
@@ -255,7 +247,7 @@ class GPTSeleniumAgent:
         prompt = self.instruction_compiler.prompt_to_find_element.format(
             cleaned_html=resp
         )
-        response = self.get_llm_response(prompt).strip().replace('"', "")
+        response = self.get_llm_response(prompt, temperature=0).strip().replace('"', "")
         return self.driver.find_element(by="xpath", value=response)
 
     """Helper functions"""
