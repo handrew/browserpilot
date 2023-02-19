@@ -86,7 +86,7 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
     - `env.wait(seconds)` waits for `seconds` seconds.
     - `env.scroll(direction)` scrolls the page.
     - `env.get_llm_response(text)` that asks AI about a string `text`.
-    - `env.retrieve_information(prompt, entire_page=False)` that retrieves information using GPT-Index embeddings from a page given a prompt. Use prompt="Summarize:" for summary generation.
+    - `env.retrieve_information(prompt, entire_page=False)` that retrieves information using GPT-Index embeddings from a page given a prompt.
     - `env.ask_llm_to_find_element(description)` that asks AI to find an element that matches the description.
 - The rest of the code is basically middleware which exposes a Selenium object to GPT-3. **For each action mentioned in the base prompt, there is a corresponding method in GPTSeleniumAgent.**
     - An `InstructionCompiler` is used to parse user input into semantically cogent blocks of actions.
