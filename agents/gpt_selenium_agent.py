@@ -233,7 +233,6 @@ class GPTSeleniumAgent:
         [ele.clear() if ele.contents else ele for ele in elements if ele.contents]
         # Then remove any elements that do not have attributes, e.g., <p></p>.
         elements = [ele for ele in elements if ele.attrs]
-        print(elements)
 
         # Create a list of documents of each element prettified.
         docs = [Document(element.prettify()) for element in elements]
