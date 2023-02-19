@@ -93,9 +93,10 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ## 🚧 TODOs and Future Work
+- [ ] 🧩 Variable templating?
+- [ ] 🔭 Better intermediate prompt observability (maybe introduce a class which is a proxy for all LLM calls?) 
 - [ ] 🎯 Get the specific point in the stack trace that something failed, and start executing from there.
 - [ ] 🥞 Better stack trace virtualization to make it easier to debug.
-- [ ] Variable templating?
 
 ### 🎉 Finished
 - [x] GPTSeleniumAgent should be able to load prompts and cached successful runs in the form of yaml files. InstructionCompiler should be able to save instructions to yaml.
