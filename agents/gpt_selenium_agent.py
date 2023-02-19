@@ -227,8 +227,13 @@ class GPTSeleniumAgent:
         """Clean the HTML from self.driver, ask GPT-Index to find the element,
         and return Selenium code to access it. Return a WebElement."""
         soup = self._clean_html()
-        # Get all of the elements which don't have children.
-        elements = soup.find_all(lambda tag: not tag.contents)
+        # Get all of the elements, and for each element, if there are
+        # children, then remove them.
+        elements = soup.find_all()
+        [ele.clear() if ele.contents else ele for ele in elements if ele.contents]
+        # Then remove any elements that do not have attributes, e.g., <p></p>.
+        elements = [ele for ele in elements if ele.attrs]
+        print(elements)
 
         # Create a list of documents of each element prettified.
         docs = [Document(element.prettify()) for element in elements]
