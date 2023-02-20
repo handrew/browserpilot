@@ -97,7 +97,6 @@ class GPTSeleniumAgent:
                 "head",
                 "title",
                 "meta",
-                "iframe",
                 "script",
                 "style",
                 "path",
@@ -260,8 +259,8 @@ class GPTSeleniumAgent:
             element
         ).perform()
 
-    def retrieve_information(self, prompt, entire_page=False):
-        """Retrieves information using using GPT-Index embeddings from a page."""
+    def get_text_from_page(self, entire_page=False):
+        """Returns the text from the page."""
         # First, we get the HTML of the page and use html2text to convert it
         # to text.
         if entire_page:
@@ -279,6 +278,12 @@ class GPTSeleniumAgent:
             soup = BeautifulSoup(self.driver.page_source, "lxml")
             text = text + "\n" + "\n".join([p.text for p in soup.find_all("p")])
             self.driver.switch_to.default_content()
+
+        return text
+
+    def retrieve_information(self, prompt, entire_page=False):
+        """Retrieves information using using GPT-Index embeddings from a page."""
+        text = self.get_text_from_page(entire_page=entire_page)
 
         # Tokenize by sentence, and then load each set of three sentences as
         # a doc.
@@ -352,3 +357,8 @@ class GPTSeleniumAgent:
         )
         response = self.get_llm_response(prompt, temperature=0).strip().replace('"', "")
         return self.driver.find_element(by="xpath", value=response)
+
+    def save(self, text, filename):
+        """Save the text to a file."""
+        with open(filename, "w") as f:
+            f.write(text)

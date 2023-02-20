@@ -27,6 +27,8 @@ BASE_PROMPT = """You have an instance `env` with the following methods:
 - `env.get_llm_response(text)` that asks AI about a string `text`.
 - `env.retrieve_information(prompt, entire_page=False)` returns a string, information a page given a prompt. Use prompt="Summarize:" for summaries. Uses all the text if entire_page=True and only text in paragraphs if False. To save tokens, use entire_page=False. Invoked with commands like "retrieve", "find in the page", or similar.
 - `env.ask_llm_to_find_element(description)` that asks AI to find an element that matches the description. It returns None if it cannot find an element that matches the description, so you must check for that.
+- `env.save(text, filename)` saves the string `text` to a file `filename`.
+- `env.get_text_from_page(entire_page)` returns the text from the page. If entire_page is True, it returns all the text. If entire_page is False, it returns only the text in paragraphs.
 
 WebElement has functions:
 1. `element.text` returns the text of the element.
