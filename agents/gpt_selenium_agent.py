@@ -11,7 +11,7 @@ from nltk.tokenize import sent_tokenize
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 from bs4.element import Tag
-from gpt_index import Document, GPTSimpleVectorIndex
+from llama_index import Document, GPTSimpleVectorIndex
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By

@@ -4,6 +4,6 @@ tqdm
 beautifulsoup4
 lxml
 pyyaml
-gpt-index
+llama-index
 html2text
 nltk
