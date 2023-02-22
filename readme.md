@@ -18,7 +18,7 @@ Language is the most natural interface through which humans give and receive ins
 The form factor is fairly simple (see below).
 
 ```python
-from agents.gpt_selenium_agent import GPTSeleniumAgent
+from browserpilot.agents.gpt_selenium_agent import GPTSeleniumAgent
 
 instructions = """Go to Google.com
 Find all text boxes.
