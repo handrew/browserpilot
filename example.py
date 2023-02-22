@@ -1,7 +1,7 @@
 import sys
 import os
 import openai
-from agents.gpt_selenium_agent import GPTSeleniumAgent
+from browserpilot.agents.gpt_selenium_agent import GPTSeleniumAgent
 
 # Set OpenAI API key.
 openai.api_key = os.environ["OPENAI_API_KEY"]

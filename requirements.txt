@@ -1,9 +1,0 @@
-openai
-selenium
-tqdm
-beautifulsoup4
-lxml
-pyyaml
-llama-index
-html2text
-nltk

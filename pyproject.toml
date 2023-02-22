@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "browserpilot"
+version = "0.1.0"
+description = "Natural language browser automation"
+authors = ["Andrew Han <handrew11@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+openai = "^0.26.5"
+selenium = "^4.8.2"
+tqdm = "^4.64.1"
+beautifulsoup4 = "^4.11.2"
+lxml = "^4.9.2"
+pyyaml = "^6.0"
+llama-index = "^0.4.8"
+html2text = "^2020.1.16"
+nltk = "^3.8.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
