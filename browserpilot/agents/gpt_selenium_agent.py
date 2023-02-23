@@ -145,6 +145,19 @@ class GPTSeleniumAgent:
         info_str = info_str + "\nAction: {action}\n".format(action=action)
         logger.info(info_str)
 
+    def __get_relevant_part_of_stack_trace(self):
+        """Get the relevant part of the stack trace."""
+        stack_trace = traceback.format_exc()
+        stack_trace = stack_trace.split("\n")[3:5]
+        stack_trace = "\n".join(stack_trace)
+        # Get the name of this class (GPTSeleniumAgent) and
+        # replace it with "env".
+        class_name = self.__class__.__name__
+        stack_trace = stack_trace.replace(class_name, "env")
+        # Get the number after the word "line " in the stack trace.
+        line_num = int(stack_trace.split("line ")[1].split(",")[0])
+        return {"stack_trace": stack_trace, "line_num": line_num}
+
     def __step_through_instructions(self):
         """In contrast to `__run_compiled_instructions`, this function will
         step through the instructions queue one at a time, calling the LLM for
@@ -169,14 +182,19 @@ class GPTSeleniumAgent:
                     exec(action, globals(), ldict)
                     break
                 except:
-                    stack_trace = "\n".join(traceback.format_exc().split("\n")[3:])
+                    stack_trace_result = self.__get_relevant_part_of_stack_trace()
+                    stack_trace = stack_trace_result["stack_trace"]
+                    line_num = stack_trace_result["line_num"]
+                    problem_instruction = "\nFailed on line: {line}\n".format(
+                        line=action.replace("\n\n", "\n").split("\n")[line_num - 1]
+                    )
                     logging.info("\n\n" + stack_trace)
-                    logging.info("Failed to execute action. Stack trace above. Retrying.")
+                    logging.info(problem_instruction)
 
                     if self.debug:
                         pdb.set_trace()
 
-                    step = self.instruction_compiler.retry(stack_trace)
+                    step = self.instruction_compiler.retry(problem_instruction + stack_trace)
                     instruction = step["instruction"]
                     action = step["action_output"].replace("```", "")
                     logging.info("RETRYING...")
