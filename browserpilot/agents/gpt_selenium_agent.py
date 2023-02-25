@@ -66,8 +66,8 @@ class GPTSeleniumAgent:
     def _check_danger(self, action_str):
         """Check that the action is not dangerous. If so, just quit."""
         if self._is_potentially_dangerous(action_str):
-            logging.warning("Action is potentially dangerous. Exiting.")
-            logging.warning("Action: {action}".format(action=action_str))
+            logger.warning("Action is potentially dangerous. Exiting.")
+            logger.warning("Action: {action}".format(action=action_str))
             sys.exit(1)
 
     def _is_potentially_dangerous(self, code_str):
@@ -188,8 +188,8 @@ class GPTSeleniumAgent:
                     problem_instruction = "\nFailed on line: {line}\n".format(
                         line=action.replace("\n\n", "\n").split("\n")[line_num - 1]
                     )
-                    logging.info("\n\n" + stack_trace)
-                    logging.info(problem_instruction)
+                    logger.info("\n\n" + stack_trace)
+                    logger.info(problem_instruction)
 
                     if self.debug:
                         pdb.set_trace()
@@ -197,7 +197,7 @@ class GPTSeleniumAgent:
                     step = self.instruction_compiler.retry(problem_instruction + stack_trace)
                     instruction = step["instruction"]
                     action = step["action_output"].replace("```", "")
-                    logging.info("RETRYING...")
+                    logger.info("RETRYING...")
                     self.__print_instruction_and_action(instruction, action)
 
         if self.instruction_output_file:
@@ -214,12 +214,12 @@ class GPTSeleniumAgent:
         should_use_compiled = self.instruction_compiler.use_compiled
         compiled = self.instruction_compiler.compiled_instructions
         if should_use_compiled and compiled:
-            logging.info("Found cached instructions. Running...")
+            logger.info("Found cached instructions. Running...")
             instructions = self.instruction_compiler.compiled_instructions
             instructions = "\n".join(instructions).replace("```", "")
             self.__run_compiled_instructions(instructions)
         else:
-            logging.info("No cached instructions found. Running...")
+            logger.info("No cached instructions found. Running...")
             self.__step_through_instructions()
 
     """Functions exposed to the agent via the text prompt."""
@@ -312,10 +312,10 @@ class GPTSeleniumAgent:
             docs.append(Document(doc))
 
         # Then we use GPT Index to summarize the text.
-        logging.info("Found {num_docs} documents for indexing.".format(num_docs=len(docs)))
+        logger.info("Found {num_docs} documents for indexing.".format(num_docs=len(docs)))
         index = GPTSimpleVectorIndex(docs)
         print(text[:150])
-        logging.info("Retrieving information with prompt: \"{prompt}\"".format(prompt=prompt))
+        logger.info("Retrieving information with prompt: \"{prompt}\"".format(prompt=prompt))
         resp = index.query(prompt, similarity_top_k=3)
         return resp.response.strip()
 
@@ -337,7 +337,7 @@ class GPTSeleniumAgent:
             # Finally, we return the response.
             return text
         except openai.error.RateLimitError as exc:
-            logging.info(
+            logger.info(
                 "Rate limit error: {exc}. Sleeping for 10 seconds.".format(exc=str(exc))
             )
             time.sleep(5)
@@ -365,10 +365,10 @@ class GPTSeleniumAgent:
         resp = index.query(query)
         resp = resp.response.strip()
         if NO_RESPONSE_TOKEN in resp:
-            logging.info("GPT-Index could not find element. Returning None.")
+            logger.info("GPT-Index could not find element. Returning None.")
             return None
 
-        logging.info("Asked GPT-Index to find element. Response: {resp}".format(resp=resp))
+        logger.info("Asked GPT-Index to find element. Response: {resp}".format(resp=resp))
         # Get the argument to the find_element_by_xpath function.
         prompt = self.instruction_compiler.prompt_to_find_element.format(
             cleaned_html=resp

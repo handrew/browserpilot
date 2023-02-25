@@ -204,7 +204,7 @@ class InstructionCompiler:
             )
             text = response["choices"][0]["text"]
         except openai.error.RateLimitError as exc:
-            logging.info("Rate limit error: {exc}. Sleeping for a few seconds.".format(exc=str(exc)))
+            logger.info("Rate limit error: {exc}. Sleeping for a few seconds.".format(exc=str(exc)))
             time.sleep(5)
             text = self.get_completion(prompt, temperature, model)
 
