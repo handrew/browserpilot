@@ -98,6 +98,7 @@ class InstructionCompiler:
         self.prompt_to_find_element = PROMPT_TO_FIND_ELEMENT
         self.use_compiled = use_compiled
         self.instructions = instructions
+        self.api_cache = {}  # Instruction string to API response.
 
         # If the instructions are a file buffer, then read it as a yaml.
         self.compiled_instructions = []
@@ -181,8 +182,14 @@ class InstructionCompiler:
 
         return final_queue
 
-    def get_completion(self, prompt, temperature=0, model="text-davinci-003"):
+    def get_completion(self, prompt, temperature=0, model="text-davinci-003", use_cache=True):
         """Wrapper over OpenAI's completion API."""
+        # Check if it's in the cache already.
+        if use_cache and prompt in self.api_cache:
+            logger.info("Found prompt in API cache. Saving you money...")
+            text = self.api_cache[prompt]
+            return text
+
         try:
             response = openai.Completion.create(
                 model=model,
@@ -200,6 +207,10 @@ class InstructionCompiler:
             logging.info("Rate limit error: {exc}. Sleeping for a few seconds.".format(exc=str(exc)))
             time.sleep(5)
             text = self.get_completion(prompt, temperature, model)
+
+        # Add to cache.
+        self.api_cache[prompt] = text
+
         return text
 
     def get_action_output(self, instructions):

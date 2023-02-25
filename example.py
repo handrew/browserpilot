@@ -11,7 +11,7 @@ with open(sys.argv[1], "r") as instructions:
     agent = GPTSeleniumAgent(
         instructions,
         "./chromedriver",
-        instruction_output_file=sys.argv[1],
+        # instruction_output_file=sys.argv[1],
         debug=True,
     )
     agent.run()
