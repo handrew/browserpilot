@@ -43,7 +43,7 @@ It helps if you are familiar with how Selenium works and programming in general.
 
 You can look at some examples in `prompts/examples` to get started.
 
-Create "functions" by enclosing instructions in ```BEGIN_FUNCTION func_name``` and ```END_FUNCTION```, and then call them by starting a line with ```RUN_FUNCTION```. Below is an example:
+Create "functions" by enclosing instructions in `BEGIN_FUNCTION func_name` and `END_FUNCTION`, and then call them by starting a line with `RUN_FUNCTION` or `INJECT_FUNCTION`. Below is an example: 
 
 ```
 BEGIN_FUNCTION search_buffalo

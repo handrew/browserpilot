@@ -13,7 +13,7 @@ RUN_PROMPT_TOKEN = "<RUN_PROMPT>"  # To denote command to run subroutine.
 BEGIN_FUNCTION_TOKEN = "BEGIN_FUNCTION"
 END_FUNCTION_TOKEN = "END_FUNCTION"
 RUN_FUNCTION_TOKEN = "RUN_FUNCTION"
-INJECT_FUNCTION_TOKEN = "INJECT_FUNCTION"  # TODO.
+INJECT_FUNCTION_TOKEN = "INJECT_FUNCTION"
 
 # Suffixes to add to the base prompt.
 STACK_TRACE_SUFFIX = "\n\nSTACK TRACE: "
@@ -126,6 +126,10 @@ class InstructionCompiler:
 
     def _parse_instructions_into_queue(self, instructions):
         """Parse the instructions into a list of instructions."""
+
+        # First pass queue reads all of the functions and removes them
+        # from the string. Second pass queue is what collates the blocks
+        # that are fed into the LLM.
         first_pass_queue = instructions.split("\n")
         second_pass_queue = []
         final_queue = []
@@ -153,10 +157,11 @@ class InstructionCompiler:
                 self.functions[function_name] = function_body
             else:
                 second_pass_queue.append(line)
+
         # Then parse the rest of the instructions. Every contiguous set of
         # lines that do not start with "RUN FUNCTION" should be collated
         # into a single block. For any line that starts with
-        # "RUN FUNCTION name", then replace it with the respective function
+        # "RUN_FUNCTION name", then replace it with the respective function
         # body from the dict.
         while second_pass_queue:
             line = second_pass_queue.pop(0)
@@ -167,17 +172,30 @@ class InstructionCompiler:
                 function_name = line.split(" ")[-1]
                 function_body = self.functions[function_name]
                 final_queue.append(function_body)
+            elif line.startswith(INJECT_FUNCTION_TOKEN):
+                # Add in the instructions from the function cache.
+                # NOTE! The distinction between INJECT_FUNCTION and
+                # RUN_FUNCTION is that RUN_FUNCTION will add the function
+                # as a block, whereas INJECT_FUNCTION will inject the function
+                # as part of the surrounding block.
+                function_name = line.split(" ")[-1]
+                function_body = self.functions[function_name]
+                function_lines = [line for line in function_body.split("\n") if line]
+                function_lines.extend(second_pass_queue)
+                second_pass_queue = function_lines
             else:
                 # Otherwise, just add all contiguous lines that do not start with
-                # "# RUN FUNCTION".
+                # RUN_FUNCTION.
                 instruction_block = line + "\n"
                 while second_pass_queue:
                     line = second_pass_queue.pop(0)
                     if line.startswith(RUN_FUNCTION_TOKEN):
-                        # Add it back to the queue.
+                        # Add it back to the queue and stop constructing this
+                        # block.
                         second_pass_queue.insert(0, line)
                         break
-                    instruction_block += line + "\n"
+                    else:
+                        instruction_block += line + "\n"
                 final_queue.append(instruction_block)
 
         return final_queue
