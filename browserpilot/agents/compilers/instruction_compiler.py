@@ -10,6 +10,10 @@ logger = logging.getLogger(__name__)
 
 # Designated tokens.
 RUN_PROMPT_TOKEN = "<RUN_PROMPT>"  # To denote command to run subroutine.
+BEGIN_FUNCTION_TOKEN = "BEGIN_FUNCTION"
+END_FUNCTION_TOKEN = "END_FUNCTION"
+RUN_FUNCTION_TOKEN = "RUN_FUNCTION"
+INJECT_FUNCTION_TOKEN = "INJECT_FUNCTION_TOKEN"
 
 # Suffixes to add to the base prompt.
 STACK_TRACE_SUFFIX = "\n\nSTACK TRACE: "
@@ -126,7 +130,7 @@ class InstructionCompiler:
         final_queue = []
 
         # First, parse all the functions, which are denoted by a line that
-        # starts with "BEGIN_FUNCTION name" and ends with "# END_FUNCTION".
+        # starts with "BEGIN_FUNCTION name" and ends with "END_FUNCTION".
         # Load them into self.functions, the dict of function name to function
         # body.
         # Start with a first pass over the queue to find all the functions.
@@ -137,15 +141,17 @@ class InstructionCompiler:
             if line.startswith("# "):
                 continue  # Skip comments.
 
-            if line.startswith("BEGIN_FUNCTION"):
+            if line.startswith(BEGIN_FUNCTION_TOKEN):
                 function_name = line.split(" ")[-1]
                 function_body = ""
                 while first_pass_queue:
                     line = first_pass_queue.pop(0)
-                    if line.startswith("END_FUNCTION"):
+                    if line.startswith(END_FUNCTION_TOKEN):
                         break
                     function_body += line + "\n"
                 self.functions[function_name] = function_body
+            elif line.startswith(INJECT_FUNCTION_TOKEN):
+                pass  # TODO.
             else:
                 second_pass_queue.append(line)
         # Then parse the rest of the instructions. Every contiguous set of
@@ -158,7 +164,7 @@ class InstructionCompiler:
             if not line:
                 continue
 
-            if line.startswith("RUN_FUNCTION"):
+            if line.startswith(RUN_FUNCTION_TOKEN):
                 function_name = line.split(" ")[-1]
                 function_body = self.functions[function_name]
                 final_queue.append(function_body)
@@ -168,7 +174,7 @@ class InstructionCompiler:
                 instruction_block = line + "\n"
                 while second_pass_queue:
                     line = second_pass_queue.pop(0)
-                    if line.startswith("RUN_FUNCTION"):
+                    if line.startswith(RUN_FUNCTION_TOKEN):
                         # Add it back to the queue.
                         second_pass_queue.insert(0, line)
                         break
