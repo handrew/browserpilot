@@ -13,7 +13,7 @@ RUN_PROMPT_TOKEN = "<RUN_PROMPT>"  # To denote command to run subroutine.
 BEGIN_FUNCTION_TOKEN = "BEGIN_FUNCTION"
 END_FUNCTION_TOKEN = "END_FUNCTION"
 RUN_FUNCTION_TOKEN = "RUN_FUNCTION"
-INJECT_FUNCTION_TOKEN = "INJECT_FUNCTION_TOKEN"
+INJECT_FUNCTION_TOKEN = "INJECT_FUNCTION"  # TODO.
 
 # Suffixes to add to the base prompt.
 STACK_TRACE_SUFFIX = "\n\nSTACK TRACE: "
@@ -150,8 +150,6 @@ class InstructionCompiler:
                         break
                     function_body += line + "\n"
                 self.functions[function_name] = function_body
-            elif line.startswith(INJECT_FUNCTION_TOKEN):
-                pass  # TODO.
             else:
                 second_pass_queue.append(line)
         # Then parse the rest of the instructions. Every contiguous set of
