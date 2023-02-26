@@ -1,5 +1,6 @@
 """GPT Selenium Agent abstraction."""
 import pdb
+import os
 import re
 import sys
 import time
@@ -37,6 +38,7 @@ class GPTSeleniumAgent:
         user_data_dir="user_data",
         headless=False,
         debug=False,
+        debug_html_folder="",
         instruction_output_file=None,
     ):
         """Initialize the agent."""
@@ -46,6 +48,7 @@ class GPTSeleniumAgent:
         ), "Instruction output file must be a YAML file or None."
         self.instruction_output_file = instruction_output_file
         self.debug = debug
+        self.debug_html_folder = debug_html_folder
 
         # Set up the driver.
         chrome_options = webdriver.ChromeOptions()
@@ -158,6 +161,12 @@ class GPTSeleniumAgent:
         line_num = int(stack_trace.split("line ")[1].split(",")[0])
         return {"stack_trace": stack_trace, "line_num": line_num}
 
+    def __save_html_snapshot(self, fname):
+        """Helpful for debugging."""
+        html = self.driver.page_source
+        with open(fname, "w+") as f:
+            f.write(html)
+
     def __step_through_instructions(self):
         """In contrast to `__run_compiled_instructions`, this function will
         step through the instructions queue one at a time, calling the LLM for
@@ -192,6 +201,13 @@ class GPTSeleniumAgent:
                     logger.info(problem_instruction)
 
                     if self.debug:
+                        if self.debug_html_folder:
+                            # Check if the folder exists, and if not, create it.
+                            if not os.path.exists(self.debug_html_folder):
+                                os.makedirs(self.debug_html_folder)
+                            debug_name = "debug_line_{line}.html".format(line=line_num)
+                            debug_name = os.path.join(self.debug_html_folder, debug_name)
+                            self.__save_html_snapshot(debug_name)
                         pdb.set_trace()
 
                     step = self.instruction_compiler.retry(problem_instruction + stack_trace)
