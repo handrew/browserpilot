@@ -285,6 +285,9 @@ class GPTSeleniumAgent:
             # "(document.scrollingElement || document.body).scrollTop = (document.scrollingElement || document.body).scrollTop + window.innerHeight;"
             self.driver.execute_script("window.scrollBy(0, window.innerHeight);")
 
+    def find_element(self, by="id", value=None):
+        return self.find_elements(by, value)[0]
+
     def find_elements(self, by="id", value=None):
         """Wrapper over `driver.find_elements` which also scans iframes.
 
