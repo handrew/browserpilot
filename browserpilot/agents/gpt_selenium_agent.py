@@ -171,11 +171,38 @@ class GPTSeleniumAgent:
         line_num = int(stack_trace.split("line ")[1].split(",")[0])
         return {"stack_trace": stack_trace, "line_num": line_num}
 
-    def __save_html_snapshot(self, fname):
+    def __save_html_snapshot(self):
         """Helpful for debugging."""
+        # Check if the folder exists, and if not, create it.
+        if not os.path.exists(self.debug_html_folder):
+            os.makedirs(self.debug_html_folder)
+
+        # Save an HTML of the entire page.
+        debug_name = "debug.html"
+        debug_name = os.path.join(self.debug_html_folder, debug_name)
+
         html = self.driver.page_source
-        with open(fname, "w+") as f:
+        with open(debug_name, "w+") as f:
             f.write(html)
+        
+        # Save a screenshot of the entire page.
+        screenshot_name = "debug.png"
+        screenshot_name = os.path.join(self.debug_html_folder, screenshot_name)
+        self.driver.save_screenshot(screenshot_name)
+
+        # Save screenshots and HTML from each iframe.
+        iframes = self.driver.find_elements(by=By.TAG_NAME, value="iframe")
+        for i, iframe in enumerate(iframes):
+            screenshot_name = "debug_{iframe_num}.png".format(iframe_num=i)
+            screenshot_name = os.path.join(self.debug_html_folder, screenshot_name)
+            # iframe.screenshot(screenshot_name)
+            iframe_debug_name = "debug_{iframe_num}.html".format(iframe_num=i)
+            iframe_debug_name = os.path.join(self.debug_html_folder, iframe_debug_name)
+            with open(iframe_debug_name, "w+") as f:
+                self.driver.switch_to.frame(iframe)
+                f.write(self.driver.page_source)
+            self.driver.switch_to.default_content()
+        self.driver.switch_to.default_content()
 
     def __step_through_instructions(self):
         """In contrast to `__run_compiled_instructions`, this function will
@@ -205,21 +232,17 @@ class GPTSeleniumAgent:
                     stack_trace = stack_trace_result["stack_trace"]
                     line_num = stack_trace_result["line_num"]
                     problem_instruction = "\nFailed on line: {line}\n".format(
-                        line=action.replace("\n\n", "\n").split("\n")[line_num - 1]
+                        line=action.split("\n")[line_num - 1]
                     )
                     logger.info("\n\n" + stack_trace)
                     logger.info(problem_instruction)
 
                     if self.debug:
                         if self.debug_html_folder:
-                            # Check if the folder exists, and if not, create it.
-                            if not os.path.exists(self.debug_html_folder):
-                                os.makedirs(self.debug_html_folder)
-                            debug_name = "debug_line_{line}.html".format(line=line_num)
-                            debug_name = os.path.join(self.debug_html_folder, debug_name)
-                            self.__save_html_snapshot(debug_name)
-                        # Print the traceback.
+                            self.__save_html_snapshot()
+
                         logger.info(traceback.print_exc())
+                        env = self  # For the interactive debugger.
                         pdb.set_trace()
 
                     step = self.instruction_compiler.retry(problem_instruction + stack_trace)
@@ -303,6 +326,7 @@ class GPTSeleniumAgent:
         elements = self.driver.find_elements(by, value)
         elements = [GPTWebElement(element) for element in elements]
         iframes = self.driver.find_elements(by=By.TAG_NAME, value="iframe")
+        logger.info("Found {num} iframes.".format(num=len(iframes)))
         for iframe in iframes:
             self.driver.switch_to.frame(iframe)
             iframe_elements = self.driver.find_elements(by, value)
