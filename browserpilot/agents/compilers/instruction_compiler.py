@@ -9,7 +9,6 @@ logger = logging.getLogger(__name__)
 """Set up all the prompt variables."""
 
 # Designated tokens.
-RUN_PROMPT_TOKEN = "<RUN_PROMPT>"  # To denote command to run subroutine.
 BEGIN_FUNCTION_TOKEN = "BEGIN_FUNCTION"
 END_FUNCTION_TOKEN = "END_FUNCTION"
 RUN_FUNCTION_TOKEN = "RUN_FUNCTION"
@@ -21,32 +20,34 @@ RETRY_SUFFIX = "\n\nAttempting again.\n\nOUTPUT: "
 
 # Prompts! The best part :).
 BASE_PROMPT = """You have an instance `env` with the following methods:
-- `env.driver.find_elements(by='id', value=None)` which finds and returns list of WebElement. The argument `by` is a string that specifies the locator strategy. The argument `value` is a string that specifies the locator value. `by` is usually `xpath` and `value` is the xpath of the element.
-- `env.find_nearest(e, xpath)` can only be used to locate an element that matches the xpath near element e. 
-- `env.send_keys(text)` is only used to type in string `text`. string ENTER is Keys.ENTER
+- `env.driver` is the Selenium webdriver.
+- `env.find_elements(by='id', value=None)` which finds and returns list of `GPTWebElement`, which has two instance vars: `WebElement` (from Selenium) and `iframe` (to denote which iframe it came from). The argument `by` is a string that specifies the locator strategy. The argument `value` is a string that specifies the locator value. `by` is usually `xpath` and `value` is the xpath of the element.
+- `env.find_nearest(e, xpath)` can only be used to locate an GPTWebElement that matches the xpath near GPTWebElement e. 
+- `env.send_keys(element, text)` sends `text` to element. If element is None, then it just sends the text as keys. string ENTER is Keys.ENTER
 - `env.get(url)` goes to url.
-- `env.click(element)` clicks the element.
+- `env.click(element)` clicks the GPTWebElement.
 - `env.wait(seconds)` waits for `seconds` seconds.
 - `env.scroll(direction)` scrolls the page. `direction` is either "up" or "down".
 - `env.get_llm_response(text)` that asks AI about a string `text`.
 - `env.retrieve_information(prompt, entire_page=False)` returns a string, information a page given a prompt. Use prompt="Summarize:" for summaries. Uses all the text if entire_page=True and only text in paragraphs if False. To save tokens, use entire_page=False. Invoked with commands like "retrieve", "find in the page", or similar.
-- `env.ask_llm_to_find_element(description)` that asks AI to find an element that matches the description. It returns None if it cannot find an element that matches the description, so you must check for that.
+- `env.ask_llm_to_find_element(description)` that asks AI to find an GPTWebElement that matches the description. It returns None if it cannot find an element that matches the description, so you must check for that.
 - `env.save(text, filename)` saves the string `text` to a file `filename`.
 - `env.get_text_from_page(entire_page)` returns the text from the page. If entire_page is True, it returns all the text. If entire_page is False, it returns only the text in paragraphs.
 
-WebElement has functions:
+GPTWebElement has functions:
 1. `element.text` returns the text of the element.
 2. `element.get_attribute(attr)` returns the value of the attribute of the element. If the attribute does not exist, it returns ''.
-3. `element.find_elements(by='id', value=None)` it's the same as `env.driver.find_elements()` except that it only searches the children of the element.
+3. `element.find_elements(by='id', value=None)` is similar to `env.find_elements()` except that it only searches the children of the element and does not search iframes.
 4. `element.is_displayed()` returns if the element is visible.
+5. Do NOT use `element.send_keys(text)` or `element.click()`. Use `env.send_keys(text)` and `env.click(element)` instead.
 
 The xpath of a text box is usually "//div[@role = 'textarea']|//div[@role = 'textbox']|//input".
 The xpath of text is usually "//*[string-length(text()) > 0]".
-The xpath for a button usually "//div[@role = 'button']|//button", but it may sometimes also be styled as an anchor.
+The xpath for a button is usually "//button|//div[@role = 'button']", but it may sometimes also be an anchor.
 The xpath for an element whose text is "text" is "//*[text() = 'text']".
 
 Your code must obey the following constraints:
-1. Respect the lowercase and uppercase letters in the instruction.
+1. Respect case sensitivity in the instructions.
 2. Does not call any functions besides those given above and those defined by the base language spec.
 3. Has correct indentation.
 4. Only write code.
@@ -57,13 +58,14 @@ INSTRUCTIONS:
 
 OUTPUT: ```python"""
 
-PROMPT_TO_FIND_ELEMENT = """Given the HTML below, write the `value` argument to the Python Selenium function `env.driver.find_elements(by='xpath', value=value)` to precisely locate the element.
+PROMPT_TO_FIND_ELEMENT = """Given the HTML below, write the `value` argument to the Python Selenium function `env.find_elements(by='xpath', value=value)` to precisely locate the element.
 
-Do not use any other method besides `env.driver.find_element`. Again, write only the *string argument for `value`* to the function.
+Do not use any other method besides `env.find_elements`. Again, write only the *string argument for `value`* to the function.
 
 HTML: {cleaned_html}
 
 OUTPUT:"""
+
 
 class InstructionCompiler:
     def __init__(self, instructions=None, base_prompt=BASE_PROMPT, use_compiled=True):

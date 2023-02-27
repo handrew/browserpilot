@@ -30,6 +30,16 @@ logger = logging.getLogger(__name__)
 NO_RESPONSE_TOKEN = "<NONE>"  # To denote that empty response from model.
 
 
+class GPTWebElement(webdriver.remote.webelement.WebElement):
+    """Wrapper over Selenium's WebElement with an additional iframe ivar for
+    recordkeeping."""
+    def __init__(self, web_ele, iframe=None):
+        # Initialize this object using web_ele.
+        super().__init__(web_ele._parent, web_ele._id)
+        self.__dict__.update(web_ele.__dict__)
+        self.iframe = iframe
+
+
 class GPTSeleniumAgent:
     def __init__(
         self,
@@ -208,6 +218,8 @@ class GPTSeleniumAgent:
                             debug_name = "debug_line_{line}.html".format(line=line_num)
                             debug_name = os.path.join(self.debug_html_folder, debug_name)
                             self.__save_html_snapshot(debug_name)
+                        # Print the traceback.
+                        logger.info(traceback.print_exc())
                         pdb.set_trace()
 
                     step = self.instruction_compiler.retry(problem_instruction + stack_trace)
@@ -222,6 +234,20 @@ class GPTSeleniumAgent:
             )
         
         exec("env.driver.quit()", globals(), ldict)
+
+    def __switch_to_element_iframe(func):
+        """Decorator function to switch to the iframe of the element."""
+        def wrapper(*args):
+            self = args[0]
+            element = args[1]
+            if element is not None:
+                iframe = element.iframe
+                if iframe is not None:
+                    self.driver.switch_to.frame(iframe)
+                func(*args)
+                self.driver.switch_to.default_content()
+        
+        return wrapper
 
     """Functions meant for the client to call."""
 
@@ -259,7 +285,34 @@ class GPTSeleniumAgent:
             # "(document.scrollingElement || document.body).scrollTop = (document.scrollingElement || document.body).scrollTop + window.innerHeight;"
             self.driver.execute_script("window.scrollBy(0, window.innerHeight);")
 
-    def find_nearest_textbox(self, element):
+    def find_elements(self, by="id", value=None):
+        """Wrapper over `driver.find_elements` which also scans iframes.
+
+        First, it finds all elements on the page that match the given
+        `by` and `value`. Then, it finds all iframes on the page and
+        switches to each one. It then finds all elements on the page
+        that match the given `by` and `value`. It then switches back
+        to the original frame and repeats the process for each iframe.
+            
+        Finally, it returns the list of all elements found on the page
+        and in all iframes. Returns a list of GPTWebElement objects.
+        """
+        elements = self.driver.find_elements(by, value)
+        elements = [GPTWebElement(element) for element in elements]
+        iframes = self.driver.find_elements(by=By.TAG_NAME, value="iframe")
+        for iframe in iframes:
+            self.driver.switch_to.frame(iframe)
+            iframe_elements = self.driver.find_elements(by, value)
+            iframe_elements = [
+                GPTWebElement(element, iframe=iframe)
+                for element in iframe_elements
+            ]
+            elements.extend(iframe_elements)
+            self.driver.switch_to.default_content()
+        return elements
+
+    @__switch_to_element_iframe
+    def find_nearest_textbox(self, element: GPTWebElement):
         try:
             textbox = self.driver.find_element(
                 locate_with(By.XPATH, "//div[@role = 'textbox']").near(element)
@@ -268,27 +321,44 @@ class GPTSeleniumAgent:
             textbox = self.driver.find_element(
                 locate_with(By.TAG_NAME, "input").near(element)
             )
-        return textbox
+        
+        textbox_element = GPTWebElement(textbox, iframe=element.iframe)
+        return textbox_element
 
-    def find_nearest_text(self, element):
+    @__switch_to_element_iframe
+    def find_nearest_text(self, element: GPTWebElement):
         try:
             textbox = self.driver.find_element(
                 locate_with(By.XPATH, "//*[text() != '']").near(element)
             )
         except:
             return ""
+
         return textbox.text
 
-    def find_nearest(self, e, xpath):
+    @__switch_to_element_iframe
+    def find_nearest(self, element: GPTWebElement, xpath=None):
         try:
-            return self.driver.find_element(locate_with(By.XPATH, xpath).near(e))
+            nearest_elem = self.driver.find_element(locate_with(By.XPATH, xpath).near(element))
         except:
-            return self.driver.find_element(locate_with(By.XPATH, xpath).below(e))
+            nearest_elem = self.driver.find_element(locate_with(By.XPATH, xpath).below(element))
 
-    def send_keys(self, keys):
-        ActionChains(self.driver).pause(1).send_keys(keys).pause(1).perform()
+        nearest_element = GPTWebElement(nearest_elem, iframe=element.iframe)
+        self.driver.switch_to.default_content()
+        return nearest_element
 
-    def click(self, element):
+    @__switch_to_element_iframe
+    def send_keys(self, element: GPTWebElement, keys):
+        if element is not None:
+            ActionChains(self.driver).pause(1).move_to_element(element).pause(1).click(
+                element
+            ).pause(1).send_keys(keys).pause(1).perform()
+        else:
+            ActionChains(self.driver).pause(1).send_keys(keys).pause(1).perform()
+        
+
+    @__switch_to_element_iframe
+    def click(self, element: GPTWebElement):
         ActionChains(self.driver).pause(1).move_to_element(element).pause(1).click(
             element
         ).perform()
