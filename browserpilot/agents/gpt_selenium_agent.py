@@ -371,7 +371,6 @@ class GPTSeleniumAgent:
             nearest_elem = self.driver.find_element(locate_with(By.XPATH, xpath).below(element))
 
         nearest_element = GPTWebElement(nearest_elem, iframe=element.iframe)
-        self.driver.switch_to.default_content()
         return nearest_element
 
     @__switch_to_element_iframe
