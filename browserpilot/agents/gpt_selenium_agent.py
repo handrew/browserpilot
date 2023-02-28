@@ -457,7 +457,7 @@ class GPTSeleniumAgent:
 
     def ask_llm_to_find_element(self, element_description):
         """Clean the HTML from self.driver, ask GPT-Index to find the element,
-        and return Selenium code to access it. Return a WebElement."""
+        and return Selenium code to access it. Return a GPTWebElement."""
         soup = self._clean_html()
         # Get all of the elements, and for each element, if there are
         # children, then remove them.
@@ -486,7 +486,8 @@ class GPTSeleniumAgent:
             cleaned_html=resp
         )
         response = self.get_llm_response(prompt, temperature=0).strip().replace('"', "")
-        return self.driver.find_element(by="xpath", value=response)
+        element = self.driver.find_element(by="xpath", value=response)
+        return GPTWebElement(element)
 
     def save(self, text, filename):
         """Save the text to a file."""
