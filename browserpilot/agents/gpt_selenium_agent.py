@@ -376,14 +376,7 @@ class GPTSeleniumAgent:
 
     @__switch_to_element_iframe
     def send_keys(self, element: GPTWebElement, keys):
-        wait_time = TIME_BETWEEN_ACTIONS
-        if element is not None:
-            ActionChains(self.driver).pause(wait_time).move_to_element(element).pause(wait_time).click(
-                element
-            ).pause(wait_time).send_keys(keys).pause(wait_time).perform()
-        else:
-            ActionChains(self.driver).pause(wait_time).send_keys(keys).pause(wait_time).perform()
-        
+        element.send_keys(keys)
 
     @__switch_to_element_iframe
     def click(self, element: GPTWebElement):

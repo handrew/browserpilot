@@ -24,7 +24,7 @@ BASE_PROMPT = """You have an instance `env` with the following methods:
 - `env.find_elements(by='id', value=None)` which finds and returns list of `GPTWebElement`, which has two instance vars: `WebElement` (from Selenium) and `iframe` (to denote which iframe it came from). The argument `by` is a string that specifies the locator strategy. The argument `value` is a string that specifies the locator value. `by` is usually `xpath` and `value` is the xpath of the element.
 - `env.find_element(by='id', value=None)` is similar to `env.find_elements()` except that it only returns the first element.
 - `env.find_nearest(e, xpath)` can only be used to locate an GPTWebElement that matches the xpath near GPTWebElement e. 
-- `env.send_keys(element, text)` sends `text` to element. If element is None, then it just sends the text as keys. string ENTER is Keys.ENTER
+- `env.send_keys(element, text)` sends `text` to element.
 - `env.get(url)` goes to url.
 - `env.click(element)` clicks the GPTWebElement.
 - `env.wait(seconds)` waits for `seconds` seconds.
