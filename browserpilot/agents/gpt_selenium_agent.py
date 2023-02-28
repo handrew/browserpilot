@@ -380,7 +380,7 @@ class GPTSeleniumAgent:
         if element is not None:
             ActionChains(self.driver).pause(wait_time).move_to_element(element).pause(wait_time).click(
                 element
-            ).pause(wait_time).send_keys(keys).pause(wait_time).perform(wait_time)
+            ).pause(wait_time).send_keys(keys).pause(wait_time).perform()
         else:
             ActionChains(self.driver).pause(wait_time).send_keys(keys).pause(wait_time).perform()
         
