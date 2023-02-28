@@ -20,6 +20,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.relative_locator import locate_with
 from .compilers.instruction_compiler import InstructionCompiler
+TIME_BETWEEN_ACTIONS = 0.5
 
 nltk.download("punkt")
 
@@ -375,17 +376,19 @@ class GPTSeleniumAgent:
 
     @__switch_to_element_iframe
     def send_keys(self, element: GPTWebElement, keys):
+        wait_time = TIME_BETWEEN_ACTIONS
         if element is not None:
-            ActionChains(self.driver).pause(1).move_to_element(element).pause(1).click(
+            ActionChains(self.driver).pause(wait_time).move_to_element(element).pause(wait_time).click(
                 element
-            ).pause(1).send_keys(keys).pause(1).perform()
+            ).pause(wait_time).send_keys(keys).pause(wait_time).perform(wait_time)
         else:
-            ActionChains(self.driver).pause(1).send_keys(keys).pause(1).perform()
+            ActionChains(self.driver).pause(wait_time).send_keys(keys).pause(wait_time).perform()
         
 
     @__switch_to_element_iframe
     def click(self, element: GPTWebElement):
-        ActionChains(self.driver).pause(1).move_to_element(element).pause(1).click(
+        wait_time = TIME_BETWEEN_ACTIONS
+        ActionChains(self.driver).pause(wait_time).move_to_element(element).pause(wait_time).click(
             element
         ).perform()
 
