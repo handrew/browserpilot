@@ -104,8 +104,9 @@ class GPTSeleniumAgent:
 
         return False
 
-    def _clean_html(self):
-        """Clean HTML to remove blacklisted elements and attributes."""
+    def __remove_blacklisted_elements_and_attributes(self):
+        """Clean HTML to remove blacklisted elements and attributes. Returns
+        BeautifulSoup object."""
         blacklisted_elements = set(
             [
                 "head",
@@ -145,6 +146,20 @@ class GPTSeleniumAgent:
             remove_blacklisted_attributes(tag, blacklisted_attributes)
 
         return soup
+
+    def __get_html_elements_for_llm(self):
+        """Returns list of BeautifulSoup elements for use in GPT Index.
+
+        First removes blacklisted elements and attributes, then removes any
+        children of elements. Finally, removes any elements with no attrs.
+        """
+        soup = self.__remove_blacklisted_elements_and_attributes()
+        # Remove children of elements that have children.
+        elements = soup.find_all()
+        [ele.clear() if ele.contents else ele for ele in elements if ele.contents]
+        # Then remove any elements that do not have attributes, e.g., <p></p>.
+        elements = [ele for ele in elements if ele.attrs]
+        return elements
 
     def __run_compiled_instructions(self, instructions):
         """Runs Python code previously compiled by InstructionCompiler."""
@@ -454,36 +469,64 @@ class GPTSeleniumAgent:
     def ask_llm_to_find_element(self, element_description):
         """Clean the HTML from self.driver, ask GPT-Index to find the element,
         and return Selenium code to access it. Return a GPTWebElement."""
-        soup = self._clean_html()
-        # Get all of the elements, and for each element, if there are
-        # children, then remove them.
-        elements = soup.find_all()
-        [ele.clear() if ele.contents else ele for ele in elements if ele.contents]
-        # Then remove any elements that do not have attributes, e.g., <p></p>.
-        elements = [ele for ele in elements if ele.attrs]
 
-        # Create a list of documents of each element prettified.
+        # Set up a dict that maps an element string to its object and its
+        # source iframe. Shape looks like:
+        # element_string => {"iframe": iframe, "element": element_obj}.
+        elements_tagged_by_iframe = {}
+
+        # First, get and clean elements from the main page.
+        elements = self.__get_html_elements_for_llm()
+        elements_tagged_by_iframe.update(
+            {ele.prettify(): {"iframe": None, "element": ele} for ele in elements}
+        )
+        # Then do it for the iframes.
+        iframes = self.driver.find_elements(by=By.TAG_NAME, value="iframe")
+        for iframe in iframes:
+            self.driver.switch_to.frame(iframe)
+            elements = self.__get_html_elements_for_llm()
+            elements_tagged_by_iframe.update(
+                {ele.prettify(): {"iframe": iframe, "element": ele} for ele in elements}
+            )
+
+        # Create the docs and a dict of doc_id to element, which will help
+        # us find the element that GPT Index returns.
         docs = [Document(element.prettify()) for element in elements]
+        doc_id_to_element = {doc.get_doc_id(): doc.get_text() for doc in docs}
 
-        # Set up the index and query it.
+        # Construct and query index.
         index = GPTSimpleVectorIndex(docs)
-        query = "Find element that matches description: {element_description}. If no element matches the description, then return {no_resp_token}.".format(
+        query = "Find element that matches description: {element_description}. If no element matches, return {no_resp_token}.".format(
             element_description=element_description, no_resp_token=NO_RESPONSE_TOKEN
         )
         resp = index.query(query)
-        resp = resp.response.strip()
-        if NO_RESPONSE_TOKEN in resp:
+        doc_id = resp.source_nodes[0].doc_id
+
+        resp_text = resp.response.strip()
+        if NO_RESPONSE_TOKEN in resp_text:
             logger.info("GPT-Index could not find element. Returning None.")
             return None
 
-        logger.info("Asked GPT-Index to find element. Response: {resp}".format(resp=resp))
+        logger.info("Asked GPT-Index to find element. Response: {resp}".format(resp=resp_text))
+
+        # Find the iframe that the element is from.
+        found_element = doc_id_to_element[doc_id]
+        iframe_of_element = elements_tagged_by_iframe[found_element]["iframe"]
+
         # Get the argument to the find_element_by_xpath function.
         prompt = self.instruction_compiler.prompt_to_find_element.format(
-            cleaned_html=resp
+            cleaned_html=found_element
         )
-        response = self.get_llm_response(prompt, temperature=0).strip().replace('"', "")
-        element = self.driver.find_element(by="xpath", value=response)
-        return GPTWebElement(element)
+        llm_output = self.get_llm_response(prompt, temperature=0).strip().replace('"', "")
+        
+        # Switch to the iframe that the element is in.
+        if iframe_of_element is not None:
+            self.driver.switch_to.frame(iframe_of_element)
+        element = self.driver.find_element(by="xpath", value=llm_output)
+        # Switch back to default_content.
+        self.driver.switch_to.default_content()
+
+        return GPTWebElement(element, iframe=iframe_of_element)
 
     def save(self, text, filename):
         """Save the text to a file."""
