@@ -36,8 +36,7 @@ class Studio:
                 with open(instructions_to_load, "r") as f:
                     instructions = yaml.safe_load(f)
                     self._lines = instructions["instructions"]
-                    if "compiled" in instructions:
-                        self._last_compiled_output = instructions
+                    print("Note: not loading compiled instructions.")
 
     def __print_instructions(self):
         print("See the below instructions for how to use the Studio.")
@@ -86,7 +85,11 @@ class Studio:
         if not filename.endswith(".yaml"):
             filename = filename + ".yaml"
         with open(filename, "w") as f:
-            f.write(yaml.dump({"instructions": self._lines}))
+            instructions = {"instructions": self._lines}
+            if self._last_compiled_output is not None:
+                compiled = self._last_compiled_output["action_output"]
+                instructions["compiled"] = compiled.split("\n")
+            f.write(yaml.dump(instructions))
         print("Saved to {filename}.".format(filename=filename))
 
     def _compile_instructions(self):
@@ -123,9 +126,9 @@ class Studio:
             elif line_lower == "run last":
                 self._print_lines()
                 filename = self._format_last_compiled_output_for_agent()
-                with open(filename, "r") as f:
-                    agent = GPTSeleniumAgent(f, chromedriver_path=self.chromedriver_path)
                 try:
+                    with open(filename, "r") as f:
+                        agent = GPTSeleniumAgent(f, chromedriver_path=self.chromedriver_path, debug=True)
                     agent.run()
                 except:
                     print("There was an error!")
@@ -144,7 +147,7 @@ class Studio:
                 filename = self._format_last_compiled_output_for_agent()
 
                 with open(filename, "r") as f:
-                    agent = GPTSeleniumAgent(f, chromedriver_path=self.chromedriver_path)
+                    agent = GPTSeleniumAgent(f, chromedriver_path=self.chromedriver_path, debug=True)
                 
                 try:
                     agent.run()
