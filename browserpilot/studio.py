@@ -20,11 +20,23 @@ class Studio:
     """Command line interface to help users create BrowserPilot routines line
     by line."""
 
-    def __init__(self, chromedriver_path):
+    def __init__(self, instructions_to_load=None, chromedriver_path=None):
         """Initializes the Studio."""
+        assert chromedriver_path is not None, "Must provide chromedriver_path."
+        self.chromedriver_path = chromedriver_path
         self._lines = []
         self._last_compiled_output = None
-        self.chromedriver_path = chromedriver_path
+
+        if instructions_to_load is not None:
+            if not instructions_to_load.endswith(".yaml"):
+                # Split by newline.
+                self._lines = instructions_to_load.split("\n")
+            else:
+                with open(instructions_to_load, "r") as f:
+                    instructions = yaml.load(f)
+                    self._lines = instructions["instructions"]
+                    if "compiled" in instructions:
+                        self._last_compiled_output = instructions
 
     def __print_instructions(self):
         print("See the below instructions for how to use the Studio.")
@@ -71,6 +83,7 @@ class Studio:
             filename = filename + ".yaml"
         with open(filename, "w") as f:
             f.write(yaml.dump({"instructions": self._lines}))
+        print("Saved to {filename}.".format(filename=filename)
 
     def _compile_instructions(self):
         print("Compiling instructions...")
