@@ -83,7 +83,7 @@ class Studio:
             filename = filename + ".yaml"
         with open(filename, "w") as f:
             f.write(yaml.dump({"instructions": self._lines}))
-        print("Saved to {filename}.".format(filename=filename)
+        print("Saved to {filename}.".format(filename=filename))
 
     def _compile_instructions(self):
         print("Compiling instructions...")
