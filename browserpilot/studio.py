@@ -42,7 +42,6 @@ class Studio:
         """Prints the lines of the routine."""
         for i, line in enumerate(self._lines):
             print("{i}: {line}".format(i=i, line=line))
-        print()
 
     def _format_lines_for_compiler(self):
         """Formats the lines of the routine for the compiler."""
@@ -136,6 +135,7 @@ class Studio:
             elif line_lower == "list":
                 self._print_lines()
             elif line_lower == "delete":
+                print("Deleting last line: ".format(self._lines[-1]))
                 self._lines = self._lines[:-1]
                 self._print_lines()
             elif line_lower == "save":
@@ -143,3 +143,5 @@ class Studio:
                 self.save(filename)
             else:
                 self._lines.append(line)
+                print("Line added.")
+            print()
