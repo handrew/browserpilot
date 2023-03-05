@@ -3,6 +3,7 @@ import openai
 import yaml
 import io
 import logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -203,7 +204,9 @@ class InstructionCompiler:
 
         return final_queue
 
-    def get_completion(self, prompt, temperature=0, model="text-davinci-003", use_cache=True):
+    def get_completion(
+        self, prompt, temperature=0, model="text-davinci-003", use_cache=True
+    ):
         """Wrapper over OpenAI's completion API."""
         # Check if it's in the cache already.
         if use_cache and prompt in self.api_cache:
@@ -221,11 +224,15 @@ class InstructionCompiler:
                 presence_penalty=0,
                 best_of=1,
                 temperature=temperature,
-                stop=["```"]
+                stop=["```"],
             )
             text = response["choices"][0]["text"]
         except openai.error.RateLimitError as exc:
-            logger.info("Rate limit error: {exc}. Sleeping for a few seconds.".format(exc=str(exc)))
+            logger.info(
+                "Rate limit error: {exc}. Sleeping for a few seconds.".format(
+                    exc=str(exc)
+                )
+            )
             time.sleep(5)
             text = self.get_completion(prompt, temperature, model)
 

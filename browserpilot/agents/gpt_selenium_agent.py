@@ -20,11 +20,13 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.relative_locator import locate_with
 from .compilers.instruction_compiler import InstructionCompiler
+
 TIME_BETWEEN_ACTIONS = 0.5
 
 nltk.download("punkt")
 
 import logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -34,6 +36,7 @@ NO_RESPONSE_TOKEN = "<NONE>"  # To denote that empty response from model.
 class GPTWebElement(webdriver.remote.webelement.WebElement):
     """Wrapper over Selenium's WebElement with an additional iframe ivar for
     recordkeeping."""
+
     def __init__(self, web_ele, iframe=None):
         # Initialize this object using web_ele.
         super().__init__(web_ele._parent, web_ele._id)
@@ -200,7 +203,7 @@ class GPTSeleniumAgent:
         html = self.driver.page_source
         with open(debug_name, "w+") as f:
             f.write(html)
-        
+
         # Save a screenshot of the entire page.
         screenshot_name = "debug.png"
         screenshot_name = os.path.join(self.debug_html_folder, screenshot_name)
@@ -261,7 +264,9 @@ class GPTSeleniumAgent:
                         env = self  # For the interactive debugger.
                         pdb.set_trace()
 
-                    step = self.instruction_compiler.retry(problem_instruction + stack_trace)
+                    step = self.instruction_compiler.retry(
+                        problem_instruction + stack_trace
+                    )
                     instruction = step["instruction"]
                     action = step["action_output"].replace("```", "")
                     logger.info("RETRYING...")
@@ -271,11 +276,12 @@ class GPTSeleniumAgent:
             self.instruction_compiler.save_compiled_instructions(
                 self.instruction_output_file
             )
-        
+
         exec("env.driver.quit()", globals(), ldict)
 
     def __switch_to_element_iframe(func):
         """Decorator function to switch to the iframe of the element."""
+
         def wrapper(*args):
             self = args[0]
             element = args[1]
@@ -285,7 +291,7 @@ class GPTSeleniumAgent:
                     self.driver.switch_to.frame(iframe)
                 func(*args)
                 self.driver.switch_to.default_content()
-        
+
         return wrapper
 
     """Functions meant for the client to call."""
@@ -335,7 +341,7 @@ class GPTSeleniumAgent:
         switches to each one. It then finds all elements on the page
         that match the given `by` and `value`. It then switches back
         to the original frame and repeats the process for each iframe.
-            
+
         Finally, it returns the list of all elements found on the page
         and in all iframes. Returns a list of GPTWebElement objects.
         """
@@ -347,8 +353,7 @@ class GPTSeleniumAgent:
             self.driver.switch_to.frame(iframe)
             iframe_elements = self.driver.find_elements(by, value)
             iframe_elements = [
-                GPTWebElement(element, iframe=iframe)
-                for element in iframe_elements
+                GPTWebElement(element, iframe=iframe) for element in iframe_elements
             ]
             elements.extend(iframe_elements)
             self.driver.switch_to.default_content()
@@ -364,7 +369,7 @@ class GPTSeleniumAgent:
             textbox = self.driver.find_element(
                 locate_with(By.TAG_NAME, "input").near(element)
             )
-        
+
         textbox_element = GPTWebElement(textbox, iframe=element.iframe)
         return textbox_element
 
@@ -382,9 +387,13 @@ class GPTSeleniumAgent:
     @__switch_to_element_iframe
     def find_nearest(self, element: GPTWebElement, xpath=None):
         try:
-            nearest_elem = self.driver.find_element(locate_with(By.XPATH, xpath).near(element))
+            nearest_elem = self.driver.find_element(
+                locate_with(By.XPATH, xpath).near(element)
+            )
         except:
-            nearest_elem = self.driver.find_element(locate_with(By.XPATH, xpath).below(element))
+            nearest_elem = self.driver.find_element(
+                locate_with(By.XPATH, xpath).below(element)
+            )
 
         nearest_element = GPTWebElement(nearest_elem, iframe=element.iframe)
         return nearest_element
@@ -396,9 +405,9 @@ class GPTSeleniumAgent:
     @__switch_to_element_iframe
     def click(self, element: GPTWebElement):
         wait_time = TIME_BETWEEN_ACTIONS
-        ActionChains(self.driver).pause(wait_time).move_to_element(element).pause(wait_time).click(
-            element
-        ).perform()
+        ActionChains(self.driver).pause(wait_time).move_to_element(element).pause(
+            wait_time
+        ).click(element).perform()
 
     def get_text_from_page(self, entire_page=False):
         """Returns the text from the page."""
@@ -435,10 +444,14 @@ class GPTSeleniumAgent:
             docs.append(Document(doc))
 
         # Then we use GPT Index to summarize the text.
-        logger.info("Found {num_docs} documents for indexing.".format(num_docs=len(docs)))
+        logger.info(
+            "Found {num_docs} documents for indexing.".format(num_docs=len(docs))
+        )
         index = GPTSimpleVectorIndex(docs)
         print(text[:150])
-        logger.info("Retrieving information with prompt: \"{prompt}\"".format(prompt=prompt))
+        logger.info(
+            'Retrieving information with prompt: "{prompt}"'.format(prompt=prompt)
+        )
         resp = index.query(prompt, similarity_top_k=3)
         return resp.response.strip()
 
@@ -507,7 +520,9 @@ class GPTSeleniumAgent:
             logger.info("GPT-Index could not find element. Returning None.")
             return None
 
-        logger.info("Asked GPT-Index to find element. Response: {resp}".format(resp=resp_text))
+        logger.info(
+            "Asked GPT-Index to find element. Response: {resp}".format(resp=resp_text)
+        )
 
         # Find the iframe that the element is from.
         found_element = doc_id_to_element[doc_id]
@@ -517,8 +532,10 @@ class GPTSeleniumAgent:
         prompt = self.instruction_compiler.prompt_to_find_element.format(
             cleaned_html=found_element
         )
-        llm_output = self.get_llm_response(prompt, temperature=0).strip().replace('"', "")
-        
+        llm_output = (
+            self.get_llm_response(prompt, temperature=0).strip().replace('"', "")
+        )
+
         # Switch to the iframe that the element is in.
         if iframe_of_element is not None:
             self.driver.switch_to.frame(iframe_of_element)
