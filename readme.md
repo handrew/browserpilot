@@ -65,6 +65,30 @@ You may also choose to create a yaml file with a list of instructions. In genera
 
 You may pass a `instruction_output_file` to the constructor of GPTSeleniumAgent which will output a yaml file with the compiled instructions from GPT-3, to avoid having to pay API costs. 
 
+### 🎬 Using the Studio CLI
+
+See `run_studio.py` to see how to run the studio class to make it easier to iteratively generate prompts.
+
+```
+  'exit': Exits the Studio.
+  'run last': Replay last compiled routine.
+  'compile': Compiles the routine.
+  'run': Compiles and runs the routine.
+  'clear': Clears the routine.
+  'help': Shows this message.
+  'list': Shows the routine so far.
+  'delete': Deletes the last line.
+  'save': Saves the routine to a yaml file.
+```
+
+The flow could look something like this:
+1. Add natural language commands line by line.
+2. Run `compile` when you are ready, and it will ask the LLM to translate it into Selenium code.
+3. Use `run last` to run that Selenium code (without any additional API calls!) Or simply use `run` to compile AND run.
+4. Watch the Selenium browser come up and work its magic! You can eyeball it to see if it works, or see the stack trace printed to console if it doesn't.
+5. Use `list` to see the natural language commands so far. Use `delete` to remove the last line of the prompt or `clear` to wipe it entirely. 
+6. Finally, when you are done, `save` can save it to yaml or `exit` to simply leave. 
+
 ## ✋🏼 Contributing
 There are two ways I envision folks contributing.
 

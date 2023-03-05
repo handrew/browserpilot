@@ -68,7 +68,8 @@ class Studio:
 
     def save(self, filename):
         """Saves the routine to a yaml file with field "instructions"."""
-        assert filename.endswith(".yaml")
+        if not filename.endswith(".yaml"):
+            filename = filename + ".yaml"
         with open(filename, "w") as f:
             f.write(yaml.dump({"instructions": self._lines}))
 
