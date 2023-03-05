@@ -21,7 +21,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.relative_locator import locate_with
 from .compilers.instruction_compiler import InstructionCompiler
 
-TIME_BETWEEN_ACTIONS = 0.5
+TIME_BETWEEN_ACTIONS = 0.1
 
 nltk.download("punkt")
 
@@ -186,7 +186,10 @@ class GPTSeleniumAgent:
         """Runs Python code previously compiled by InstructionCompiler."""
         ldict = {"env": self}
         self._check_danger(instructions)
-        exec(instructions, globals(), ldict)
+        try:
+            exec(instructions, globals(), ldict)
+        except:
+            self.__handle_agent_exception(instructions)
         exec("env.driver.quit()", globals(), ldict)
 
     def __print_instruction_and_action(self, instruction, action):
@@ -240,6 +243,35 @@ class GPTSeleniumAgent:
                 f.write(self.driver.page_source)
             self.driver.switch_to.default_content()
         self.driver.switch_to.default_content()
+    
+    def __handle_agent_exception(self, action):
+        """To be used in a try/except block to handle exceptions."""
+        stack_trace_result = self.__get_relevant_part_of_stack_trace()
+        stack_trace = stack_trace_result["stack_trace"]
+        line_num = stack_trace_result["line_num"]
+        line_num = stack_trace_result["line_num"]
+        problem_instruction = "\nFailed on line: {line}\n".format(
+            line=action.split("\n")[line_num - 1]
+        )
+        logger.info("\n\n" + stack_trace)
+        logger.info(problem_instruction)
+
+        if self.debug:
+            if self.debug_html_folder:
+                self.__save_html_snapshot()
+
+            logger.info(traceback.print_exc())
+            env = self  # For the interactive debugger.
+            pdb.set_trace()
+
+        if self.should_retry:
+            step = self.instruction_compiler.retry(problem_instruction + stack_trace)
+            instruction = step["instruction"]
+            action = step["action_output"].replace("```", "")
+            logger.info("RETRYING...")
+            self.__print_instruction_and_action(instruction, action)
+        else:
+            raise Exception("Failed to execute instruction.")
 
     def __step_through_instructions(self):
         """In contrast to `__run_compiled_instructions`, this function will
@@ -265,33 +297,7 @@ class GPTSeleniumAgent:
                     exec(action, globals(), ldict)
                     break
                 except:
-                    stack_trace_result = self.__get_relevant_part_of_stack_trace()
-                    stack_trace = stack_trace_result["stack_trace"]
-                    line_num = stack_trace_result["line_num"]
-                    problem_instruction = "\nFailed on line: {line}\n".format(
-                        line=action.split("\n")[line_num - 1]
-                    )
-                    logger.info("\n\n" + stack_trace)
-                    logger.info(problem_instruction)
-
-                    if self.debug:
-                        if self.debug_html_folder:
-                            self.__save_html_snapshot()
-
-                        logger.info(traceback.print_exc())
-                        env = self  # For the interactive debugger.
-                        pdb.set_trace()
-
-                    if self.should_retry:
-                        step = self.instruction_compiler.retry(
-                            problem_instruction + stack_trace
-                        )
-                        instruction = step["instruction"]
-                        action = step["action_output"].replace("```", "")
-                        logger.info("RETRYING...")
-                        self.__print_instruction_and_action(instruction, action)
-                    else:
-                        raise Exception("Failed to execute instruction.")
+                    action = self.__handle_agent_exception(action)
 
         if self.instruction_output_file:
             self.instruction_compiler.save_compiled_instructions(
