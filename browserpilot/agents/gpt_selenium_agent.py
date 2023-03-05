@@ -51,16 +51,34 @@ class GPTSeleniumAgent:
         chromedriver_path,
         user_data_dir="user_data",
         headless=False,
+        retry=False,
         debug=False,
         debug_html_folder="",
         instruction_output_file=None,
     ):
-        """Initialize the agent."""
+        """Initialize the agent.
+
+        Args:
+            instructions (list): List of instructions to run or
+                io.TextIOWrapper of a YAML file containing instructions.
+            chromedriver_path (str): Path to the chromedriver executable.
+            user_data_dir (str): Path to the user data directory created by
+                Selenium.
+            headless (bool): Whether to run the browser in headless mode.
+            retry (bool): Whether to retry failed actions.
+            debug (bool): Whether to start an interactive debug session if
+                there is an Exception thrown.
+            debug_html_folder (str): Path to the folder where debug HTML files
+                should be saved.
+            instruction_output_file (str): Path to the YAML file where the
+                instructions should be saved.
+        """
         # Helpful instance variables.
         assert instruction_output_file is None or instruction_output_file.endswith(
             ".yaml"
         ), "Instruction output file must be a YAML file or None."
         self.instruction_output_file = instruction_output_file
+        self.should_retry = retry
         self.debug = debug
         self.debug_html_folder = debug_html_folder
 
@@ -264,13 +282,16 @@ class GPTSeleniumAgent:
                         env = self  # For the interactive debugger.
                         pdb.set_trace()
 
-                    step = self.instruction_compiler.retry(
-                        problem_instruction + stack_trace
-                    )
-                    instruction = step["instruction"]
-                    action = step["action_output"].replace("```", "")
-                    logger.info("RETRYING...")
-                    self.__print_instruction_and_action(instruction, action)
+                    if self.should_retry:
+                        step = self.instruction_compiler.retry(
+                            problem_instruction + stack_trace
+                        )
+                        instruction = step["instruction"]
+                        action = step["action_output"].replace("```", "")
+                        logger.info("RETRYING...")
+                        self.__print_instruction_and_action(instruction, action)
+                    else:
+                        raise Exception("Failed to execute instruction.")
 
         if self.instruction_output_file:
             self.instruction_compiler.save_compiled_instructions(
