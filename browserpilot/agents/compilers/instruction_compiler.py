@@ -72,8 +72,7 @@ OUTPUT:"""
 class InstructionCompiler:
     def __init__(self, instructions=None, base_prompt=BASE_PROMPT, use_compiled=True):
         """Initialize the compiler. The compiler handles the sequencing of
-        each set of newline-delimited instructions which are injected into
-        the base prompt.
+        each set of instructions which are injected into the base prompt.
 
         The primary entrypoint is step(). At each step, the compiler will take
         the current instruction and inject it into the base prompt, asking
@@ -84,7 +83,7 @@ class InstructionCompiler:
         It returns a dict containing the instruction, action, and action output.
 
         Args:
-            instructions (str): The newline-delimited instructions to compile.
+            instructions (str): Instructions to compile.
             base_prompt (str): The base prompt to use. Defaults to BASE_PROMPT.
             use_compiled (bool): Whether to use the compiled instructions, if
                 any.
