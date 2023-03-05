@@ -33,7 +33,7 @@ class Studio:
                 self._lines = instructions_to_load.split("\n")
             else:
                 with open(instructions_to_load, "r") as f:
-                    instructions = yaml.load(f)
+                    instructions = yaml.safe_load(f)
                     self._lines = instructions["instructions"]
                     if "compiled" in instructions:
                         self._last_compiled_output = instructions
@@ -49,6 +49,9 @@ class Studio:
         print()
         print("Otherwise, just type in your routine in plain English, line by line.")
         print()
+        if self._lines:
+            print("Current routine:")
+            self._print_lines()
 
     def _print_lines(self):
         """Prints the lines of the routine."""
