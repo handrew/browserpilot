@@ -1,4 +1,5 @@
 import yaml
+import traceback
 from .agents.compilers.instruction_compiler import InstructionCompiler
 from .agents.gpt_selenium_agent import GPTSeleniumAgent
 
@@ -101,7 +102,12 @@ class Studio:
                 filename = self._format_last_compiled_output_for_agent()
                 with open(filename, "r") as f:
                     agent = GPTSeleniumAgent(f, chromedriver_path=self.chromedriver_path)
-                agent.run()
+                try:
+                    agent.run()
+                except:
+                    print("There was an error!")
+                    traceback.print_exc()
+
             elif line_lower == "compile":
                 self._print_lines()
                 compiled = self._compile_instructions()
@@ -116,7 +122,12 @@ class Studio:
 
                 with open(filename, "r") as f:
                     agent = GPTSeleniumAgent(f, chromedriver_path=self.chromedriver_path)
-                agent.run()
+                
+                try:
+                    agent.run()
+                except:
+                    print("There was an error!")
+                    traceback.print_exc()
             elif line_lower == "clear":
                 self._lines = []
             elif line_lower == "help":
