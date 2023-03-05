@@ -25,6 +25,7 @@ class Studio:
         assert chromedriver_path is not None, "Must provide chromedriver_path."
         self.chromedriver_path = chromedriver_path
         self._lines = []
+        self._compiled_cache = {}  # Instruction strings => compiled output.
         self._last_compiled_output = None
 
         if instructions_to_load is not None:
@@ -91,10 +92,16 @@ class Studio:
     def _compile_instructions(self):
         print("Compiling instructions...")
         lines = self._format_lines_for_compiler()
-        compiler = InstructionCompiler(lines)
-        results = compiler.step()
+        if lines in self._compiled_cache:
+            print("Using cached compiled instructions.")
+            results = self._compiled_cache[lines]
+        else:
+            compiler = InstructionCompiler(lines)
+            results = compiler.step()
+
         print("Compiled instructions:")
         self._last_compiled_output = results
+        self._compiled_cache[lines] = results
         compiled = results["action_output"].split("\n")
         return compiled
 
@@ -104,7 +111,7 @@ class Studio:
         self.__print_instructions()
         while True:
             line = input("> ")
-            line_lower = line.lower()
+            line_lower = line.lower().strip()
             if line_lower == "exit" or line_lower == "quit":
                 print("Exiting the Studio.")
                 # Remove temp file.
