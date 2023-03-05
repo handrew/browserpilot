@@ -145,11 +145,10 @@ class Studio:
                 for i, line in enumerate(compiled):
                     print("{i}: {line}".format(i=i, line=line))
                 filename = self._format_last_compiled_output_for_agent()
-
-                with open(filename, "r") as f:
-                    agent = GPTSeleniumAgent(f, chromedriver_path=self.chromedriver_path, debug=True)
                 
                 try:
+                    with open(filename, "r") as f:
+                        agent = GPTSeleniumAgent(f, chromedriver_path=self.chromedriver_path, debug=True)
                     agent.run()
                 except:
                     print("There was an error!")
