@@ -48,7 +48,7 @@ GPTWebElement has functions:
 The xpath of a text box is usually "//div[@role = 'textarea']|//div[@role = 'textbox']|//input".
 The xpath of text is usually "//*[string-length(text()) > 0]".
 The xpath for a button is usually "//button|//div[@role = 'button']", but it may sometimes also be an anchor.
-The xpath for an element whose text is "text" is "//*[text() = 'text']".
+The xpath for an element whose text is "text" is "//*[normalize-space() = 'text']". The xpath for "contains text" is "//*[contains(normalize-space(), 'text')]".
 
 Your code must obey the following constraints:
 1. Respect case sensitivity in the instructions.
