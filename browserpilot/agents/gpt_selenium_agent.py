@@ -73,28 +73,34 @@ class GPTSeleniumAgent:
             instruction_output_file (str): Path to the YAML file where the
                 instructions should be saved.
         """
-        # Helpful instance variables.
+        """Helpful instance variables."""
         assert instruction_output_file is None or instruction_output_file.endswith(
             ".yaml"
-        ), "Instruction output file must be a YAML file or None."
+        ) or instruction_output_file.endswith(".json"), "Instruction output file must be a YAML or JSON file or None."
         self.instruction_output_file = instruction_output_file
         self.should_retry = retry
         self.debug = debug
         self.debug_html_folder = debug_html_folder
 
-        # Set up the driver.
+        """Fire up the compiler."""
+        self.instruction_compiler = InstructionCompiler(instructions=instructions)
+
+        """Set up the driver."""
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument(f"user-data-dir={user_data_dir}")
         self.headless = headless
         if headless:
             chrome_options.add_argument("--headless")
+        # Get the loaded instructions from the compiler and check for chrome options.
+        settings = self.instruction_compiler.instructions
+        if "chrome_options" in settings:
+            loaded_chrome_options = settings["chrome_options"]
+            for option in loaded_chrome_options:
+                chrome_options.add_experimental_option(option, loaded_chrome_options[option])
 
         # Instantiate Service with the path to the chromedriver and the options.
         service = Service(chromedriver_path)
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
-
-        # Fire up the compiler.
-        self.instruction_compiler = InstructionCompiler(instructions=instructions)
 
     """Helper functions"""
 

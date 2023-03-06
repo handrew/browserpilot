@@ -1,0 +1,29 @@
+{
+    "instructions": [
+        "Go to Google.com",
+        "Find all text boxes.",
+        "Find the first visible text box.",
+        "Click on the first visible text box.",
+        "Type in \"buffalo buffalo buffalo buffalo buffalo\" and press enter.",
+        "Wait 2 seconds.",
+        "Find all anchor elements that link to Wikipedia.",
+        "Click on the first one.",
+        "Wait for 10 seconds."
+    ],
+    "compiled": [
+        "env.get('https://www.google.com')",
+        "text_boxes = env.find_elements(by='xpath', value=\"//div[@role = 'textarea']|//div[@role = 'textbox']|//input\")",
+        "visible_text_box = None",
+        "for text_box in text_boxes:",
+        "    if text_box.is_displayed():",
+        "        visible_text_box = text_box",
+        "        break",
+        "env.click(visible_text_box)",
+        "env.send_keys(visible_text_box, \"buffalo buffalo buffalo buffalo buffalo\")",
+        "env.send_keys(visible_text_box, Keys.ENTER)",
+        "env.wait(2)",
+        "anchors = env.find_elements(by='xpath', value=\"//a[contains(@href, 'wikipedia')]\")",
+        "env.click(anchors[0])",
+        "env.wait(10)"
+    ]
+}

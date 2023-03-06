@@ -1,8 +1,10 @@
 import time
 import openai
+import json
 import yaml
 import io
 import logging
+from typing import Dict, List, Union
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -100,39 +102,59 @@ class InstructionCompiler:
         self.base_prompt = BASE_PROMPT
         self.prompt_to_find_element = PROMPT_TO_FIND_ELEMENT
         self.use_compiled = use_compiled
-        self.instructions = instructions
         self.api_cache = {}  # Instruction string to API response.
 
-        # If the instructions are a file buffer, then read it as a yaml.
+        # Load instructions. 
+        # - Initialize self.instructions to be a dict with the key
+        #   "instructions", and possibly "compiled" and "chrome_options".
+        # - Initialize instructions_str for the queue.
+        self.instructions = self._load_instructions(instructions)
         self.compiled_instructions = []
-        if isinstance(instructions, io.TextIOWrapper):
-            try:
-                instructions_dict = yaml.safe_load(instructions)
-            except yaml.YAMLError as exc:
-                raise Exception("Error parsing: %s" % instructions)
-            # Assert that the dict has the key "instructions".
-            assert "instructions" in instructions_dict, "No instructions found."
-            # Join the instructions into a string by newline.
-            instructions = "\n".join(instructions_dict["instructions"])
-
+        if isinstance(self.instructions, str):
+            instructions_str = self.instructions
+            self.instructions = {
+                "instructions": self.instructions.split("\n"),
+            }
+        elif isinstance(self.instructions, dict):
+            instructions_str = "\n".join(self.instructions["instructions"])
             # If the dict has the key "compiled", then load the compiled
             # instructions.
-            if "compiled" in instructions_dict:
-                self.compiled_instructions = instructions_dict["compiled"]
+            if "compiled" in self.instructions:
+                self.compiled_instructions = self.instructions["compiled"]
+        else:
+            raise ValueError("Instructions must be either a string or a dict.")
 
-        # Keep track of the instructions that we have left and the ones that
-        # we have completed.
-        self.functions = {}
-        self.instructions_queue = self._parse_instructions_into_queue(instructions)
+        self.functions = {}  # Set in _parse_instructions_into_queue.
+        self.instructions_queue = self._parse_instructions_into_queue(instructions_str)
         self.finished_instructions = []
         self.history = []  # Keep track of the history of actions.
 
-    def _parse_instructions_into_queue(self, instructions):
+    def _load_instructions(self, instructions: Union[str, io.TextIOWrapper]) -> Union[Dict, str]:
+        """Load the instructions. If it ends with .yaml or .json, load that."""
+        # If it's a string, just return it.
+        if isinstance(instructions, str):
+            return instructions
+        
+        # Otherwise, load the file.
+        # Try it as a yaml first.
+        try:
+            instructions = yaml.safe_load(instructions)
+        except yaml.YAMLError as exc:
+            try:
+                instructions = json.load(instructions)
+            except json.JSONDecodeError as exc:
+                raise Exception("Error parsing instructions. Requires JSON or YAML.")
+        
+        assert "instructions" in instructions, "No instructions found."
+        return instructions
+
+    def _parse_instructions_into_queue(self, instructions) -> List:
         """Parse the instructions into a list of instructions."""
 
         # First pass queue reads all of the functions and removes them
         # from the string. Second pass queue is what collates the blocks
         # that are fed into the LLM.
+        self.functions = {}
         first_pass_queue = instructions.split("\n")
         second_pass_queue = []
         final_queue = []
@@ -288,7 +310,7 @@ class InstructionCompiler:
 
     def save_compiled_instructions(self, filename):
         """Save the compiled instructions to a file."""
-        assert filename.endswith(".yaml"), "Filename must end with .yaml."
+        assert filename.endswith(".yaml") or filename.endswith(".json"), "Filename must end with .yaml or .json."
         instructions = []
         for item in self.history:
             instructions.extend(item["instruction"].split("\n"))
@@ -297,14 +319,16 @@ class InstructionCompiler:
         for item in self.history:
             compiled_instructions.extend(item["action_output"].split("\n"))
 
+        self.instructions.update({
+            "instructions": instructions,
+            "compiled": compiled_instructions,
+        })
+        to_dump = self.instructions
         with open(filename, "w") as f:
-            yaml.dump(
-                {
-                    "instructions": instructions,
-                    "compiled": compiled_instructions,
-                },
-                f,
-            )
+            if filename.endswith(".json"):
+                json.dump(to_dump, f, indent=4)
+            elif filename.endswith(".yaml"):
+                yaml.dump(to_dump, f)
 
 
 if __name__ == "__main__":

@@ -61,13 +61,22 @@ RUN_FUNCTION search_buffalo
 Wait for 10 seconds.
 ```
 
-You may also choose to create a yaml file with a list of instructions. In general, it needs to have an `instructions` field, and optionally a `compiled` field which has the processed code. See [buffalo wikipedia example](prompts/examples/buffalo_wikipedia.yaml). 
+You may also choose to create a yaml or json file with a list of instructions. In general, it needs to have an `instructions` field, and optionally a `compiled` field which has the processed code, as well as an optional `chrome_options` field. For instance, if you were using BrowserPilot to download something and needed to set the default download directory and bypass the dialog box for downloading:
+
+```json
+{
+    "download.default_directory": "/path/to/download/directory",
+    "download.prompt_for_download": False
+}
+```
+
+See [buffalo wikipedia example](prompts/examples/buffalo_wikipedia.yaml).
 
 You may pass a `instruction_output_file` to the constructor of GPTSeleniumAgent which will output a yaml file with the compiled instructions from GPT-3, to avoid having to pay API costs. 
 
 ### 🎬 Using the Studio CLI
 
-See `run_studio.py` to see how to run the studio class to make it easier to iteratively generate prompts.
+The BrowserPilot studio is a CLI that is meant to make it easier to iteratively generate prompts. See `run_studio.py` to see how to run the studio class.
 
 ```
   'exit': Exits the Studio.
@@ -100,29 +109,27 @@ There are two ways I envision folks contributing.
 This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/ActGPT), [Adept.ai](https://adept.ai/), and [Nat Friedman](https://github.com/nat/natbot). In particular, the basic abstractions and prompts used were built off of Yihui's hackathon code. The idea to preprocess HTML and use GPT-3 to intelligently pick elements out is from Nat. 
 
 - The prompts used can be found in [instruction compiler](agents/compilers/instruction_compiler.py). The base prompt describes in plain English a set of actions that the browsing agent can take, some general conventions on how to write code, and some constraints on its behavior. **These actions correspond one-for-one with methods in `GPTSeleniumAgent`**. Those actions, to-date, include:
-    - `env.driver.find_elements(by='id', value=None)` which finds and returns list of WebElement.
-    - `env.find_nearest(e, xpath)` can only be used to locate an element that matches the xpath near element e. 
-    - `env.send_keys(text)` is only used to type in string `text`. 
+    - `env.driver`, the Selenium webdriver.
+    - `env.find_elements(by='id', value=None)` finds and returns list of elements.
+    - `env.find_element(by='id', value=None)` is similar to `env.find_elements()` except it only returns the first element.
+    - `env.find_nearest(e, xpath)` can be used to locate an element near another one.
+    - `env.send_keys(element, text)` sends `text` to element.
     - `env.get(url)` goes to url.
     - `env.click(element)` clicks the element.
     - `env.wait(seconds)` waits for `seconds` seconds.
-    - `env.scroll(direction)` scrolls the page.
-    - `env.get_llm_response(text)` that asks AI about a string `text`.
-    - `env.retrieve_information(prompt, entire_page=False)` that retrieves information using GPT-Index embeddings from a page given a prompt.
-    - `env.ask_llm_to_find_element(description)` that asks AI to find an element that matches the description.
+    - `env.scroll(direction, iframe=None)` scrolls the page. Will switch to `iframe` if given. `direction` can be "up", "down", "left", or "right". 
+    - `env.get_llm_response(text)` asks AI about a string `text`.
+    - `env.retrieve_information(prompt, entire_page=False)` returns a string, information from a page given a prompt. Use prompt="Summarize:" for summaries. Uses all the text if entire_page=True and only visible text if False. Invoked with commands like "retrieve", "find in the page", or similar.
+    - `env.ask_llm_to_find_element(description)` asks AI to find an element that matches the description.
     - `env.save(text, filename)` saves the string `text` to a file `filename`.
-    - `env.get_text_from_page(entire_page)` returns the text from the page.
+    - `env.get_text_from_page(entire_page)` returns the free text from the page. If entire_page is True, it returns all the text from HTML doc. If False, returns only visible text.
 - The rest of the code is basically middleware which exposes a Selenium object to GPT-3. **For each action mentioned in the base prompt, there is a corresponding method in GPTSeleniumAgent.**
     - An `InstructionCompiler` is used to parse user input into semantically cogent blocks of actions.
 
 
-## 🚧 TODOs and Future Work
-- [ ] 🧩 Variable templating?
-- [ ] 🔭 Better intermediate prompt observability (maybe introduce a class which is a proxy for all LLM calls?) 
-- [ ] 🎯 Get the specific point in the stack trace that something failed, and start executing from there.
-- [ ] 🥞 Better stack trace virtualization to make it easier to debug.
-
 ### 🎉 Finished
+- [x] JSON loading.
+- [x] Basic iframe support.
 - [x] GPTSeleniumAgent should be able to load prompts and cached successful runs in the form of yaml files. InstructionCompiler should be able to save instructions to yaml.
 - [x] 💭 Add a summarization capability to the agent.
 - [x] Demo/test something where it has to ask the LLM to synthesize something it reads online.
