@@ -128,6 +128,7 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ### 🎉 Finished
+- [x] 🎬 a `Studio` CLI which helps iteratively test prompts!
 - [x] JSON loading.
 - [x] Basic iframe support.
 - [x] GPTSeleniumAgent should be able to load prompts and cached successful runs in the form of yaml files. InstructionCompiler should be able to save instructions to yaml.
