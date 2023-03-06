@@ -347,7 +347,14 @@ class GPTSeleniumAgent:
         self.driver.get(url)
         time.sleep(3)
 
-    def scroll(self, direction):
+    def scroll(self, direction=None, iframe=None):
+        assert direction in ["up", "down", "left", "right"]
+        assert (iframe is None) or isinstance(iframe, GPTWebElement)
+        if iframe is not None:
+            # Switch to the iframe of the element.
+            if iframe is not None:
+                self.driver.switch_to.frame(iframe)
+
         if direction == "up":
             # Do the python equivalent of the following JavaScript:
             # "(document.scrollingElement || document.body).scrollTop = (document.scrollingElement || document.body).scrollTop - window.innerHeight;"
@@ -356,6 +363,13 @@ class GPTSeleniumAgent:
             # Do the python equivalent of the following JavaScript:
             # "(document.scrollingElement || document.body).scrollTop = (document.scrollingElement || document.body).scrollTop + window.innerHeight;"
             self.driver.execute_script("window.scrollBy(0, window.innerHeight);")
+        elif direction == "left":
+            self.driver.execute_script("window.scrollBy(-window.innerWidth, 0);")
+        elif direction == "right":
+            self.driver.execute_script("window.scrollBy(window.innerWidth, 0);")
+
+        # Switch back to the default frame.
+        self.driver.switch_to.default_content()
 
     def find_element(self, by="id", value=None):
         try:
@@ -448,16 +462,18 @@ class GPTSeleniumAgent:
             html = self.driver.page_source
             text = html2text.html2text(html)
         else:
-            # Only the paragraph elements.
-            soup = BeautifulSoup(self.driver.page_source, "lxml")
-            text = "\n".join([p.text for p in soup.find_all("p")])
+            text = self.driver.find_element(by=By.TAG_NAME, value="body").text
 
         # Check for iframes too.
         iframes = self.driver.find_elements(by=By.TAG_NAME, value="iframe")
         for iframe in iframes:
             self.driver.switch_to.frame(iframe)
-            soup = BeautifulSoup(self.driver.page_source, "lxml")
-            text = text + "\n" + "\n".join([p.text for p in soup.find_all("p")])
+            if entire_page:
+                html = self.driver.page_source
+                text = text + "\n" + html2text.html2text(html)
+            else:
+                visible_text = self.driver.find_element(by=By.TAG_NAME, value="body").text
+                text = text + "\n" + visible_text
             self.driver.switch_to.default_content()
 
         return text

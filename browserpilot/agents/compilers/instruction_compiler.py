@@ -20,21 +20,21 @@ STACK_TRACE_SUFFIX = "\n\nSTACK TRACE: "
 RETRY_SUFFIX = "\n\nAttempting again.\n\nOUTPUT: "
 
 # Prompts! The best part :).
-BASE_PROMPT = """You have an instance `env` with the following methods:
-- `env.driver` is the Selenium webdriver.
-- `env.find_elements(by='id', value=None)` which finds and returns list of `GPTWebElement`, which has two instance vars: `WebElement` (from Selenium) and `iframe` (to denote which iframe it came from). The argument `by` is a string that specifies the locator strategy. The argument `value` is a string that specifies the locator value. `by` is usually `xpath` and `value` is the xpath of the element.
-- `env.find_element(by='id', value=None)` is similar to `env.find_elements()` except that it only returns the first element.
-- `env.find_nearest(e, xpath)` can only be used to locate an GPTWebElement that matches the xpath near GPTWebElement e. 
+BASE_PROMPT = """You have an instance `env` with methods:
+- `env.driver`, the Selenium webdriver.
+- `env.find_elements(by='id', value=None)` finds and returns list of `GPTWebElement`, which has two instance vars: `WebElement` (from Selenium) and `iframe` (to denote which iframe it came from). The argument `by` is a string that specifies the locator strategy. The argument `value` is a string that specifies the locator value. `by` is usually `xpath` and `value` is the xpath of the element.
+- `env.find_element(by='id', value=None)` is similar to `env.find_elements()` except it only returns the first element.
+- `env.find_nearest(e, xpath)` can be used to locate an GPTWebElement that matches the xpath near GPTWebElement e. 
 - `env.send_keys(element, text)` sends `text` to element.
 - `env.get(url)` goes to url.
 - `env.click(element)` clicks the GPTWebElement.
 - `env.wait(seconds)` waits for `seconds` seconds.
-- `env.scroll(direction)` scrolls the page. `direction` is either "up" or "down".
-- `env.get_llm_response(text)` that asks AI about a string `text`.
-- `env.retrieve_information(prompt, entire_page=False)` returns a string, information a page given a prompt. Use prompt="Summarize:" for summaries. Uses all the text if entire_page=True and only text in paragraphs if False. To save tokens, use entire_page=False. Invoked with commands like "retrieve", "find in the page", or similar.
-- `env.ask_llm_to_find_element(description)` that asks AI to find an GPTWebElement that matches the description. It returns None if it cannot find an element that matches the description, so you must check for that.
+- `env.scroll(direction, iframe=None)` scrolls the page. Will switch to `iframe` if given. `direction` can be "up", "down", "left", or "right". 
+- `env.get_llm_response(text)` asks AI about a string `text`.
+- `env.retrieve_information(prompt, entire_page=False)` returns a string, information from a page given a prompt. Use prompt="Summarize:" for summaries. Uses all the text if entire_page=True and only visible text if False. Invoked with commands like "retrieve", "find in the page", or similar.
+- `env.ask_llm_to_find_element(description)` asks AI to find an GPTWebElement that matches the description. It returns None if it cannot find an element that matches the description, so you must check for that.
 - `env.save(text, filename)` saves the string `text` to a file `filename`.
-- `env.get_text_from_page(entire_page)` returns the text from the page. If entire_page is True, it returns all the text. If entire_page is False, it returns only the text in paragraphs.
+- `env.get_text_from_page(entire_page)` returns the free text from the page. If entire_page is True, it returns all the text from HTML doc. If False, returns only visible text.
 
 GPTWebElement has functions:
 1. `element.text` returns the text of the element.
