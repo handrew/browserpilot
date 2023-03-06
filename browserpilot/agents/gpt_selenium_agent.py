@@ -74,9 +74,11 @@ class GPTSeleniumAgent:
                 instructions should be saved.
         """
         """Helpful instance variables."""
-        assert instruction_output_file is None or instruction_output_file.endswith(
-            ".yaml"
-        ) or instruction_output_file.endswith(".json"), "Instruction output file must be a YAML or JSON file or None."
+        assert (
+            instruction_output_file is None
+            or instruction_output_file.endswith(".yaml")
+            or instruction_output_file.endswith(".json")
+        ), "Instruction output file must be a YAML or JSON file or None."
         self.instruction_output_file = instruction_output_file
         self.should_retry = retry
         self.debug = debug
@@ -96,7 +98,9 @@ class GPTSeleniumAgent:
         if "chrome_options" in settings:
             loaded_chrome_options = settings["chrome_options"]
             for option in loaded_chrome_options:
-                chrome_options.add_experimental_option(option, loaded_chrome_options[option])
+                chrome_options.add_experimental_option(
+                    option, loaded_chrome_options[option]
+                )
 
         # Instantiate Service with the path to the chromedriver and the options.
         service = Service(chromedriver_path)
@@ -249,7 +253,7 @@ class GPTSeleniumAgent:
                 f.write(self.driver.page_source)
             self.driver.switch_to.default_content()
         self.driver.switch_to.default_content()
-    
+
     def __handle_agent_exception(self, action):
         """To be used in a try/except block to handle exceptions."""
         stack_trace_result = self.__get_relevant_part_of_stack_trace()
@@ -474,7 +478,9 @@ class GPTSeleniumAgent:
                 html = self.driver.page_source
                 text = text + "\n" + html2text.html2text(html)
             else:
-                visible_text = self.driver.find_element(by=By.TAG_NAME, value="body").text
+                visible_text = self.driver.find_element(
+                    by=By.TAG_NAME, value="body"
+                ).text
                 text = text + "\n" + visible_text
             self.driver.switch_to.default_content()
 

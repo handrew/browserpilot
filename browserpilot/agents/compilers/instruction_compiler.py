@@ -104,7 +104,7 @@ class InstructionCompiler:
         self.use_compiled = use_compiled
         self.api_cache = {}  # Instruction string to API response.
 
-        # Load instructions. 
+        # Load instructions.
         # - Initialize self.instructions to be a dict with the key
         #   "instructions", and possibly "compiled" and "chrome_options".
         # - Initialize instructions_str for the queue.
@@ -129,12 +129,14 @@ class InstructionCompiler:
         self.finished_instructions = []
         self.history = []  # Keep track of the history of actions.
 
-    def _load_instructions(self, instructions: Union[str, io.TextIOWrapper]) -> Union[Dict, str]:
+    def _load_instructions(
+        self, instructions: Union[str, io.TextIOWrapper]
+    ) -> Union[Dict, str]:
         """Load the instructions. If it ends with .yaml or .json, load that."""
         # If it's a string, just return it.
         if isinstance(instructions, str):
             return instructions
-        
+
         # Otherwise, load the file.
         # Try it as a yaml first.
         try:
@@ -144,7 +146,7 @@ class InstructionCompiler:
                 instructions = json.load(instructions)
             except json.JSONDecodeError as exc:
                 raise Exception("Error parsing instructions. Requires JSON or YAML.")
-        
+
         assert "instructions" in instructions, "No instructions found."
         return instructions
 
@@ -310,7 +312,9 @@ class InstructionCompiler:
 
     def save_compiled_instructions(self, filename):
         """Save the compiled instructions to a file."""
-        assert filename.endswith(".yaml") or filename.endswith(".json"), "Filename must end with .yaml or .json."
+        assert filename.endswith(".yaml") or filename.endswith(
+            ".json"
+        ), "Filename must end with .yaml or .json."
         instructions = []
         for item in self.history:
             instructions.extend(item["instruction"].split("\n"))
@@ -319,10 +323,12 @@ class InstructionCompiler:
         for item in self.history:
             compiled_instructions.extend(item["action_output"].split("\n"))
 
-        self.instructions.update({
-            "instructions": instructions,
-            "compiled": compiled_instructions,
-        })
+        self.instructions.update(
+            {
+                "instructions": instructions,
+                "compiled": compiled_instructions,
+            }
+        )
         to_dump = self.instructions
         with open(filename, "w") as f:
             if filename.endswith(".json"):
