@@ -96,7 +96,7 @@ class InstructionCompiler:
         assert base_prompt is not None
         assert isinstance(instructions, str) or isinstance(
             instructions, io.TextIOWrapper
-        )
+        ) or isinstance(instructions, dict)
 
         # Instance variables.
         self.base_prompt = BASE_PROMPT
@@ -130,11 +130,16 @@ class InstructionCompiler:
         self.history = []  # Keep track of the history of actions.
 
     def _load_instructions(
-        self, instructions: Union[str, io.TextIOWrapper]
+        self, instructions: Union[str, dict, io.TextIOWrapper]
     ) -> Union[Dict, str]:
         """Load the instructions. If it ends with .yaml or .json, load that."""
         # If it's a string, just return it.
         if isinstance(instructions, str):
+            return instructions
+        # If it's just a dict, then check that it has the key "instructions".
+        # Then, return it.
+        elif isinstance(instructions, dict):
+            assert "instructions" in instructions, "No instructions found."
             return instructions
 
         # Otherwise, load the file.
