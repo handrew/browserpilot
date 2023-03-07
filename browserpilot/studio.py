@@ -11,8 +11,8 @@ COMMANDS = {
     "exit": "Exits the Studio.",
     "help": "Shows this message.",
     "list": "Shows the routine so far.",
-    "run last": "Replay last compiled routine.",
     "run": "Compiles and runs the routine.",
+    "run last": "Replay last compiled routine.",
     "save": "Saves the routine to a yaml file.",
 }
 
