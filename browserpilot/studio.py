@@ -4,14 +4,15 @@ from .agents.compilers.instruction_compiler import InstructionCompiler
 from .agents.gpt_selenium_agent import GPTSeleniumAgent
 
 COMMANDS = {
-    "exit": "Exits the Studio.",
-    "run last": "Replay last compiled routine.",
-    "compile": "Compiles the routine.",
-    "run": "Compiles and runs the routine.",
     "clear": "Clears the routine.",
+    "compile": "Compiles the routine.",
+    "delete": "Deletes the last line.",
+    "edit": "Will prompt user to ask them what line to edit.",
+    "exit": "Exits the Studio.",
     "help": "Shows this message.",
     "list": "Shows the routine so far.",
-    "delete": "Deletes the last line.",
+    "run last": "Replay last compiled routine.",
+    "run": "Compiles and runs the routine.",
     "save": "Saves the routine to a yaml file.",
 }
 
@@ -123,6 +124,14 @@ class Studio:
                 if os.path.exists("_temp.yaml"):
                     os.remove("_temp.yaml")
                 break
+            elif line_lower == "edit":
+                self._print_lines()
+                line_number = int(input("Which line number? "))
+                if line_number >= len(self._lines) or line_number < 0:
+                    print("Invalid line number.")
+                    continue
+                new_line = input("New line: ")
+                self._lines[line_number] = new_line
             elif line_lower == "run last":
                 self._print_lines()
                 filename = self._format_last_compiled_output_for_agent()
