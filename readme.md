@@ -128,15 +128,23 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
     - An `InstructionCompiler` is used to parse user input into semantically cogent blocks of actions.
 
 
-### 🎉 Finished
-- [x] 🎬 a `Studio` CLI which helps iteratively test prompts!
-- [x] JSON loading.
-- [x] Basic iframe support.
-- [x] GPTSeleniumAgent should be able to load prompts and cached successful runs in the form of yaml files. InstructionCompiler should be able to save instructions to yaml.
-- [x] 💭 Add a summarization capability to the agent.
-- [x] Demo/test something where it has to ask the LLM to synthesize something it reads online.
-- [x] 🚨 Figured out how to feed the content of the HTML page into the GPT-3 context window and have it reliably pick out specific elements from it, that would be great!
+## 🎉 Finished
+0.2.2
+- ChatGPT support.
 
+0.2.1
+- Dict support for loading instructions.
+
+0.2.0
+- 🎬 a `Studio` CLI which helps iteratively test prompts!
+- JSON loading.
+- Basic iframe support.
+
+<0.2.0
+- GPTSeleniumAgent should be able to load prompts and cached successful runs in the form of yaml files. InstructionCompiler should be able to save instructions to yaml.
+- 💭 Add a summarization capability to the agent.
+- Demo/test something where it has to ask the LLM to synthesize something it reads online.
+- 🚨 Figured out how to feed the content of the HTML page into the GPT-3 context window and have it reliably pick out specific elements from it, that would be great!
 
 ## 🚨 Disclaimer 🚨
 
