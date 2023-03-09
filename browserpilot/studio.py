@@ -75,11 +75,8 @@ class Studio:
         output["compiled"] = output["compiled"].split("\n")
         del output["instruction"]
         del output["action_output"]
-
-        # Save as temp yaml file.
-        with open("_temp.yaml", "w") as f:
-            f.write(yaml.dump(output))
-        return "_temp.yaml"
+ 
+        return output
 
     def save(self, filename):
         """Saves the routine to a yaml file with field "instructions"."""
@@ -134,17 +131,13 @@ class Studio:
                 self._lines[line_number] = new_line
             elif line_lower == "run last":
                 self._print_lines()
-                filename = self._format_last_compiled_output_for_agent()
-                try:
-                    with open(filename, "r") as f:
-                        agent = GPTSeleniumAgent(
-                            f, chromedriver_path=self.chromedriver_path, debug=True
-                        )
-                    agent.run()
-                except:
-                    print("There was an error!")
-                    traceback.print_exc()
-
+                compiled_instructions = self._format_last_compiled_output_for_agent()
+                agent = GPTSeleniumAgent(
+                    compiled_instructions,
+                    chromedriver_path=self.chromedriver_path,
+                    debug=True
+                )
+                agent.run()
             elif line_lower == "compile":
                 self._print_lines()
                 compiled = self._compile_instructions()
@@ -155,17 +148,13 @@ class Studio:
                 compiled = self._compile_instructions()
                 for i, line in enumerate(compiled):
                     print("{i}: {line}".format(i=i, line=line))
-                filename = self._format_last_compiled_output_for_agent()
-
-                try:
-                    with open(filename, "r") as f:
-                        agent = GPTSeleniumAgent(
-                            f, chromedriver_path=self.chromedriver_path, debug=True
-                        )
-                    agent.run()
-                except:
-                    print("There was an error!")
-                    traceback.print_exc()
+                compiled_instructions = self._format_last_compiled_output_for_agent()
+                agent = GPTSeleniumAgent(
+                    compiled_instructions,
+                    chromedriver_path=self.chromedriver_path,\
+                    debug=True
+                )
+                agent.run()
             elif line_lower == "clear":
                 self._lines = []
             elif line_lower == "help":
