@@ -64,6 +64,8 @@ class GPTSeleniumAgent:
             instructions (list): List of instructions to run or
                 io.TextIOWrapper of a YAML file containing instructions.
             chromedriver_path (str): Path to the chromedriver executable.
+            chrome_options (dict): Dictionary of options to pass to the
+                ChromeDriver.
             model_for_instructions (str): OpenAI model to use for generating
                 instructions.
             model_for_responses (str): OpenAI model to use for generating

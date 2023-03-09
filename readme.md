@@ -130,6 +130,9 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ## 🎉 Finished
+0.2.3
+- Move `chrome_options` to somewhere more sensible. Just keep the yaml clean, you know?
+
 0.2.2
 - ChatGPT support.
 
