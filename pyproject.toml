@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "browserpilot"
-version = "0.2.1"
+version = "0.2.2"
 description = "Natural language browser automation"
 authors = ["Andrew Han <handrew11@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-openai = "^0.26.5"
+openai = "^0.27.1"
 selenium = "^4.8.2"
 tqdm = "^4.64.1"
 beautifulsoup4 = "^4.11.2"

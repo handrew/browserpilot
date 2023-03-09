@@ -27,7 +27,7 @@ BASE_PROMPT = """You have an instance `env` with methods:
 - `env.find_elements(by='id', value=None)` finds and returns list of `GPTWebElement`, which has two instance vars: `WebElement` (from Selenium) and `iframe` (to denote which iframe it came from). The argument `by` is a string that specifies the locator strategy. The argument `value` is a string that specifies the locator value. `by` is usually `xpath` and `value` is the xpath of the element.
 - `env.find_element(by='id', value=None)` is similar to `env.find_elements()` except it only returns the first element.
 - `env.find_nearest(e, xpath)` can be used to locate an GPTWebElement that matches the xpath near GPTWebElement e. 
-- `env.send_keys(element, text)` sends `text` to element.
+- `env.send_keys(element, text)` sends `text` to element. Be mindful of special keys, like "enter" (use Keys.ENTER) and "tab" (use Keys.TAB).
 - `env.get(url)` goes to url.
 - `env.click(element)` clicks the GPTWebElement.
 - `env.wait(seconds)` waits for `seconds` seconds.
@@ -45,7 +45,7 @@ GPTWebElement has functions:
 4. `element.is_displayed()` returns if the element is visible.
 5. Do NOT use `element.send_keys(text)` or `element.click()`. Use `env.send_keys(text)` and `env.click(element)` instead.
 
-The xpath of a text box is usually "//div[@role = 'textarea']|//div[@role = 'textbox']|//input".
+The xpath of a text box is usually "//input|//div[@role = 'textarea']|//div[@role = 'textbox']".
 The xpath of text is usually "//*[string-length(text()) > 0]".
 The xpath for a button is usually "//button|//div[@role = 'button']", but it may sometimes also be an anchor.
 The xpath for an element whose text is "text" is "//*[normalize-space() = 'text']". The xpath for "contains text" is "//*[contains(normalize-space(), 'text')]".
@@ -54,7 +54,7 @@ Your code must obey the following constraints:
 1. Respect case sensitivity in the instructions.
 2. Does not call any functions besides those given above and those defined by the base language spec.
 3. Has correct indentation.
-4. Only write code.
+4. Only write code. Do not write comments.
 5. Only do what I instructed you to do.
 
 INSTRUCTIONS:
@@ -72,7 +72,13 @@ OUTPUT:"""
 
 
 class InstructionCompiler:
-    def __init__(self, instructions=None, base_prompt=BASE_PROMPT, use_compiled=True):
+    def __init__(
+        self,
+        instructions=None,
+        base_prompt=BASE_PROMPT,
+        model="gpt-3.5-turbo",
+        use_compiled=True,
+    ):
         """Initialize the compiler. The compiler handles the sequencing of
         each set of instructions which are injected into the base prompt.
 
@@ -94,11 +100,14 @@ class InstructionCompiler:
         # instructions are either of type string or file buffer.
         assert instructions is not None
         assert base_prompt is not None
-        assert isinstance(instructions, str) or isinstance(
-            instructions, io.TextIOWrapper
-        ) or isinstance(instructions, dict)
+        assert (
+            isinstance(instructions, str)
+            or isinstance(instructions, io.TextIOWrapper)
+            or isinstance(instructions, dict)
+        )
 
         # Instance variables.
+        self.model = model
         self.base_prompt = BASE_PROMPT
         self.prompt_to_find_element = PROMPT_TO_FIND_ELEMENT
         self.use_compiled = use_compiled
@@ -232,10 +241,11 @@ class InstructionCompiler:
 
         return final_queue
 
-    def get_completion(
-        self, prompt, temperature=0, model="text-davinci-003", use_cache=True
-    ):
+    def get_completion(self, prompt, temperature=0, model=None, use_cache=True):
         """Wrapper over OpenAI's completion API."""
+        if model is None:
+            model = self.model
+
         # Check if it's in the cache already.
         if use_cache and prompt in self.api_cache:
             logger.info("Found prompt in API cache. Saving you money...")
@@ -243,18 +253,31 @@ class InstructionCompiler:
             return text
 
         try:
-            response = openai.Completion.create(
-                model=model,
-                prompt=prompt,
-                max_tokens=512,
-                top_p=1,
-                frequency_penalty=0,
-                presence_penalty=0,
-                best_of=1,
-                temperature=temperature,
-                stop=["```"],
-            )
-            text = response["choices"][0]["text"]
+            if "gpt-3.5-turbo" in model:
+                response = openai.ChatCompletion.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=512,
+                    top_p=1,
+                    frequency_penalty=0,
+                    presence_penalty=0,
+                    temperature=temperature,
+                    stop=["```"],
+                )
+                text = response["choices"][0]["message"]["content"]
+            else:
+                response = openai.Completion.create(
+                    model=model,
+                    prompt=prompt,
+                    max_tokens=512,
+                    top_p=1,
+                    frequency_penalty=0,
+                    presence_penalty=0,
+                    best_of=1,
+                    temperature=temperature,
+                    stop=["```"],
+                )
+                text = response["choices"][0]["text"]
         except openai.error.RateLimitError as exc:
             logger.info(
                 "Rate limit error: {exc}. Sleeping for a few seconds.".format(

@@ -1,0 +1,4 @@
+instructions:
+- Ask the AI "hey, what's up?"
+- Store the answer in a variable.
+- Print the answer to console. 
