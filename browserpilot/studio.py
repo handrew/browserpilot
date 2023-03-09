@@ -1,5 +1,6 @@
+"""Command line interface to help users create BrowserPilot routines line by line."""
+
 import yaml
-import traceback
 from .agents.compilers.instruction_compiler import InstructionCompiler
 from .agents.gpt_selenium_agent import GPTSeleniumAgent
 

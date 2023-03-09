@@ -1,3 +1,4 @@
+"""InstructionCompiler class."""
 import time
 import openai
 import json

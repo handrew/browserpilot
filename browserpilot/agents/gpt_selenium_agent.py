@@ -4,7 +4,6 @@ import os
 import re
 import sys
 import time
-import openai
 import traceback
 import html2text
 import nltk
