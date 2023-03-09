@@ -126,6 +126,7 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
     - `env.get_text_from_page(entire_page)` returns the free text from the page. If entire_page is True, it returns all the text from HTML doc. If False, returns only visible text.
 - The rest of the code is basically middleware which exposes a Selenium object to GPT-3. **For each action mentioned in the base prompt, there is a corresponding method in GPTSeleniumAgent.**
     - An `InstructionCompiler` is used to parse user input into semantically cogent blocks of actions.
+- The agent has a `Memory` which enables it to synthesize what it sees.
 
 
 ## 🎉 Finished

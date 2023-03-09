@@ -48,6 +48,7 @@ class GPTSeleniumAgent:
         self,
         instructions,
         chromedriver_path,
+        chrome_options={},
         model_for_instructions="gpt-3.5-turbo",
         model_for_responses="gpt-3.5-turbo",
         user_data_dir="user_data",
@@ -98,23 +99,17 @@ class GPTSeleniumAgent:
         )
 
         """Set up the driver."""
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument(f"user-data-dir={user_data_dir}")
+        _chrome_options = webdriver.ChromeOptions()
+        _chrome_options.add_argument(f"user-data-dir={user_data_dir}")
         self.headless = headless
         if headless:
-            chrome_options.add_argument("--headless")
-        # Get the loaded instructions from the compiler and check for chrome options.
-        settings = self.instruction_compiler.instructions
-        if "chrome_options" in settings:
-            loaded_chrome_options = settings["chrome_options"]
-            for option in loaded_chrome_options:
-                chrome_options.add_experimental_option(
-                    option, loaded_chrome_options[option]
-                )
+            _chrome_options.add_argument("--headless")
+        for option in chrome_options:
+            _chrome_options.add_argument(f"{option}={chrome_options[option]}")
 
         # Instantiate Service with the path to the chromedriver and the options.
         service = Service(chromedriver_path)
-        self.driver = webdriver.Chrome(service=service, options=chrome_options)
+        self.driver = webdriver.Chrome(service=service, options=_chrome_options)
 
     """Helper functions"""
 
