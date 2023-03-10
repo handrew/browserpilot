@@ -19,6 +19,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.relative_locator import locate_with
 from .compilers.instruction_compiler import InstructionCompiler
+from .memories import Memory
 
 TIME_BETWEEN_ACTIONS = 0.1
 
@@ -49,11 +50,12 @@ class GPTSeleniumAgent:
         instructions,
         chromedriver_path,
         chrome_options={},
-        model_for_instructions="gpt-3.5-turbo",
-        model_for_responses="gpt-3.5-turbo",
         user_data_dir="user_data",
         headless=False,
         retry=False,
+        model_for_instructions="text-davinci-003",
+        model_for_responses="gpt-3.5-turbo",
+        enable_memory=False,
         debug=False,
         debug_html_folder="",
         instruction_output_file=None,
@@ -93,12 +95,19 @@ class GPTSeleniumAgent:
         self.should_retry = retry
         self.debug = debug
         self.debug_html_folder = debug_html_folder
+        self.enable_memory = enable_memory
 
         """Fire up the compiler."""
         self.instruction_compiler = InstructionCompiler(
             instructions=instructions,
             model=self.model_for_instructions,
         )
+
+        """Set up the memory."""
+        self.memory = None
+        if self.enable_memory:
+            logger.info("Enabling memory.")
+            self.memory = Memory()
 
         """Set up the driver."""
         _chrome_options = webdriver.ChromeOptions()
@@ -362,7 +371,11 @@ class GPTSeleniumAgent:
         if not url.startswith("http"):
             url = "http://" + url
         self.driver.get(url)
-        time.sleep(3)
+        time.sleep(2)
+        if self.enable_memory:
+            # Get all the visible text from the page and add it to the memory.
+            text = self.get_text_from_page(entire_page=False)
+            self.memory.add(text)
 
     def scroll(self, direction=None, iframe=None):
         assert direction in ["up", "down", "left", "right"]
@@ -463,9 +476,19 @@ class GPTSeleniumAgent:
     @__switch_to_element_iframe
     def click(self, element: GPTWebElement):
         wait_time = TIME_BETWEEN_ACTIONS
+
+        url_before_click = self.driver.current_url
         ActionChains(self.driver).pause(wait_time).move_to_element(element).pause(
             wait_time
         ).click(element).perform()
+        url_after_click = self.driver.current_url
+
+        # If the URL changed, then add the page to memory.
+        if self.enable_memory and (url_before_click != url_after_click):
+            time.sleep(wait_time)
+            # Get all the visible text from the page and add it to the memory.
+            text = self.get_text_from_page(entire_page=False)
+            self.memory.add(text)
 
     def get_text_from_page(self, entire_page=False):
         """Returns the text from the page."""
@@ -522,6 +545,13 @@ class GPTSeleniumAgent:
             model = self.model_for_responses
 
         return self.instruction_compiler.get_completion(prompt, temperature, model)
+
+    def query_memory(self, prompt):
+        """Queries the memory of the LLM."""
+        if self.enable_memory:
+            resp = self.memory.query(prompt)
+            return resp
+        logger.error("Memory is disabled.")
 
     def ask_llm_to_find_element(self, element_description):
         """Clean the HTML from self.driver, ask GPT-Index to find the element,

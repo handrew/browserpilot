@@ -1,0 +1,13 @@
+instructions:
+# Originally, I tried storing three articles in this yaml file and asking the LLM to summarize them.
+# But the LLM ended up picking up on the fact that the articles were about the same thing.
+# So I decided to use something that was less obvious and had more dynamic content.
+- Go to https://www.bridgewater.com/research-and-insights/
+- Wait for 1 second.
+- Scroll down.
+- Wait for 1 second.
+- Find all the divs with the class "PromoC-title".
+- Take the first three links.
+- For each of them, click on it, wait 1 second, and then go back to the previous page.
+- Query memory with the prompt "Summarize", and store the result.
+- Print the result.

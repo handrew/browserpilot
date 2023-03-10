@@ -36,6 +36,7 @@ BASE_PROMPT = """You have an instance `env` with methods:
 - `env.get_llm_response(text)` asks AI about a string `text`.
 - `env.retrieve_information(prompt, entire_page=False)` returns a string, information from a page given a prompt. Use prompt="Summarize:" for summaries. Uses all the text if entire_page=True and only visible text if False. Invoked with commands like "retrieve", "find in the page", or similar.
 - `env.ask_llm_to_find_element(description)` asks AI to find an GPTWebElement that matches the description. It returns None if it cannot find an element that matches the description, so you must check for that.
+- `env.query_memory(prompt)` If enable_memory=True, then asks AI to query its memory (an embeddings index) of the web pages it has browsed. Invoked with something like "Query memory".
 - `env.save(text, filename)` saves the string `text` to a file `filename`.
 - `env.get_text_from_page(entire_page)` returns the free text from the page. If entire_page is True, it returns all the text from HTML doc. If False, returns only visible text.
 
@@ -46,10 +47,10 @@ GPTWebElement has functions:
 4. `element.is_displayed()` returns if the element is visible.
 5. Do NOT use `element.send_keys(text)` or `element.click()`. Use `env.send_keys(text)` and `env.click(element)` instead.
 
+In xpaths, instead of using text(), use normalize-space() to get the text of an element.
+The xpath for an element whose text is or contains "text" is "//*[normalize-space() = 'text']". The xpath for "contains text" is "//*[contains(normalize-space(), 'text')]".
 The xpath of a text box is usually "//input|//div[@role = 'textarea']|//div[@role = 'textbox']".
-The xpath of text is usually "//*[string-length(text()) > 0]".
 The xpath for a button is usually "//button|//div[@role = 'button']", but it may sometimes also be an anchor.
-The xpath for an element whose text is "text" is "//*[normalize-space() = 'text']". The xpath for "contains text" is "//*[contains(normalize-space(), 'text')]".
 
 Your code must obey the following constraints:
 1. Respect case sensitivity in the instructions.

@@ -61,14 +61,7 @@ RUN_FUNCTION search_buffalo
 Wait for 10 seconds.
 ```
 
-You may also choose to create a yaml or json file with a list of instructions. In general, it needs to have an `instructions` field, and optionally a `compiled` field which has the processed code, as well as an optional `chrome_options` field. For instance, if you were using BrowserPilot to download something and needed to set the default download directory and bypass the dialog box for downloading:
-
-```json
-{
-    "download.default_directory": "/path/to/download/directory",
-    "download.prompt_for_download": False
-}
-```
+You may also choose to create a yaml or json file with a list of instructions. In general, it needs to have an `instructions` field, and optionally a `compiled` field which has the processed code.
 
 See [buffalo wikipedia example](prompts/examples/buffalo_wikipedia.yaml).
 
@@ -122,6 +115,7 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
     - `env.get_llm_response(text)` asks AI about a string `text`.
     - `env.retrieve_information(prompt, entire_page=False)` returns a string, information from a page given a prompt. Use prompt="Summarize:" for summaries. Uses all the text if entire_page=True and only visible text if False. Invoked with commands like "retrieve", "find in the page", or similar.
     - `env.ask_llm_to_find_element(description)` asks AI to find an element that matches the description.
+    - `env.query_memory(prompt)` asks AI with a prompt to query its memory (an embeddings index) of the web pages it has browsed. Invoked with "Query memory".
     - `env.save(text, filename)` saves the string `text` to a file `filename`.
     - `env.get_text_from_page(entire_page)` returns the free text from the page. If entire_page is True, it returns all the text from HTML doc. If False, returns only visible text.
 - The rest of the code is basically middleware which exposes a Selenium object to GPT-3. **For each action mentioned in the base prompt, there is a corresponding method in GPTSeleniumAgent.**
