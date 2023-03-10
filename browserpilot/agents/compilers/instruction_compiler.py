@@ -168,12 +168,15 @@ class InstructionCompiler:
     def _parse_instructions_into_queue(self, instructions) -> List:
         """Parse the instructions into a list of instructions."""
 
-        # First pass queue reads all of the functions and removes them
-        # from the string. Second pass queue is what collates the blocks
-        # that are fed into the LLM.
+        # First pass queue reads all of the functions and removes them.
+        # Second pass queue injects those functions for the INJECT_FUNCTION.
+        # Third pass queue is what collates the blocks that are fed into the
+        # LLM.
+        # Final queue is what is returned.
         self.functions = {}
         first_pass_queue = instructions.split("\n")
         second_pass_queue = []
+        third_pass_queue = []
         final_queue = []
 
         # First, parse all the functions, which are denoted by a line that
@@ -200,21 +203,10 @@ class InstructionCompiler:
             else:
                 second_pass_queue.append(line)
 
-        # Then parse the rest of the instructions. Every contiguous set of
-        # lines that do not start with "RUN FUNCTION" should be collated
-        # into a single block. For any line that starts with
-        # "RUN_FUNCTION name", then replace it with the respective function
-        # body from the dict.
+        # Second pass, inject the functions into the queue.
         while second_pass_queue:
             line = second_pass_queue.pop(0)
-            if not line:
-                continue
-
-            if line.startswith(RUN_FUNCTION_TOKEN):
-                function_name = line.split(" ")[-1]
-                function_body = self.functions[function_name]
-                final_queue.append(function_body)
-            elif line.startswith(INJECT_FUNCTION_TOKEN):
+            if line.startswith(INJECT_FUNCTION_TOKEN):
                 # Add in the instructions from the function cache.
                 # NOTE! The distinction between INJECT_FUNCTION and
                 # RUN_FUNCTION is that RUN_FUNCTION will add the function
@@ -226,15 +218,32 @@ class InstructionCompiler:
                 function_lines.extend(second_pass_queue)
                 second_pass_queue = function_lines
             else:
+                third_pass_queue.append(line)
+
+        # Then parse the rest of the instructions. Every contiguous set of
+        # lines that do not start with "RUN FUNCTION" should be collated
+        # into a single block. For any line that starts with
+        # "RUN_FUNCTION name", then replace it with the respective function
+        # body from the dict.
+        while third_pass_queue:
+            line = third_pass_queue.pop(0)
+            if not line:
+                continue
+
+            if line.startswith(RUN_FUNCTION_TOKEN):
+                function_name = line.split(" ")[-1]
+                function_body = self.functions[function_name]
+                final_queue.append(function_body)
+            else:
                 # Otherwise, just add all contiguous lines that do not start with
                 # RUN_FUNCTION.
                 instruction_block = line + "\n"
-                while second_pass_queue:
-                    line = second_pass_queue.pop(0)
+                while third_pass_queue:
+                    line = third_pass_queue.pop(0)
                     if line.startswith(RUN_FUNCTION_TOKEN):
                         # Add it back to the queue and stop constructing this
                         # block.
-                        second_pass_queue.insert(0, line)
+                        third_pass_queue.insert(0, line)
                         break
                     else:
                         instruction_block += line + "\n"
