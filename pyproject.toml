@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "browserpilot"
-version = "0.2.3"
+version = "0.2.4"
 description = "Natural language browser automation"
 authors = ["Andrew Han <handrew11@gmail.com>"]
 readme = "README.md"
@@ -13,7 +13,7 @@ tqdm = "^4.64.1"
 beautifulsoup4 = "^4.11.2"
 lxml = "^4.9.2"
 pyyaml = "^6.0"
-llama-index = "^0.4.20"
+llama-index = "^0.4.24"
 html2text = "^2020.1.16"
 nltk = "^3.8.1"
 
