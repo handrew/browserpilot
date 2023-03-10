@@ -623,3 +623,8 @@ class GPTSeleniumAgent:
         """Save the text to a file."""
         with open(filename, "w") as f:
             f.write(text)
+    
+    def screenshot(self, element: GPTWebElement, filename):
+        """Take a screenshot of the element."""
+        with open(filename, "wb") as f:
+            f.write(element.screenshot_as_png)

@@ -1,0 +1,15 @@
+instructions:
+- Go to instagram.com
+- Find the anchor which contains the text "Search"
+- Click on it.
+- Wait 0.5 seconds.
+- Find the textbox with the placeholder "Search".
+- Type "capybaras_for_life" and press enter.
+- Wait 1 seconds.
+- Find the span which contains the text "capybaras_for_life".
+- Click on it.
+- Wait 2 seconds.
+- Find the first "article" tag.
+- Scroll down.
+- Take a screenshot of it, and save it as "grid.jpg".
+- Wait 2 seconds.
