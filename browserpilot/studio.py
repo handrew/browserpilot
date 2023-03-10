@@ -76,7 +76,7 @@ class Studio:
         output["compiled"] = output["compiled"].split("\n")
         del output["instruction"]
         del output["action_output"]
- 
+
         return output
 
     def save(self, filename):
@@ -136,7 +136,7 @@ class Studio:
                 agent = GPTSeleniumAgent(
                     compiled_instructions,
                     chromedriver_path=self.chromedriver_path,
-                    debug=True
+                    debug=True,
                 )
                 agent.run()
             elif line_lower == "compile":
@@ -152,8 +152,8 @@ class Studio:
                 compiled_instructions = self._format_last_compiled_output_for_agent()
                 agent = GPTSeleniumAgent(
                     compiled_instructions,
-                    chromedriver_path=self.chromedriver_path,\
-                    debug=True
+                    chromedriver_path=self.chromedriver_path,
+                    debug=True,
                 )
                 agent.run()
             elif line_lower == "clear":

@@ -9,7 +9,6 @@ instructions:
 - Find the span which contains the text "capybaras_for_life".
 - Click on it.
 - Wait 2 seconds.
-- Find the first "article" tag.
-- Scroll down.
-- Take a screenshot of it, and save it as "grid.jpg".
+- Find all the images on the page.
+- Save each image to a file named "capybara_{index}.jpg" where index is increasing.
 - Wait 2 seconds.

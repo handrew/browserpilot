@@ -34,7 +34,7 @@ class Memory:
         self.index = INDEX_TYPES[index_type]([])
         self.llm_predictor = llm_predictor
         self.synthesis_type = synthesis_type
-    
+
     def query(self, prompt):
         # llm_predictor = LLM_PREDICTOR_TYPES[self.llm_predictor]()
         return self.index.query(prompt)

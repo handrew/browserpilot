@@ -53,7 +53,7 @@ class GPTSeleniumAgent:
         user_data_dir="user_data",
         headless=False,
         retry=False,
-        model_for_instructions="text-davinci-003",
+        model_for_instructions="gpt-3.5-turbo",
         model_for_responses="gpt-3.5-turbo",
         enable_memory=False,
         debug=False,
@@ -623,8 +623,19 @@ class GPTSeleniumAgent:
         """Save the text to a file."""
         with open(filename, "w") as f:
             f.write(text)
-    
+
     def screenshot(self, element: GPTWebElement, filename):
         """Take a screenshot of the element."""
         with open(filename, "wb") as f:
+            # Check the width and height of the element and make sure it's
+            # above 0.
+            width = element.size["width"]
+            height = element.size["height"]
+            if width == 0 or height == 0:
+                logger.info(
+                    "Skipping screenshot of file {}: element with width or height 0.".format(
+                        filename
+                    )
+                )
+                return
             f.write(element.screenshot_as_png)
