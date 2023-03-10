@@ -125,7 +125,7 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 ## 🎉 Finished
 0.2.6
-- Give the memory an agent (still very experimental and not very good). Add capability to screenshot elements.
+- Give the agent a memory (still very experimental and not very good). Add capability to screenshot elements.
 
 0.2.4 and 0.2.5
 - Bug fixes around versioning and prompt injection.
