@@ -102,7 +102,7 @@ There are two ways I envision folks contributing.
 
 This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/ActGPT), [Adept.ai](https://adept.ai/), and [Nat Friedman](https://github.com/nat/natbot). In particular, the basic abstractions and prompts used were built off of Yihui's hackathon code. The idea to preprocess HTML and use GPT-3 to intelligently pick elements out is from Nat. 
 
-- The prompts used can be found in [instruction compiler](agents/compilers/instruction_compiler.py). The base prompt describes in plain English a set of actions that the browsing agent can take, some general conventions on how to write code, and some constraints on its behavior. **These actions correspond one-for-one with methods in `GPTSeleniumAgent`**. Those actions, to-date, include:
+- The prompts used can be found in [instruction compiler](browserpilot/agents/compilers/instruction_compiler.py). The base prompt describes in plain English a set of actions that the browsing agent can take, some general conventions on how to write code, and some constraints on its behavior. **These actions correspond one-for-one with methods in `GPTSeleniumAgent`**. Those actions, to-date, include:
     - `env.driver`, the Selenium webdriver.
     - `env.find_elements(by='id', value=None)` finds and returns list of elements.
     - `env.find_element(by='id', value=None)` is similar to `env.find_elements()` except it only returns the first element.
