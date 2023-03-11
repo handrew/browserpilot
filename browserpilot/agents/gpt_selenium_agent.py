@@ -53,7 +53,7 @@ class GPTSeleniumAgent:
         user_data_dir="user_data",
         headless=False,
         retry=False,
-        model_for_instructions="gpt-3.5-turbo",
+        model_for_instructions="text-davinci-003",
         model_for_responses="gpt-3.5-turbo",
         enable_memory=False,
         debug=False,

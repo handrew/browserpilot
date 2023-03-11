@@ -79,7 +79,7 @@ class InstructionCompiler:
         self,
         instructions=None,
         base_prompt=BASE_PROMPT,
-        model="gpt-3.5-turbo",
+        model="text-davinci-003",
         use_compiled=True,
     ):
         """Initialize the compiler. The compiler handles the sequencing of
