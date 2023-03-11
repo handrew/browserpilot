@@ -26,22 +26,22 @@ RETRY_SUFFIX = "\n\nAttempting again.\n\nOUTPUT: "
 BASE_PROMPT = """You have an instance `env` with methods:
 - `env.driver`, the Selenium webdriver.
 - `env.get(url)` goes to url.
-- `env.find_elements(by='id', value=None)` finds and returns list of `GPTWebElement`, which has two instance vars: `WebElement` (from Selenium) and `iframe` (to denote which iframe it came from). The argument `by` is a string that specifies the locator strategy. The argument `value` is a string that specifies the locator value. `by` is usually `xpath` and `value` is the xpath of the element.
-- `env.find_element(by='id', value=None)` is like `env.find_elements()` but only returns the first element.
-- `env.find_nearest(e, xpath)` can be used to locate a GPTWebElement that matches the xpath near GPTWebElement e. 
+- `env.find_elements(by='class name', value=None)` finds and returns list `WebElement`. The argument `by` is a string that specifies the locator strategy. The argument `value` is a string that specifies the locator value. `by` is usually `xpath` and `value` is the xpath of the element.
+- `env.find_element(by='class name', value=None)` is like `env.find_elements()` but only returns the first element.
+- `env.find_nearest(e, xpath)` can be used to locate a WebElement that matches the xpath near WebElement e. 
 - `env.send_keys(element, text)` sends `text` to element. Be mindful of special keys, like "enter" (use Keys.ENTER) and "tab" (use Keys.TAB).
-- `env.click(element)` clicks the GPTWebElement. Use this instead of `element.click()`.
+- `env.click(element)` clicks the WebElement. Use this instead of `element.click()`.
 - `env.wait(seconds)` waits for `seconds`.
 - `env.scroll(direction, iframe=None)` scrolls. Switches to `iframe` if given. `direction` can be "up", "down", "left", or "right". 
 - `env.get_llm_response(text)` asks AI about a string `text`.
 - `env.retrieve_information(prompt, entire_page=False)` returns a string, information from a page given a prompt. Use prompt="Summarize:" for summaries. Uses all the text if entire_page=True and only visible text if False. Invoked with commands like "retrieve", "find in the page", or similar.
-- `env.ask_llm_to_find_element(description)` asks AI to find an GPTWebElement that matches the description. It returns None if it cannot find an element that matches the description, so you must check for that.
+- `env.ask_llm_to_find_element(description)` asks AI to find an WebElement that matches the description. It returns None if it cannot find an element that matches the description, so you must check for that.
 - `env.query_memory(prompt)` If enable_memory=True, then asks AI to query its memory (an embeddings index) of the web pages it has browsed. Invoked with something like "Query memory".
 - `env.screenshot(element, filename)` takes a screenshot of the element and saves it to `filename`.
 - `env.save(text, filename)` saves the string `text` to a file `filename`.
 - `env.get_text_from_page(entire_page)` returns the free text from the page. If entire_page is True, it returns all the text from HTML doc. If False, returns only visible text.
 
-GPTWebElement has functions:
+WebElement has functions:
 1. `element.text` returns the text of the element.
 2. `element.get_attribute(attr)` returns the value of the attribute of the element. If the attribute does not exist, it returns ''.
 3. `element.find_elements(by='id', value=None)` is similar to `env.find_elements()` except that it only searches the children of the element and does not search iframes.
