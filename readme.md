@@ -124,6 +124,10 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ## 🎉 Finished
+0.2.7 to 0.2.9
+- Vacillating on the default model. ChatGPT does not work well for writing code, as it takes too many freedoms with what it returns.
+- Also, I tried condensing the prompt a bit, which is growing a bit long.
+
 0.2.6
 - Give the agent a memory (still very experimental and not very good). Add capability to screenshot elements.
 
