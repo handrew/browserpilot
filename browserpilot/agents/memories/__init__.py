@@ -1,14 +1,18 @@
 """Memory for agents."""
-from llama_index import Document, GPTSimpleVectorIndex
-from llama_index.langchain_helpers.chatgpt import ChatGPTLLMPredictor
+from llama_index import GPTSimpleVectorIndex, GPTListIndex
+from llama_index import Document, LLMPredictor
+from langchain.chat_models import ChatOpenAI
 
 # https://gpt-index.readthedocs.io/en/latest/guides/index_guide.html
 INDEX_TYPES = {
+    # Good for retrieval, because of top_k and embeddings.
     "simple": GPTSimpleVectorIndex,
+    # Good for aggregate summaries, but slow.
+    "list": GPTListIndex,
 }
 
 LLM_PREDICTOR_TYPES = {
-    "chatgpt": ChatGPTLLMPredictor,
+    "chatgpt": ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"),
 }
 
 # Not sure if we need this level of granularity, but leaving it here for now.
@@ -33,11 +37,11 @@ class Memory:
         self.texts = []
         self.index = INDEX_TYPES[index_type]([])
         self.llm_predictor = llm_predictor
-        self.synthesis_type = synthesis_type
+        self.synthesis_type = SYNTHESIS_TYPES[synthesis_type]
 
     def query(self, prompt):
-        # llm_predictor = LLM_PREDICTOR_TYPES[self.llm_predictor]()
-        return self.index.query(prompt)
+        llm_predictor = LLMPredictor(llm=LLM_PREDICTOR_TYPES[self.llm_predictor])
+        return self.index.query(prompt, llm_predictor=llm_predictor, response_mode=self.synthesis_type)
 
     def add(self, text):
         self.texts.append(text)
