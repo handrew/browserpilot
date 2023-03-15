@@ -11,12 +11,13 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 @click.command()
 @click.argument("instructions")
 @click.option("--enable_memory", is_flag=True, help="Enable memory.")
-def main(instructions, enable_memory):
+@click.option("--output", default=None, help="Instruction output file.")
+def main(instructions, enable_memory, output):
     with open(instructions, "r") as instructions:
         agent = GPTSeleniumAgent(
             instructions,
             "./chromedriver",
-            # instruction_output_file=sys.argv[1],
+            instruction_output_file=output,
             enable_memory=enable_memory,
             debug=True,
         )
