@@ -124,6 +124,9 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ## 🎉 Finished
+0.2.12
+- Expand the max token window for asking the LLM a question on a web page. 
+
 0.2.11
 - Fix an issue with the Memory module which tried to access OpenAI API key before it's initialized. Change the prompt slightly.
 

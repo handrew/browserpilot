@@ -71,7 +71,7 @@ class GPTSeleniumAgent:
             model_for_instructions (str): OpenAI model to use for generating
                 instructions.
             model_for_responses (str): OpenAI model to use for generating
-                responses from `ask_llm_for_response`.
+                responses from `get_llm_response`.
             user_data_dir (str): Path to the user data directory created by
                 Selenium.
             headless (bool): Whether to run the browser in headless mode.
@@ -544,7 +544,12 @@ class GPTSeleniumAgent:
         if model is None:
             model = self.model_for_responses
 
-        return self.instruction_compiler.get_completion(prompt, temperature, model)
+        return self.instruction_compiler.get_completion(
+            prompt,
+            model=model,
+            max_tokens=2048,  # Let it be expressive!
+            temperature=temperature,
+        )
 
     def query_memory(self, prompt):
         """Queries the memory of the LLM."""

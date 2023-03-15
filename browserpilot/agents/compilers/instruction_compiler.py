@@ -253,7 +253,7 @@ class InstructionCompiler:
 
         return final_queue
 
-    def get_completion(self, prompt, temperature=0, model=None, use_cache=True):
+    def get_completion(self, prompt, model=None, temperature=0, max_tokens=1024, use_cache=True):
         """Wrapper over OpenAI's completion API."""
         if model is None:
             model = self.model
@@ -269,7 +269,7 @@ class InstructionCompiler:
                 response = openai.ChatCompletion.create(
                     model=model,
                     messages=[{"role": "user", "content": prompt}],
-                    max_tokens=512,
+                    max_tokens=max_tokens,
                     top_p=1,
                     frequency_penalty=0,
                     presence_penalty=0,
@@ -281,7 +281,7 @@ class InstructionCompiler:
                 response = openai.Completion.create(
                     model=model,
                     prompt=prompt,
-                    max_tokens=512,
+                    max_tokens=max_tokens,
                     top_p=1,
                     frequency_penalty=0,
                     presence_penalty=0,
@@ -297,7 +297,12 @@ class InstructionCompiler:
                 )
             )
             time.sleep(5)
-            text = self.get_completion(prompt, temperature, model)
+            text = self.get_completion(
+                prompt,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                model=model
+            )
 
         # Add to cache.
         self.api_cache[prompt] = text
