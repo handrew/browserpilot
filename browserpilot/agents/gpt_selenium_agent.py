@@ -59,6 +59,7 @@ class GPTSeleniumAgent:
         debug=False,
         debug_html_folder="",
         instruction_output_file=None,
+        close_after_completion=True,
     ):
         """Initialize the agent.
 
@@ -82,6 +83,8 @@ class GPTSeleniumAgent:
                 should be saved.
             instruction_output_file (str): Path to the YAML file where the
                 instructions should be saved.
+            close_after_completion (bool): Whether to close the browser after
+                the instructions have been executed.
         """
         """Helpful instance variables."""
         assert (
@@ -96,6 +99,7 @@ class GPTSeleniumAgent:
         self.debug = debug
         self.debug_html_folder = debug_html_folder
         self.enable_memory = enable_memory
+        self.close_after_completion = close_after_completion
 
         """Fire up the compiler."""
         self.instruction_compiler = InstructionCompiler(
@@ -216,7 +220,9 @@ class GPTSeleniumAgent:
             exec(instructions, globals(), ldict)
         except:
             self.__handle_agent_exception(instructions)
-        exec("env.driver.quit()", globals(), ldict)
+
+        if self.close_after_completion:
+            self.driver.quit()
 
     def __print_instruction_and_action(self, instruction, action):
         """Logging the instruction and action."""
@@ -330,7 +336,8 @@ class GPTSeleniumAgent:
                 self.instruction_output_file
             )
 
-        exec("env.driver.quit()", globals(), ldict)
+        if self.close_after_completion:
+            self.driver.quit()
 
     def __switch_to_element_iframe(func):
         """Decorator function to switch to the iframe of the element."""
