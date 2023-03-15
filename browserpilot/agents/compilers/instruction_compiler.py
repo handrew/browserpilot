@@ -115,11 +115,17 @@ class InstructionCompiler:
         self.prompt_to_find_element = PROMPT_TO_FIND_ELEMENT
         self.use_compiled = use_compiled
         self.api_cache = {}  # Instruction string to API response.
+        self.functions = {}  # Set in _parse_instructions_into_queue.
+        self.finished_instructions = []
+        self.history = []  # Keep track of the history of actions.
 
-        # Load instructions.
-        # - Initialize self.instructions to be a dict with the key
-        #   "instructions", and possibly "compiled" and "chrome_options".
-        # - Initialize instructions_str for the queue.
+        # Set the instructions.
+        self.instructions = instructions  # Overriden in set_instructions.
+        self.compiled_instructions = []  # Overriden if available.
+        self.instructions_queue = []  # Overriden in set_instructions.
+        self.set_instructions(instructions)
+
+    def set_instructions(self, instructions: Union[str, dict, io.TextIOWrapper]):
         self.instructions = self._load_instructions(instructions)
         self.compiled_instructions = []
         if isinstance(self.instructions, str):
@@ -135,11 +141,8 @@ class InstructionCompiler:
                 self.compiled_instructions = self.instructions["compiled"]
         else:
             raise ValueError("Instructions must be either a string or a dict.")
-
-        self.functions = {}  # Set in _parse_instructions_into_queue.
+        
         self.instructions_queue = self._parse_instructions_into_queue(instructions_str)
-        self.finished_instructions = []
-        self.history = []  # Keep track of the history of actions.
 
     def _load_instructions(
         self, instructions: Union[str, dict, io.TextIOWrapper]

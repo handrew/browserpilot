@@ -155,7 +155,7 @@ class GPTSeleniumAgent:
 
         return False
 
-    def __remove_blacklisted_elements_and_attributes(self):
+    def _remove_blacklisted_elements_and_attributes(self) -> BeautifulSoup:
         """Clean HTML to remove blacklisted elements and attributes. Returns
         BeautifulSoup object."""
         blacklisted_elements = set(
@@ -204,7 +204,7 @@ class GPTSeleniumAgent:
         First removes blacklisted elements and attributes, then removes any
         children of elements. Finally, removes any elements with no attrs.
         """
-        soup = self.__remove_blacklisted_elements_and_attributes()
+        soup = self._remove_blacklisted_elements_and_attributes()
         # Remove children of elements that have children.
         elements = soup.find_all()
         [ele.clear() if ele.contents else ele for ele in elements if ele.contents]
@@ -355,6 +355,10 @@ class GPTSeleniumAgent:
         return wrapper
 
     """Functions meant for the client to call."""
+
+    def set_instructions(self, instructions):
+        """Reset the instructions to `instructions`."""
+        self.instruction_compiler.set_instructions(instructions)
 
     def run(self):
         """Run the agent."""
