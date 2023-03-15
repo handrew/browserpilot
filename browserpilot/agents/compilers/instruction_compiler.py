@@ -253,7 +253,9 @@ class InstructionCompiler:
 
         return final_queue
 
-    def get_completion(self, prompt, model=None, temperature=0, max_tokens=1024, use_cache=True):
+    def get_completion(
+        self, prompt, model=None, temperature=0, max_tokens=1024, use_cache=True
+    ):
         """Wrapper over OpenAI's completion API."""
         if model is None:
             model = self.model
@@ -298,10 +300,7 @@ class InstructionCompiler:
             )
             time.sleep(5)
             text = self.get_completion(
-                prompt,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                model=model
+                prompt, temperature=temperature, max_tokens=max_tokens, model=model
             )
 
         # Add to cache.
