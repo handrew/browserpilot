@@ -48,8 +48,8 @@ WebElement has functions:
 4. `element.is_displayed()` returns if the element is visible.
 5. Do NOT use `element.send_keys(text)` or `element.click()`. Use `env.send_keys(text)` and `env.click(element)` instead.
 
-In xpaths, instead of using text(), use normalize-space() to get the text of an element.
-The xpath for an element whose text is or contains "text" is "//*[normalize-space() = 'text']". The xpath for "contains text" is "//*[contains(normalize-space(), 'text')]".
+In xpaths, to get the text of an element, do NOT use `text()`. Use `normalize-space()` instead.
+The xpath for an element whose text is "text" is "//*[normalize-space() = 'text']". The xpath for an element that contains text is "//*[contains(normalize-space(), 'text')]".
 The xpath of a text box is usually "//input|//div[@role = 'textarea']|//div[@role = 'textbox']".
 The xpath for a button is usually "//button|//div[@role = 'button']", but it may sometimes also be an anchor.
 
