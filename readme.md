@@ -124,6 +124,12 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ## 🎉 Finished
+0.2.11
+- Fix an issue with the Memory module which tried to access OpenAI API key before it's initialized. Change the prompt slightly.
+
+0.2.10
+- Enable ChatGPT use with GPT Index, so that we can use GPT3.5-turbo to query embeddings.
+
 0.2.7 to 0.2.9
 - Vacillating on the default model. ChatGPT does not work well for writing code, as it takes too many freedoms with what it returns.
 - Also, I tried condensing the prompt a bit, which is growing a bit long.
