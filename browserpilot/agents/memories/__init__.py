@@ -12,7 +12,7 @@ INDEX_TYPES = {
 }
 
 LLM_PREDICTOR_TYPES = {
-    "chatgpt": ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"),
+    "chatgpt": ChatOpenAI, 
 }
 
 # Not sure if we need this level of granularity, but leaving it here for now.
@@ -40,7 +40,10 @@ class Memory:
         self.synthesis_type = SYNTHESIS_TYPES[synthesis_type]
 
     def query(self, prompt):
-        llm_predictor = LLMPredictor(llm=LLM_PREDICTOR_TYPES[self.llm_predictor])
+        kwargs = {"temperature": 0, "model_name": "gpt-3.5-turbo"}
+        predictor_constructor = LLM_PREDICTOR_TYPES[self.llm_predictor]
+        llm = predictor_constructor(**kwargs)
+        llm_predictor = LLMPredictor(llm=llm)
         return self.index.query(prompt, llm_predictor=llm_predictor, response_mode=self.synthesis_type)
 
     def add(self, text):
