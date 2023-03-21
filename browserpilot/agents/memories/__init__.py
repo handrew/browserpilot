@@ -3,6 +3,11 @@ from llama_index import GPTSimpleVectorIndex, GPTListIndex
 from llama_index import Document, LLMPredictor
 from langchain.chat_models import ChatOpenAI
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # https://gpt-index.readthedocs.io/en/latest/guides/index_guide.html
 INDEX_TYPES = {
     # Good for retrieval, because of top_k and embeddings.
@@ -49,5 +54,8 @@ class Memory:
         )
 
     def add(self, text):
+        if text in self.texts:
+            logger.info("Skipping duplicate text.")
+            return
         self.texts.append(text)
         self.index.insert(Document(text))

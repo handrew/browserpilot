@@ -6,24 +6,21 @@ import sys
 import time
 import traceback
 import html2text
-import nltk
-from nltk.tokenize import sent_tokenize
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 from bs4.element import Tag
-from llama_index import Document, GPTSimpleVectorIndex
+from llama_index import Document, GPTSimpleVectorIndex, LLMPredictor
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.relative_locator import locate_with
+from langchain.chat_models import ChatOpenAI
 from .compilers.instruction_compiler import InstructionCompiler
 from .memories import Memory
 
 TIME_BETWEEN_ACTIONS = 0.1
-
-nltk.download("punkt")
 
 import logging
 
@@ -31,6 +28,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 NO_RESPONSE_TOKEN = "<NONE>"  # To denote that empty response from model.
+CHATGPT_KWARGS = kwargs = {"temperature": 0, "model_name": "gpt-3.5-turbo"}
 
 
 class GPTWebElement(webdriver.remote.webelement.WebElement):
@@ -530,25 +528,14 @@ class GPTSeleniumAgent:
     def retrieve_information(self, prompt, entire_page=False):
         """Retrieves information using using GPT-Index embeddings from a page."""
         text = self.get_text_from_page(entire_page=entire_page)
-
-        # Tokenize by sentence, and then load each set of three sentences as
-        # a doc.
-        sentences = sent_tokenize(text)
-        docs = []
-        for i in range(0, len(sentences), 5):
-            doc = " ".join(sentences[i : i + 5])
-            docs.append(Document(doc))
-
-        # Then we use GPT Index to summarize the text.
+        index = GPTSimpleVectorIndex([Document(text)])
         logger.info(
-            "Found {num_docs} documents for indexing.".format(num_docs=len(docs))
+            'Retrieving information from web page with prompt: "{prompt}"'.format(prompt=prompt)
         )
-        index = GPTSimpleVectorIndex(docs)
-        print(text[:150])
-        logger.info(
-            'Retrieving information with prompt: "{prompt}"'.format(prompt=prompt)
+        resp = index.query(
+            prompt,
+            llm_predictor=LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS))
         )
-        resp = index.query(prompt, similarity_top_k=3)
         return resp.response.strip()
 
     def get_llm_response(self, prompt, temperature=0.7, model=None):
@@ -602,7 +589,8 @@ class GPTSeleniumAgent:
         query = "Find element that matches description: {element_description}. If no element matches, return {no_resp_token}.".format(
             element_description=element_description, no_resp_token=NO_RESPONSE_TOKEN
         )
-        resp = index.query(query)
+        query = query + " Please be as succinct as possible, with no additional commentary."
+        resp = index.query(query, llm_predictor=LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS)))
         doc_id = resp.source_nodes[0].doc_id
 
         resp_text = resp.response.strip()

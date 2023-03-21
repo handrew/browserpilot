@@ -1,13 +1,29 @@
+compiled:
+- env.get('https://www.bridgewater.com/research-and-insights/')
+- env.wait(1)
+- env.scroll('down')
+- env.wait(1)
+- elements = env.find_elements(by='class name', value='PromoC-title')
+- urls = []
+- 'for element in elements:'
+- '    anchor = element.find_elements(by=''tag name'', value=''a'')[0]'
+- '    urls.append(anchor.get_attribute(''href''))'
+- 'for url in urls[:3]:'
+- '    env.get(url)'
+- '    env.wait(1)'
+- '    env.get(''https://www.bridgewater.com/research-and-insights/'')'
+- result = env.query_memory('Summarize where we are in the macroeconomic cycle')
+- print(result)
 instructions:
-# Originally, I tried storing three articles in this yaml file and asking the LLM to summarize them.
-# But the LLM ended up picking up on the fact that the articles were about the same thing.
-# So I decided to use something that was less obvious and had more dynamic content.
 - Go to https://www.bridgewater.com/research-and-insights/
 - Wait for 1 second.
 - Scroll down.
 - Wait for 1 second.
 - Find all the divs with the class "PromoC-title".
-- Take the first three links.
-- For each of them, click on it, wait 1 second, and then go back to the previous page.
-- Query memory with the prompt "Summarize", and store the result.
+- For each one, get the href of the anchor tag inside it.
+- Take the first three above urls from the above process.
+- For each of them, go to the page, wait 1 second, and then go back to the previous
+  page.
+- Query memory with the prompt "Summarize where we are in the macroeconomic cycle",
+  and store the result.
 - Print the result.

@@ -1,3 +1,12 @@
+compiled:
+- env.get("https://www.google.com")
+- element = env.ask_llm_to_find_element("search textbox")
+- env.click(element)
+- env.send_keys(element, "buffalo buffalo buffalo buffalo buffalo")
+- env.send_keys(element, Keys.ENTER)
+- env.wait(2)
+- elements = env.find_elements(by="xpath", value="//a[contains(@href, 'wikipedia')]")
+- env.click(elements[0])
 instructions:
 - BEGIN_FUNCTION search_buffalo
 - Go to Google.com

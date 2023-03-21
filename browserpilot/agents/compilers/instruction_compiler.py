@@ -34,9 +34,9 @@ BASE_PROMPT = """You have an instance `env` with methods:
 - `env.wait(seconds)` waits for `seconds`.
 - `env.scroll(direction, iframe=None)` scrolls. Switches to `iframe` if given. `direction` can be "up", "down", "left", or "right". 
 - `env.get_llm_response(text)` asks AI about a string `text`.
+- `env.query_memory(prompt)` asks AI to query its memory of ALL the web pages it has browsed so far. Invoked with something like "Query memory".
 - `env.retrieve_information(prompt, entire_page=False)` returns a string, information from a page given a prompt. Use prompt="Summarize:" for summaries. Uses all the text if entire_page=True and only visible text if False. Invoked with commands like "retrieve", "find in the page", or similar.
 - `env.ask_llm_to_find_element(description)` asks AI to find an WebElement that matches the description. It returns None if it cannot find an element that matches the description, so you must check for that.
-- `env.query_memory(prompt)` If enable_memory=True, then asks AI to query its memory (an embeddings index) of the web pages it has browsed. Invoked with something like "Query memory".
 - `env.screenshot(element, filename)` takes a screenshot of the element and saves it to `filename`.
 - `env.save(text, filename)` saves the string `text` to a file `filename`.
 - `env.get_text_from_page(entire_page)` returns the free text from the page. If entire_page is True, it returns all the text from HTML doc. If False, returns only visible text.

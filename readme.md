@@ -124,6 +124,11 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ## 🎉 Finished
+0.2.13
+- Add more error handling for OpenAI exceptions.
+- Change all the embedding querying to use ChatGPT.
+- Get rid of the nltk dependency! Good riddance.
+
 0.2.12
 - Expand the max token window for asking the LLM a question on a web page. 
 
