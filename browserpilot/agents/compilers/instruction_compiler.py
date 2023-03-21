@@ -141,7 +141,7 @@ class InstructionCompiler:
                 self.compiled_instructions = self.instructions["compiled"]
         else:
             raise ValueError("Instructions must be either a string or a dict.")
-        
+
         self.instructions_queue = self._parse_instructions_into_queue(instructions_str)
 
     def _load_instructions(
@@ -295,9 +295,13 @@ class InstructionCompiler:
                     stop=["```"],
                 )
                 text = response["choices"][0]["text"]
-        except openai.error.RateLimitError as exc:
+        except (
+            openai.error.RateLimitError,
+            openai.error.APIError,
+            openai.error.Timeout,
+        ) as exc:
             logger.info(
-                "Rate limit error: {exc}. Sleeping for a few seconds.".format(
+                "OpenAI error. Likely a rate limit error, API error, or timeout: {exc}. Sleeping for a few seconds.".format(
                     exc=str(exc)
                 )
             )
