@@ -20,7 +20,7 @@ INJECT_FUNCTION_TOKEN = "INJECT_FUNCTION"
 
 # Suffixes to add to the base prompt.
 STACK_TRACE_SUFFIX = "\n\nSTACK TRACE: "
-RETRY_SUFFIX = "\n\nAttempting again.\n\nOUTPUT: "
+RETRY_SUFFIX = "\n\nAttempting again.\n\nOUTPUT: ```python"
 
 # Prompts! The best part :).
 BASE_PROMPT = """You have an instance `env` with methods:

@@ -291,6 +291,7 @@ class GPTSeleniumAgent:
                 self.__save_html_snapshot()
 
             logger.info(traceback.print_exc())
+            logger.info("Starting interactive debugger. Type `env` for the Agent object.")
             env = self  # For the interactive debugger.
             pdb.set_trace()
 
