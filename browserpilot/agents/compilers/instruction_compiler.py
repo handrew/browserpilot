@@ -41,11 +41,11 @@ BASE_PROMPT = """You have an instance `env` with methods:
 - `env.save(text, filename)` saves the string `text` to a file `filename`.
 - `env.get_text_from_page(entire_page)` returns the free text from the page. If entire_page is True, it returns all the text from HTML doc. If False, returns only visible text.
 
-WebElement has functions:
+Guidelines for using GPTWebElement:
 1. `element.text` returns the text of the element.
 2. `element.get_attribute(attr)` returns the value of the attribute of the element. If the attribute does not exist, it returns ''.
 3. `element.find_elements(by='id', value=None)` is similar to `env.find_elements()` except that it only searches the children of the element and does not search iframes.
-4. `element.is_displayed()` returns if the element is visible.
+4. `env.is_element_visible_in_viewport(element)` returns if the element is visible in the viewport.
 5. Do NOT use `element.send_keys(text)` or `element.click()`. Use `env.send_keys(text)` and `env.click(element)` instead.
 
 In xpaths, to get the text of an element, do NOT use `text()`. Use `normalize-space()` instead.

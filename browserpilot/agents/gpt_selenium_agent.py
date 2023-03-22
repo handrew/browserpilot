@@ -344,12 +344,16 @@ class GPTSeleniumAgent:
         def wrapper(*args):
             self = args[0]
             element = args[1]
-            if element is not None:
+            if isinstance(element, GPTWebElement) and (element is not None):
                 iframe = element.iframe
                 if iframe is not None:
                     self.driver.switch_to.frame(iframe)
-                func(*args)
+                result = func(*args)
                 self.driver.switch_to.default_content()
+            else:
+                result = func(*args)
+            
+            return result
 
         return wrapper
 
@@ -386,6 +390,23 @@ class GPTSeleniumAgent:
             # Get all the visible text from the page and add it to the memory.
             text = self.get_text_from_page(entire_page=False)
             self.memory.add(text)
+
+    @__switch_to_element_iframe
+    def is_element_visible_in_viewport(self, element: GPTWebElement) -> bool:
+        is_visible = self.driver.execute_script(
+            "var elem = arguments[0],                 " 
+            "  box = elem.getBoundingClientRect(),    " 
+            "  cx = box.left + box.width / 2,         " 
+            "  cy = box.top + box.height / 2,         " 
+            "  e = document.elementFromPoint(cx, cy); " 
+            "for (; e; e = e.parentElement) {         " 
+            "  if (e === elem)                        " 
+            "    return true;                         " 
+            "}                                        " 
+            "return false;                            ",
+            element
+        )
+        return is_visible
 
     def scroll(self, direction=None, iframe=None):
         assert direction in ["up", "down", "left", "right"]
