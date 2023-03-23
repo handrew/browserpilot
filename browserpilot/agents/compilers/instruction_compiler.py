@@ -19,8 +19,8 @@ RUN_FUNCTION_TOKEN = "RUN_FUNCTION"
 INJECT_FUNCTION_TOKEN = "INJECT_FUNCTION"
 
 # Suffixes to add to the base prompt.
-STACK_TRACE_SUFFIX = "\n\nSTACK TRACE: "
-RETRY_SUFFIX = "\n\nAttempting again.\n\nOUTPUT: ```python"
+STACK_TRACE_SUFFIX = "\n\nThe code above failed. See stack trace: "
+RETRY_SUFFIX = "\n\Please try again keeping in mind the above stack trace.\n\nOUTPUT: ```python"
 
 # Prompts! The best part :).
 BASE_PROMPT = """You have an instance `env` with methods:
@@ -299,6 +299,7 @@ class InstructionCompiler:
             openai.error.RateLimitError,
             openai.error.APIError,
             openai.error.Timeout,
+            openai.error.APIConnectionError,
         ) as exc:
             logger.info(
                 "OpenAI error. Likely a rate limit error, API error, or timeout: {exc}. Sleeping for a few seconds.".format(
