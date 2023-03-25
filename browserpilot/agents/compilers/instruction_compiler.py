@@ -143,7 +143,7 @@ class InstructionCompiler:
                 self.history.append(
                     {
                         "instruction": self.instructions,
-                        "action_output": "\n".join(self.compiled_instructions)
+                        "action_output": "\n".join(self.compiled_instructions),
                     }
                 )
                 self.finished_instructions.append(instructions_str)

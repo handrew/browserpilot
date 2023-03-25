@@ -230,8 +230,8 @@ class GPTSeleniumAgent:
 
     def __get_relevant_part_of_stack_trace(self):
         """Get the relevant part of the stack trace."""
-        stack_trace = traceback.format_exc()
-        stack_trace = stack_trace.split("\n")[3:5]
+        original_stack_trace = traceback.format_exc()
+        stack_trace = original_stack_trace.split("\n")[3:5]
         stack_trace = "\n".join(stack_trace)
         # Get the name of this class (GPTSeleniumAgent) and
         # replace it with "env".
@@ -291,7 +291,9 @@ class GPTSeleniumAgent:
                 self.__save_html_snapshot()
 
             logger.info(traceback.print_exc())
-            logger.info("Starting interactive debugger. Type `env` for the Agent object.")
+            logger.info(
+                "Starting interactive debugger. Type `env` for the Agent object."
+            )
             env = self  # For the interactive debugger.
             pdb.set_trace()
 
@@ -352,7 +354,7 @@ class GPTSeleniumAgent:
                 self.driver.switch_to.default_content()
             else:
                 result = func(*args)
-            
+
             return result
 
         return wrapper
@@ -394,17 +396,17 @@ class GPTSeleniumAgent:
     @__switch_to_element_iframe
     def is_element_visible_in_viewport(self, element: GPTWebElement) -> bool:
         is_visible = self.driver.execute_script(
-            "var elem = arguments[0],                 " 
-            "  box = elem.getBoundingClientRect(),    " 
-            "  cx = box.left + box.width / 2,         " 
-            "  cy = box.top + box.height / 2,         " 
-            "  e = document.elementFromPoint(cx, cy); " 
-            "for (; e; e = e.parentElement) {         " 
-            "  if (e === elem)                        " 
-            "    return true;                         " 
-            "}                                        " 
+            "var elem = arguments[0],                 "
+            "  box = elem.getBoundingClientRect(),    "
+            "  cx = box.left + box.width / 2,         "
+            "  cy = box.top + box.height / 2,         "
+            "  e = document.elementFromPoint(cx, cy); "
+            "for (; e; e = e.parentElement) {         "
+            "  if (e === elem)                        "
+            "    return true;                         "
+            "}                                        "
             "return false;                            ",
-            element
+            element,
         )
         return is_visible
 
@@ -552,11 +554,12 @@ class GPTSeleniumAgent:
         text = self.get_text_from_page(entire_page=entire_page)
         index = GPTSimpleVectorIndex([Document(text)])
         logger.info(
-            'Retrieving information from web page with prompt: "{prompt}"'.format(prompt=prompt)
+            'Retrieving information from web page with prompt: "{prompt}"'.format(
+                prompt=prompt
+            )
         )
         resp = index.query(
-            prompt,
-            llm_predictor=LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS))
+            prompt, llm_predictor=LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS))
         )
         return resp.response.strip()
 
@@ -611,8 +614,12 @@ class GPTSeleniumAgent:
         query = "Find element that matches description: {element_description}. If no element matches, return {no_resp_token}.".format(
             element_description=element_description, no_resp_token=NO_RESPONSE_TOKEN
         )
-        query = query + " Please be as succinct as possible, with no additional commentary."
-        resp = index.query(query, llm_predictor=LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS)))
+        query = (
+            query + " Please be as succinct as possible, with no additional commentary."
+        )
+        resp = index.query(
+            query, llm_predictor=LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS))
+        )
         doc_id = resp.source_nodes[0].doc_id
 
         resp_text = resp.response.strip()
