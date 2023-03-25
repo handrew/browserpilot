@@ -124,6 +124,11 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ## 🎉 Finished
+0.2.14 - 0.2.16
+- Add more OpenAI API error handling.
+- Improve stack trace prompt and a few other prompts.
+- Add "displayed in viewport" capability. 
+
 0.2.13
 - Add more error handling for OpenAI exceptions.
 - Change all the embedding querying to use ChatGPT.
