@@ -20,7 +20,7 @@ INJECT_FUNCTION_TOKEN = "INJECT_FUNCTION"
 
 # Suffixes to add to the base prompt.
 STACK_TRACE_SUFFIX = "\n\nThe code above failed. See stack trace: "
-RETRY_SUFFIX = "\n\Please try again keeping in mind the above stack trace.\n\nOUTPUT: ```python"
+RETRY_SUFFIX = "\n\nPlease try again keeping in mind the above stack trace. Only write code.\n\nOUTPUT: ```python"
 
 # Prompts! The best part :).
 BASE_PROMPT = """You have an instance `env` with methods:
@@ -136,9 +136,17 @@ class InstructionCompiler:
         elif isinstance(self.instructions, dict):
             instructions_str = "\n".join(self.instructions["instructions"])
             # If the dict has the key "compiled", then load the compiled
-            # instructions.
+            # instructions. Be sure to pre-load the `history` and
+            # `finished_instructions` instance variables for `retry`.
             if "compiled" in self.instructions:
-                self.compiled_instructions = self.instructions["compiled"]
+                self.compiled_instructions: List = self.instructions["compiled"]
+                self.history.append(
+                    {
+                        "instruction": self.instructions,
+                        "action_output": "\n".join(self.compiled_instructions)
+                    }
+                )
+                self.finished_instructions.append(instructions_str)
         else:
             raise ValueError("Instructions must be either a string or a dict.")
 
@@ -342,6 +350,7 @@ class InstructionCompiler:
 
     def retry(self, stack_trace_str):
         """Revert the compiler to the previous state and run the instruction again."""
+        logger.info("Retrying...")
         # Pop off the last instruction and add it back to the queue.
         last_instructions = self.finished_instructions.pop()
 
