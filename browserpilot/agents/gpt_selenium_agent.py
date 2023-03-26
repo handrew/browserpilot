@@ -238,9 +238,10 @@ class GPTSeleniumAgent:
         class_name = self.__class__.__name__
         stack_trace = stack_trace.replace(class_name, "env")
         # Get the number after the word "line " in the stack trace.
-        line_num = int(
-            stack_trace.split("line ")[1].split(",")[0].strip()
-        )
+        everything_after_line = stack_trace.split("line ")[1]
+        everything_before_rest = everything_after_line.split(",")[0]
+        line_num_str = everything_before_rest.split()[0].strip()
+        line_num = int(line_num_str)
         return {"stack_trace": stack_trace, "line_num": line_num}
 
     def __save_html_snapshot(self):
