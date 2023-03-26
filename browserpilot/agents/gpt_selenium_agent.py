@@ -441,7 +441,14 @@ class GPTSeleniumAgent:
         self.driver.switch_to.default_content()
 
     def find_element(self, by="id", value=None):
-        return self.find_elements(by, value)[0]
+        found_elements = self.find_elements(by, value)
+        if len(found_elements) == 0:
+            raise Exception("No elements found.")
+
+        # Iterate through until the first displayed one is found, then return that one.
+        for element in found_elements:
+            if element.is_displayed():
+                return element
 
     def find_elements(self, by="id", value=None):
         """Wrapper over `driver.find_elements` which also scans iframes.
@@ -458,7 +465,7 @@ class GPTSeleniumAgent:
         elements = self.driver.find_elements(by, value)
         elements = [GPTWebElement(element) for element in elements]
         iframes = self.driver.find_elements(by=By.TAG_NAME, value="iframe")
-        logger.info("Found {num} iframes.".format(num=len(iframes)))
+        logger.debug("Found {num} iframes.".format(num=len(iframes)))
         for iframe in iframes:
             self.driver.switch_to.frame(iframe)
             iframe_elements = self.driver.find_elements(by, value)

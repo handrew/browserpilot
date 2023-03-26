@@ -129,29 +129,22 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 - Improve stack trace prompt and a few other prompts.
 - Add "displayed in viewport" capability. 
 - Make ```from browserpilot.agents import <agent>``` possible.
+- Make ```find_element``` search only for displayed elements.
 
-0.2.13
+0.2.10 - 0.2.13
 - Add more error handling for OpenAI exceptions.
 - Change all the embedding querying to use ChatGPT.
 - Get rid of the nltk dependency! Good riddance.
-
-0.2.12
 - Expand the max token window for asking the LLM a question on a web page. 
-
-0.2.11
 - Fix an issue with the Memory module which tried to access OpenAI API key before it's initialized. Change the prompt slightly.
+- ❗️ Enable ChatGPT use with GPT Index, so that we can use GPT3.5-turbo to query embeddings.
 
-0.2.10
-- Enable ChatGPT use with GPT Index, so that we can use GPT3.5-turbo to query embeddings.
-
-0.2.7 to 0.2.9
+0.2.7 -  0.2.9
 - Vacillating on the default model. ChatGPT does not work well for writing code, as it takes too many freedoms with what it returns.
 - Also, I tried condensing the prompt a bit, which is growing a bit long.
 
-0.2.6
+0.2.4 - 0.2.6
 - Give the agent a memory (still very experimental and not very good). Add capability to screenshot elements.
-
-0.2.4 and 0.2.5
 - Bug fixes around versioning and prompt injection.
 
 0.2.3
