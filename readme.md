@@ -124,10 +124,11 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ## 🎉 Finished
-0.2.14 - 0.2.18
+0.2.14 - 0.2.19
 - Add more OpenAI API error handling.
 - Improve stack trace prompt and a few other prompts.
 - Add "displayed in viewport" capability. 
+- Make ```from browserpilot.agents import <agent>``` possible.
 
 0.2.13
 - Add more error handling for OpenAI exceptions.

@@ -45,8 +45,8 @@ class GPTWebElement(webdriver.remote.webelement.WebElement):
 class GPTSeleniumAgent:
     def __init__(
         self,
-        instructions,
-        chromedriver_path,
+        instructions="",
+        chromedriver_path=None,
         chrome_options={},
         user_data_dir="user_data",
         headless=False,
@@ -89,7 +89,10 @@ class GPTSeleniumAgent:
             instruction_output_file is None
             or instruction_output_file.endswith(".yaml")
             or instruction_output_file.endswith(".json")
-        ), "Instruction output file must be a YAML or JSON file or None."
+        ), "Instruction output file must be a YAML or JSON file or None." 
+        assert (
+            chromedriver_path is not None
+        ), "Please provide a path to the chromedriver executable."
         self.model_for_instructions = model_for_instructions
         self.model_for_responses = model_for_responses
         self.instruction_output_file = instruction_output_file
