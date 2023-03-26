@@ -265,7 +265,7 @@ class InstructionCompiler:
         return final_queue
 
     def get_completion(
-        self, prompt, model=None, temperature=0, max_tokens=1024, use_cache=True
+        self, prompt, model=None, temperature=0, max_tokens=1024, stop=["```"], use_cache=True
     ):
         """Wrapper over OpenAI's completion API."""
         if model is None:
@@ -287,7 +287,7 @@ class InstructionCompiler:
                     frequency_penalty=0,
                     presence_penalty=0,
                     temperature=temperature,
-                    stop=["```"],
+                    stop=stop,
                 )
                 text = response["choices"][0]["message"]["content"]
             else:
@@ -300,7 +300,7 @@ class InstructionCompiler:
                     presence_penalty=0,
                     best_of=1,
                     temperature=temperature,
-                    stop=["```"],
+                    stop=stop,
                 )
                 text = response["choices"][0]["text"]
         except (
