@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "browserpilot"
-version = "0.2.20"
+version = "0.2.21"
 description = "Natural language browser automation"
 authors = ["Andrew Han <handrew11@gmail.com>"]
 readme = "README.md"
