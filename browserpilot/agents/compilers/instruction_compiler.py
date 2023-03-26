@@ -139,7 +139,10 @@ class InstructionCompiler:
             # instructions. Be sure to pre-load the `history` and
             # `finished_instructions` instance variables for `retry`.
             if "compiled" in self.instructions:
-                self.compiled_instructions: List = self.instructions["compiled"]
+                assert isinstance(self.instructions["compiled"], list), (
+                    "Compiled instructions must be a list of strings."
+                )
+                self.compiled_instructions = self.instructions["compiled"]
                 self.history.append(
                     {
                         "instruction": self.instructions,
