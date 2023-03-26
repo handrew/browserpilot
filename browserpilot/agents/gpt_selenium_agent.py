@@ -390,7 +390,7 @@ class GPTSeleniumAgent:
         if not url.startswith("http"):
             url = "http://" + url
         self.driver.get(url)
-        time.sleep(2)
+        time.sleep(1)
         if self.enable_memory:
             # Get all the visible text from the page and add it to the memory.
             text = self.get_text_from_page(entire_page=False)
