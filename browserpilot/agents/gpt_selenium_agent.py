@@ -479,6 +479,9 @@ class GPTSeleniumAgent:
             self.driver.switch_to.frame(iframe)
             iframe_elements = self.driver.find_elements(by, value)
             iframe_elements = [
+                element for element in iframe_elements if element.is_displayed()
+            ]
+            iframe_elements = [
                 GPTWebElement(element, iframe=iframe) for element in iframe_elements
             ]
             elements.extend(iframe_elements)
