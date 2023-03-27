@@ -472,7 +472,11 @@ class GPTSeleniumAgent:
         and in all iframes. Returns a list of GPTWebElement objects.
         """
         elements = self.driver.find_elements(by, value)
+        # Screen for elements that are not displayed.
+        elements = [element for element in elements if element.is_displayed()]
         elements = [GPTWebElement(element) for element in elements]
+        # Find all iframes on the page and switch to each one to find
+        # their elements.
         iframes = self.driver.find_elements(by=By.TAG_NAME, value="iframe")
         logger.debug("Found {num} iframes.".format(num=len(iframes)))
         for iframe in iframes:

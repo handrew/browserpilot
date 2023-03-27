@@ -124,7 +124,7 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ## 🎉 Finished
-0.2.14 - 0.2.22
+0.2.14 - 0.2.23
 - Add options to avoid website detection of bots.
 - Add more OpenAI API error handling.
 - Improve stack trace prompt and a few other prompts.
