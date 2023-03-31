@@ -59,3 +59,6 @@ class Memory:
             return
         self.texts.append(text)
         self.index.insert(Document(text))
+
+    def save(self, path):
+        self.index.save_to_disk(path)

@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import time
+import datetime
 import traceback
 import html2text
 from bs4 import BeautifulSoup
@@ -222,6 +223,16 @@ class GPTSeleniumAgent:
         elements = [ele for ele in elements if ele.attrs]
         return elements
 
+    def __complete(self):
+        """What to run when the agent is done."""
+        if self.enable_memory:
+            current_time = int(time.time())
+            fpath = "memory_{current_time}.json".format(current_time=current_time)
+            self.memory.save(fpath)
+
+        if self.close_after_completion:
+            self.driver.quit()
+
     def __run_compiled_instructions(self, instructions):
         """Runs Python code previously compiled by InstructionCompiler."""
         ldict = {"env": self}
@@ -231,8 +242,7 @@ class GPTSeleniumAgent:
         except:
             self.__handle_agent_exception(instructions)
 
-        if self.close_after_completion:
-            self.driver.quit()
+        self.__complete()
 
     def __print_instruction_and_action(self, instruction, action):
         """Logging the instruction and action."""
@@ -352,8 +362,7 @@ class GPTSeleniumAgent:
                 self.instruction_output_file
             )
 
-        if self.close_after_completion:
-            self.driver.quit()
+        self.__complete()
 
     def __switch_to_element_iframe(func):
         """Decorator function to switch to the iframe of the element."""
