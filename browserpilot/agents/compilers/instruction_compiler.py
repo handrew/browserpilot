@@ -334,6 +334,8 @@ class InstructionCompiler:
         prompt = self.base_prompt.format(instructions=instructions)
         completion = self.get_completion(prompt).strip()
         action_output = completion.strip()
+        lines = [line for line in action_output.split("\n") if not line.startswith("import ")]
+        action_output = "\n".join(lines)
         return {
             "instruction": instructions,
             "action_output": action_output,
