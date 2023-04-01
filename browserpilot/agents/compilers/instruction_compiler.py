@@ -32,7 +32,7 @@ BASE_PROMPT = """You have an instance `env` with methods:
 - `env.send_keys(element, text)` sends `text` to element. Be mindful of special keys, like "enter" (use Keys.ENTER) and "tab" (use Keys.TAB).
 - `env.click(element)` clicks the WebElement. Use this instead of `element.click()`.
 - `env.wait(seconds)` waits for `seconds`.
-- `env.scroll(direction, iframe=None)` scrolls. Switches to `iframe` if given. `direction` can be "up", "down", "left", or "right". 
+- `env.scroll(direction, iframe=None)` scrolls. Switches to `iframe` if given. `direction` can be "up", "down", "bottom", "top", "left", or "right".
 - `env.get_llm_response(text)` asks AI about a string `text`.
 - `env.query_memory(prompt)` asks AI to query its memory of ALL the web pages it has browsed so far. Invoked with something like "Query memory".
 - `env.retrieve_information(prompt, entire_page=False)` returns a string, information from a page given a prompt. Use prompt="Summarize:" for summaries. Uses all the text if entire_page=True and only visible text if False. Invoked with commands like "retrieve", "find in the page", or similar.

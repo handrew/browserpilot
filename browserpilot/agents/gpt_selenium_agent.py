@@ -435,7 +435,10 @@ class GPTSeleniumAgent:
         return is_visible
 
     def scroll(self, direction=None, iframe=None):
-        assert direction in ["up", "down", "left", "right"]
+        allowed_dirs = ["up", "down", "top", "bottom", "left", "right"]
+        assert direction in allowed_dirs, "Invalid direction: {}".format(
+            direction
+        )
         assert (iframe is None) or isinstance(iframe, GPTWebElement)
         if iframe is not None:
             # Switch to the iframe of the element.
@@ -450,6 +453,10 @@ class GPTSeleniumAgent:
             # Do the python equivalent of the following JavaScript:
             # "(document.scrollingElement || document.body).scrollTop = (document.scrollingElement || document.body).scrollTop + window.innerHeight;"
             self.driver.execute_script("window.scrollBy(0, window.innerHeight);")
+        elif direction == "top":
+            self.driver.execute_script("window.scrollTo(0, 0);")
+        elif direction == "bottom":
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         elif direction == "left":
             self.driver.execute_script("window.scrollBy(-window.innerWidth, 0);")
         elif direction == "right":
