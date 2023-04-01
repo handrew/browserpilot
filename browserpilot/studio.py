@@ -22,9 +22,10 @@ class Studio:
     """Command line interface to help users create BrowserPilot routines line
     by line."""
 
-    def __init__(self, instructions_to_load=None, chromedriver_path=None):
+    def __init__(self, instructions_to_load=None, model="gpt-3.5-turbo", chromedriver_path=None):
         """Initializes the Studio."""
         assert chromedriver_path is not None, "Must provide chromedriver_path."
+        self.model = model
         self.chromedriver_path = chromedriver_path
         self._lines = []
         self._compiled_cache = {}  # Instruction strings => compiled output.
@@ -98,7 +99,7 @@ class Studio:
             print("Using cached compiled instructions.")
             results = self._compiled_cache[lines]
         else:
-            compiler = InstructionCompiler(lines)
+            compiler = InstructionCompiler(lines, model=self.model)
             results = compiler.step()
 
         print("Compiled instructions:")
@@ -136,6 +137,7 @@ class Studio:
                 agent = GPTSeleniumAgent(
                     compiled_instructions,
                     chromedriver_path=self.chromedriver_path,
+                    model_for_instructions=self.model,
                     debug=True,
                 )
                 agent.run()
@@ -153,6 +155,7 @@ class Studio:
                 agent = GPTSeleniumAgent(
                     compiled_instructions,
                     chromedriver_path=self.chromedriver_path,
+                    model_for_instructions=self.model,
                     debug=True,
                 )
                 agent.run()
