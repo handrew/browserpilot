@@ -53,15 +53,16 @@ The xpath for an element whose text is "text" is "//*[normalize-space() = 'text'
 The xpath of a text box is usually "//input|//div[@role = 'textarea']|//div[@role = 'textbox']".
 The xpath for a button is usually "//button|//div[@role = 'button']", but it may sometimes also be an anchor.
 
-Your code must obey the following constraints:
-1. Respect case sensitivity in the instructions.
-2. Does not call any functions besides those given above and those defined by the base language spec.
-3. Has correct indentation.
-4. Only write code. Do not write comments.
-5. Only do what I instructed you to do.
-
 INSTRUCTIONS:
 {instructions}
+
+Your code must obey the following constraints:
+- Only write code. Do not write comments.
+- Has correct indentation.
+- Respect case sensitivity in the instructions.
+- Does not call any functions besides those given above and those defined by the base language spec.
+- Only do what I instructed you to do.
+- You may not import any modules. You may not use any external libraries.
 
 OUTPUT: ```python"""
 
@@ -79,7 +80,7 @@ class InstructionCompiler:
         self,
         instructions=None,
         base_prompt=BASE_PROMPT,
-        model="text-davinci-003",
+        model="gpt-3.5-turbo",
         use_compiled=True,
     ):
         """Initialize the compiler. The compiler handles the sequencing of
@@ -111,6 +112,7 @@ class InstructionCompiler:
 
         # Instance variables.
         self.model = model
+        logger.info(f"Using model {self.model}.")
         self.base_prompt = BASE_PROMPT
         self.prompt_to_find_element = PROMPT_TO_FIND_ELEMENT
         self.use_compiled = use_compiled

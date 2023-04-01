@@ -52,7 +52,7 @@ class GPTSeleniumAgent:
         user_data_dir="user_data",
         headless=False,
         retry=False,
-        model_for_instructions="text-davinci-003",
+        model_for_instructions="gpt-3.5-turbo",
         model_for_responses="gpt-3.5-turbo",
         enable_memory=False,
         debug=False,
@@ -96,6 +96,8 @@ class GPTSeleniumAgent:
         ), "Please provide a path to the chromedriver executable."
         self.model_for_instructions = model_for_instructions
         self.model_for_responses = model_for_responses
+        logger.info("Using model for instructions: {model}".format(model=model_for_instructions))
+        logger.info("Using model for responses: {model}".format(model=model_for_responses))
         self.instruction_output_file = instruction_output_file
         self.should_retry = retry
         self.debug = debug
@@ -304,7 +306,6 @@ class GPTSeleniumAgent:
         stack_trace_result = self.__get_relevant_part_of_stack_trace()
         stack_trace = stack_trace_result["stack_trace"]
         line_num = stack_trace_result["line_num"]
-        line_num = stack_trace_result["line_num"]
         problem_instruction = "\nFailed on line: {line}\n".format(
             line=action.split("\n")[line_num - 1]
         )
@@ -328,6 +329,7 @@ class GPTSeleniumAgent:
             action = step["action_output"].replace("```", "")
             logger.info("RETRYING...")
             self.__print_instruction_and_action(instruction, action)
+            return action
         else:
             raise Exception("Failed to execute instruction.")
 
@@ -344,13 +346,12 @@ class GPTSeleniumAgent:
             action = step["action_output"]
             self.__print_instruction_and_action(instruction, action)
 
-            action = action.replace("```", "")
-            self._check_danger(action)
-
             # Attempt evals.
             attempts = 0
             while attempts < 3:
                 attempts = attempts + 1
+                action = action.replace("```", "")
+                self._check_danger(action)
                 try:
                     exec(action, globals(), ldict)
                     break
