@@ -57,12 +57,13 @@ INSTRUCTIONS:
 {instructions}
 
 Your code must obey the following constraints:
-- Only write code. Do not write comments.
+- Only do what I instruct you to do.
+- Only write code, no comments.
 - Has correct indentation.
 - Respect case sensitivity in the instructions.
 - Does not call any functions besides those given above and those defined by the base language spec.
-- Only do what I instructed you to do.
 - You may not import any modules. You may not use any external libraries.
+- Always start with `env.get(url)` to go to a URL. If none is given, go to https://google.com.
 
 OUTPUT: ```python"""
 
