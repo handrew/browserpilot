@@ -99,7 +99,7 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ## 🎉 Finished
-0.2.26 - 0.2.28
+0.2.26 - 0.2.32
 - Bit the bullet and switched the default model to gpt-3.5-turbo. Will be much cheaper!
 - Also fixed retries. I wasn't actually getting the retry action!
 - Fiddle with the prompt a bit for GPT-3.5.

@@ -59,7 +59,6 @@ Your code must obey the following constraints:
 - Respect case sensitivity in the instructions.
 - Does not call any functions besides those given above and those defined by the base language spec.
 - You may not import any modules. You may not use any external libraries.
-- Always start with `env.get(url)` to go to a URL. If none is given, go to https://google.com.
 
 OUTPUT: ```python"""
 
