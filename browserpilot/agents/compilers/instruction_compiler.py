@@ -48,10 +48,10 @@ Guidelines for using GPTWebElement:
 4. `env.is_element_visible_in_viewport(element)` returns if the element is visible in the viewport.
 5. Do NOT use `element.send_keys(text)` or `element.click()`. Use `env.send_keys(text)` and `env.click(element)` instead.
 
-In xpaths, to get the text of an element, do NOT use `text()`. Use `normalize-space()` instead.
-The xpath for an element whose text is "text" is "//*[normalize-space() = 'text']". The xpath for an element that contains text is "//*[contains(normalize-space(), 'text')]".
 The xpath of a text box is usually "//input|//div[@role = 'textarea']|//div[@role = 'textbox']".
 The xpath for a button is usually "//button|//div[@role = 'button']", but it may sometimes also be an anchor.
+In xpaths, to get the text of an element, do NOT use `text()`. Use `normalize-space()` instead.
+The xpath for an element whose text is "text" is "//*[normalize-space() = 'text']". The xpath for an element that contains text is "//*[contains(normalize-space(), 'text')]".
 
 INSTRUCTIONS:
 {instructions}
