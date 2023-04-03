@@ -105,7 +105,7 @@ class InstructionCompiler:
             isinstance(instructions, str)
             or isinstance(instructions, io.TextIOWrapper)
             or isinstance(instructions, dict)
-        )
+        ), f"Instructions must be of type str or file buffer, not {type(instructions)}."
 
         # Instance variables.
         self.model = model
