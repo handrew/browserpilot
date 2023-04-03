@@ -42,7 +42,7 @@ BASE_PROMPT = """You have an instance `env` with methods:
 - `env.get_text_from_page(entire_page)` returns the free text from the page. If entire_page is True, it returns all the text from HTML doc. If False, returns only visible text.
 
 Guidelines for using GPTWebElement:
-1. `element.text` returns the text of the element.
+1. Do NOT use `element.text` to get text. Use `env.get_text_of_element(element)` instead.
 2. `element.get_attribute(attr)` returns the value of the attribute of the element. If the attribute does not exist, it returns ''.
 3. `element.find_elements(by='id', value=None)` is similar to `env.find_elements()` except that it only searches the children of the element and does not search iframes.
 4. `env.is_element_visible_in_viewport(element)` returns if the element is visible in the viewport.

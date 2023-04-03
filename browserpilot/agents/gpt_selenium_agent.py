@@ -553,6 +553,10 @@ class GPTSeleniumAgent:
         element.send_keys(keys)
 
     @__switch_to_element_iframe
+    def get_text_of_element(self, element):
+        return element.text
+
+    @__switch_to_element_iframe
     def click(self, element: GPTWebElement):
         wait_time = TIME_BETWEEN_ACTIONS
 
