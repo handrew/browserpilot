@@ -21,7 +21,7 @@ from langchain.chat_models import ChatOpenAI
 from .compilers.instruction_compiler import InstructionCompiler
 from .memories import Memory
 
-TIME_BETWEEN_ACTIONS = 0.1
+TIME_BETWEEN_ACTIONS = 0.01
 
 import logging
 

@@ -67,31 +67,6 @@ See [buffalo wikipedia example](prompts/examples/buffalo_wikipedia.yaml).
 
 You may pass a `instruction_output_file` to the constructor of GPTSeleniumAgent which will output a yaml file with the compiled instructions from GPT-3, to avoid having to pay API costs. 
 
-### 🎬 Using the Studio CLI
-
-The BrowserPilot studio is a CLI that is meant to make it easier to iteratively generate prompts. See `run_studio.py` to see how to run the studio class.
-
-```json
-    "clear": "Clears the routine.",
-    "compile": "Compiles the routine.",
-    "delete": "Deletes the last line.",
-    "edit": "Will prompt user to ask them what line to edit.",
-    "exit": "Exits the Studio.",
-    "help": "Shows this message.",
-    "list": "Shows the routine so far.",
-    "run": "Compiles and runs the routine.",
-    "run last": "Replay last compiled routine.",
-    "save": "Saves the routine to a yaml file.",
-```
-
-The flow could look something like this:
-1. Add natural language commands line by line.
-2. Run `compile` when you are ready, and it will ask the LLM to translate it into Selenium code.
-3. Use `run last` to run that Selenium code (without any additional API calls!) Or simply use `run` to compile AND run.
-4. Watch the Selenium browser come up and work its magic! You can eyeball it to see if it works, or see the stack trace printed to console if it doesn't.
-5. Use `list` to see the natural language commands so far. Use `delete` to remove the last line of the prompt, `edit` to select a line to replace, or `clear` to wipe it entirely. 
-6. Finally, when you are done, `save` can save it to yaml or `exit` to simply leave. 
-
 ## ✋🏼 Contributing
 There are two ways I envision folks contributing.
 
