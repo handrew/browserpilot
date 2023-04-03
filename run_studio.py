@@ -4,7 +4,7 @@ from browserpilot.studio import Studio
 
 # Set up CLI.
 @click.command()
-@click.argument("instructions")
+@click.option("--instructions", default=None, help="instructions file")
 @click.option(
     "--model",
     "-m",
