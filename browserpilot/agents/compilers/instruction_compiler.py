@@ -28,7 +28,7 @@ BASE_PROMPT = """You have an instance `env` with methods:
 - `env.get(url)` goes to url.
 - `env.find_elements(by='class name', value=None)` finds and returns list `WebElement`. The argument `by` is a string that specifies the locator strategy. The argument `value` is a string that specifies the locator value. `by` is usually `xpath` and `value` is the xpath of the element.
 - `env.find_element(by='class name', value=None)` is like `env.find_elements()` but only returns the first element.
-- `env.find_nearest(e, xpath)` can be used to locate a WebElement that matches the xpath near WebElement e. 
+- `env.find_nearest(e, xpath, direction="above")` can be used to locate a WebElement that matches the xpath near WebElement e. Direction is "above", "below", "left", or "right".
 - `env.send_keys(element, text)` sends `text` to element. Be mindful of special keys, like "enter" (use Keys.ENTER) and "tab" (use Keys.TAB).
 - `env.click(element)` clicks the WebElement. Use this instead of `element.click()`.
 - `env.wait(seconds)` waits for `seconds`.

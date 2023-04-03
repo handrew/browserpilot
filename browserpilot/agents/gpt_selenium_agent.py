@@ -368,7 +368,7 @@ class GPTSeleniumAgent:
     def __switch_to_element_iframe(func):
         """Decorator function to switch to the iframe of the element."""
 
-        def wrapper(*args):
+        def wrapper(*args, **kwargs):
             self = args[0]
             element = args[1]
             if isinstance(element, GPTWebElement) and (element is not None):
@@ -510,41 +510,22 @@ class GPTSeleniumAgent:
         return elements
 
     @__switch_to_element_iframe
-    def find_nearest_textbox(self, element: GPTWebElement):
-        try:
-            textbox = self.driver.find_element(
-                locate_with(By.XPATH, "//div[@role = 'textbox']").near(element)
-            )
-        except:
-            textbox = self.driver.find_element(
-                locate_with(By.TAG_NAME, "input").near(element)
-            )
+    def find_nearest(self, element: GPTWebElement, xpath=None, direction="above"):
+        assert direction in ["near", "above", "below", "left", "right"], (
+            "Invalid direction: {}".format(direction)
+        )
+        if direction == "above":
+            locator = locate_with(By.XPATH, xpath).above(element)
+        elif direction == "below":
+            locator = locate_with(By.XPATH, xpath).below(element)
+        elif direction == "left":
+            locator = locate_with(By.XPATH, xpath).to_left_of(element)
+        elif direction == "right":
+            locator = locate_with(By.XPATH, xpath).to_right_of(element)
+        else:
+            locator = locate_with(By.XPATH, xpath).near(element)
 
-        textbox_element = GPTWebElement(textbox, iframe=element.iframe)
-        return textbox_element
-
-    @__switch_to_element_iframe
-    def find_nearest_text(self, element: GPTWebElement):
-        try:
-            textbox = self.driver.find_element(
-                locate_with(By.XPATH, "//*[text() != '']").near(element)
-            )
-        except:
-            return ""
-
-        return textbox.text
-
-    @__switch_to_element_iframe
-    def find_nearest(self, element: GPTWebElement, xpath=None):
-        try:
-            nearest_elem = self.driver.find_element(
-                locate_with(By.XPATH, xpath).near(element)
-            )
-        except:
-            nearest_elem = self.driver.find_element(
-                locate_with(By.XPATH, xpath).below(element)
-            )
-
+        nearest_elem = self.driver.find_element(locator)
         nearest_element = GPTWebElement(nearest_elem, iframe=element.iframe)
         return nearest_element
 
