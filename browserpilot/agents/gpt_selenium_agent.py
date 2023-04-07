@@ -583,7 +583,7 @@ class GPTSeleniumAgent:
     def retrieve_information(self, prompt, entire_page=False):
         """Retrieves information using using GPT-Index embeddings from a page."""
         text = self.get_text_from_page(entire_page=entire_page)
-        index = GPTSimpleVectorIndex([Document(text)])
+        index = GPTSimpleVectorIndex.from_documents([Document(text)])
         logger.info(
             'Retrieving information from web page with prompt: "{prompt}"'.format(
                 prompt=prompt
@@ -641,7 +641,7 @@ class GPTSeleniumAgent:
         doc_id_to_element = {doc.get_doc_id(): doc.get_text() for doc in docs}
 
         # Construct and query index.
-        index = GPTSimpleVectorIndex(docs)
+        index = GPTSimpleVectorIndex.from_documents(docs)
         query = "Find element that matches description: {element_description}. If no element matches, return {no_resp_token}.".format(
             element_description=element_description, no_resp_token=NO_RESPONSE_TOKEN
         )

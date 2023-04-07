@@ -99,11 +99,12 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ## 🎉 Finished
-0.2.26 - 0.2.35
+0.2.26 - 0.2.36
 - Bit the bullet and switched the default model to gpt-3.5-turbo. Will be much cheaper!
 - Also fixed retries. I wasn't actually getting the retry action!
 - Fiddle with the prompt a bit for GPT-3.5.
 - Concerningly, gpt-3.5-turbo keep trying to import modules. I manually remove lines that try to import modules.
+- Compatibility with new Llama Index updates.
 
 0.2.14 - 0.2.25
 - Add options to avoid website detection of bots.
