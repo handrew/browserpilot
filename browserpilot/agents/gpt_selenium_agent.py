@@ -10,7 +10,8 @@ import html2text
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 from bs4.element import Tag
-from llama_index import Document, GPTSimpleVectorIndex, LLMPredictor
+from llama_index import Document, GPTSimpleVectorIndex
+from llama_index import ServiceContext, LLMPredictor
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -29,7 +30,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 NO_RESPONSE_TOKEN = "<NONE>"  # To denote that empty response from model.
-CHATGPT_KWARGS = kwargs = {"temperature": 0, "model_name": "gpt-3.5-turbo"}
+CHATGPT_KWARGS = {"temperature": 0, "model_name": "gpt-3.5-turbo"}
 
 
 class GPTWebElement(webdriver.remote.webelement.WebElement):
@@ -583,15 +584,15 @@ class GPTSeleniumAgent:
     def retrieve_information(self, prompt, entire_page=False):
         """Retrieves information using using GPT-Index embeddings from a page."""
         text = self.get_text_from_page(entire_page=entire_page)
-        index = GPTSimpleVectorIndex.from_documents([Document(text)])
+        llm_predictor = LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS))
+        service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
+        index = GPTSimpleVectorIndex.from_documents([Document(text)], service_context=service_context)
         logger.info(
             'Retrieving information from web page with prompt: "{prompt}"'.format(
                 prompt=prompt
             )
         )
-        resp = index.query(
-            prompt, llm_predictor=LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS))
-        )
+        resp = index.query(prompt)
         return resp.response.strip()
 
     def get_llm_response(self, prompt, temperature=0.7, model=None):
@@ -641,16 +642,16 @@ class GPTSeleniumAgent:
         doc_id_to_element = {doc.get_doc_id(): doc.get_text() for doc in docs}
 
         # Construct and query index.
-        index = GPTSimpleVectorIndex.from_documents(docs)
+        llm_predictor = LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS))
+        service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
+        index = GPTSimpleVectorIndex.from_documents(docs, service_context=service_context)
         query = "Find element that matches description: {element_description}. If no element matches, return {no_resp_token}.".format(
             element_description=element_description, no_resp_token=NO_RESPONSE_TOKEN
         )
         query = (
             query + " Please be as succinct as possible, with no additional commentary."
         )
-        resp = index.query(
-            query, llm_predictor=LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS))
-        )
+        resp = index.query(query)
         doc_id = resp.source_nodes[0].doc_id
 
         resp_text = resp.response.strip()

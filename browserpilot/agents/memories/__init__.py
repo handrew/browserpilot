@@ -1,6 +1,6 @@
 """Memory for agents."""
 from llama_index import GPTSimpleVectorIndex, GPTListIndex
-from llama_index import Document, LLMPredictor
+from llama_index import Document, LLMPredictor, ServiceContext
 from langchain.chat_models import ChatOpenAI
 
 import logging
@@ -40,17 +40,17 @@ class Memory:
         assert llm_predictor in LLM_PREDICTOR_TYPES
 
         self.texts = []
-        self.index = INDEX_TYPES[index_type]([])
+        kwargs = {"temperature": 0, "model_name": "gpt-3.5-turbo"}
+        predictor_constructor = LLM_PREDICTOR_TYPES[llm_predictor]
+        llm = LLMPredictor(llm=predictor_constructor(**kwargs))
+        service_context = ServiceContext.from_defaults(llm_predictor=llm)
+        self.index = INDEX_TYPES[index_type].from_documents([], service_context=service_context)
         self.llm_predictor = llm_predictor
         self.synthesis_type = SYNTHESIS_TYPES[synthesis_type]
 
     def query(self, prompt):
-        kwargs = {"temperature": 0, "model_name": "gpt-3.5-turbo"}
-        predictor_constructor = LLM_PREDICTOR_TYPES[self.llm_predictor]
-        llm = predictor_constructor(**kwargs)
-        llm_predictor = LLMPredictor(llm=llm)
         return self.index.query(
-            prompt, llm_predictor=llm_predictor, response_mode=self.synthesis_type
+            prompt, response_mode=self.synthesis_type
         )
 
     def add(self, text):
