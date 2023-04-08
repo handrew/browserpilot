@@ -4,7 +4,6 @@ import os
 import re
 import sys
 import time
-import datetime
 import traceback
 import html2text
 from bs4 import BeautifulSoup
@@ -55,7 +54,7 @@ class GPTSeleniumAgent:
         retry=False,
         model_for_instructions="gpt-3.5-turbo",
         model_for_responses="gpt-3.5-turbo",
-        enable_memory=False,
+        memory_file=None,
         debug=False,
         debug_html_folder="",
         instruction_output_file=None,
@@ -77,6 +76,7 @@ class GPTSeleniumAgent:
                 Selenium.
             headless (bool): Whether to run the browser in headless mode.
             retry (bool): Whether to retry failed actions.
+            memory_file (str): Path to the memory file to load or output to.
             debug (bool): Whether to start an interactive debug session if
                 there is an Exception thrown.
             debug_html_folder (str): Path to the folder where debug HTML files
@@ -103,7 +103,7 @@ class GPTSeleniumAgent:
         self.should_retry = retry
         self.debug = debug
         self.debug_html_folder = debug_html_folder
-        self.enable_memory = enable_memory
+        self.memory_file = memory_file
         self.close_after_completion = close_after_completion
 
         """Fire up the compiler."""
@@ -114,7 +114,7 @@ class GPTSeleniumAgent:
 
         """Set up the memory."""
         self.memory = None
-        if self.enable_memory:
+        if self.memory_file:
             logger.info("Enabling memory.")
             self.memory = Memory()
 
@@ -228,10 +228,8 @@ class GPTSeleniumAgent:
 
     def __complete(self):
         """What to run when the agent is done."""
-        if self.enable_memory:
-            current_time = int(time.time())
-            fpath = "memory_{current_time}.json".format(current_time=current_time)
-            self.memory.save(fpath)
+        if self.memory_file:
+            self.memory.save(self.memory_file)
 
         if self.close_after_completion:
             self.driver.quit()
@@ -414,7 +412,7 @@ class GPTSeleniumAgent:
             url = "http://" + url
         self.driver.get(url)
         time.sleep(1)
-        if self.enable_memory:
+        if self.memory_file:
             # Get all the visible text from the page and add it to the memory.
             text = self.get_text_from_page(entire_page=False)
             self.memory.add(text)
@@ -549,7 +547,7 @@ class GPTSeleniumAgent:
         url_after_click = self.driver.current_url
 
         # If the URL changed, then add the page to memory.
-        if self.enable_memory and (url_before_click != url_after_click):
+        if self.memory_file and (url_before_click != url_after_click):
             time.sleep(wait_time)
             # Get all the visible text from the page and add it to the memory.
             text = self.get_text_from_page(entire_page=False)
@@ -608,7 +606,7 @@ class GPTSeleniumAgent:
 
     def query_memory(self, prompt):
         """Queries the memory of the LLM."""
-        if self.enable_memory:
+        if self.memory_file:
             resp = self.memory.query(prompt)
             return resp
         logger.error("Memory is disabled.")
