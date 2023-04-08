@@ -17,7 +17,7 @@ INDEX_TYPES = {
 }
 
 LLM_PREDICTOR_TYPES = {
-    "chatgpt": ChatOpenAI,
+    "gpt-3.5-turbo": ChatOpenAI,
 }
 
 # Not sure if we need this level of granularity, but leaving it here for now.
@@ -30,21 +30,22 @@ SYNTHESIS_TYPES = {
 
 
 class Memory:
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        index_type = kwargs.get("index_type", "simple")
-        llm_predictor = kwargs.get("llm_predictor", "chatgpt")
-        synthesis_type = kwargs.get("synthesis_type", "default")
-        assert synthesis_type in SYNTHESIS_TYPES
-        assert index_type in INDEX_TYPES
-        assert llm_predictor in LLM_PREDICTOR_TYPES
+    def __init__(self, memory_file=None, index_type="simple", llm_predictor="gpt-3.5-turbo", synthesis_type="default"):
+        assert synthesis_type in SYNTHESIS_TYPES, f"Invalid synthesis type: {synthesis_type}"
+        assert index_type in INDEX_TYPES, f"Invalid index type: {index_type}"
+        assert llm_predictor in LLM_PREDICTOR_TYPES, f"Invalid LLM predictor: {llm_predictor}"
 
         self.texts = []
-        kwargs = {"temperature": 0, "model_name": "gpt-3.5-turbo"}
+        llm_kwargs = {"temperature": 0, "model_name": "gpt-3.5-turbo"}
         predictor_constructor = LLM_PREDICTOR_TYPES[llm_predictor]
-        llm = LLMPredictor(llm=predictor_constructor(**kwargs))
+        llm = LLMPredictor(llm=predictor_constructor(**llm_kwargs))
         service_context = ServiceContext.from_defaults(llm_predictor=llm)
-        self.index = INDEX_TYPES[index_type].from_documents([], service_context=service_context)
+
+        if memory_file:
+            logger.info("Loading memory from disk.")
+            self.index = INDEX_TYPES[index_type].load_from_disk(memory_file, service_context=service_context)
+        else:
+            self.index = INDEX_TYPES[index_type].from_documents([], service_context=service_context)
         self.llm_predictor = llm_predictor
         self.synthesis_type = SYNTHESIS_TYPES[synthesis_type]
 

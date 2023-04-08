@@ -116,7 +116,7 @@ class GPTSeleniumAgent:
         self.memory = None
         if self.memory_file:
             logger.info("Enabling memory.")
-            self.memory = Memory()
+            self.memory = Memory(memory_file=self.memory_file)
 
         """Set up the driver."""
         _chrome_options = webdriver.ChromeOptions()
