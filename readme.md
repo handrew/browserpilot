@@ -99,7 +99,7 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ## 🎉 Finished
-0.2.38 - 0.2.39
+0.2.38 - 0.2.40
 - Change `enable_memory` to `memory_file` to enable more control over what the memory is called. Allow users to load memory as well.
 
 

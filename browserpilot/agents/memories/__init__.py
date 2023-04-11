@@ -1,4 +1,5 @@
 """Memory for agents."""
+import os
 from llama_index import GPTSimpleVectorIndex, GPTListIndex
 from llama_index import Document, LLMPredictor, ServiceContext
 from langchain.chat_models import ChatOpenAI
@@ -41,7 +42,7 @@ class Memory:
         llm = LLMPredictor(llm=predictor_constructor(**llm_kwargs))
         service_context = ServiceContext.from_defaults(llm_predictor=llm)
 
-        if memory_file:
+        if memory_file and os.path.exists(memory_file):
             logger.info("Loading memory from disk.")
             self.index = INDEX_TYPES[index_type].load_from_disk(memory_file, service_context=service_context)
         else:
