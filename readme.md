@@ -88,19 +88,20 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
     - `env.wait(seconds)` waits for `seconds` seconds.
     - `env.scroll(direction, iframe=None)` scrolls the page. Will switch to `iframe` if given. `direction` can be "up", "down", "left", or "right". 
     - `env.get_llm_response(text)` asks AI about a string `text`.
-    - `env.retrieve_information(prompt, entire_page=False)` returns a string, information from a page given a prompt. Use prompt="Summarize:" for summaries. Uses all the text if entire_page=True and only visible text if False. Invoked with commands like "retrieve", "find in the page", or similar.
+    - `env.retrieve_information(prompt)` returns a string, information from a page given a prompt. Use prompt="Summarize:" for summaries. Invoked with commands like "retrieve", "find in the page", or similar.
     - `env.ask_llm_to_find_element(description)` asks AI to find an element that matches the description.
     - `env.query_memory(prompt)` asks AI with a prompt to query its memory (an embeddings index) of the web pages it has browsed. Invoked with "Query memory".
     - `env.save(text, filename)` saves the string `text` to a file `filename`.
-    - `env.get_text_from_page(entire_page)` returns the free text from the page. If entire_page is True, it returns all the text from HTML doc. If False, returns only visible text.
+    - `env.get_text_from_page()` returns the free text from the page.
 - The rest of the code is basically middleware which exposes a Selenium object to GPT-3. **For each action mentioned in the base prompt, there is a corresponding method in GPTSeleniumAgent.**
     - An `InstructionCompiler` is used to parse user input into semantically cogent blocks of actions.
 - The agent has a `Memory` which enables it to synthesize what it sees.
 
 
 ## 🎉 Finished
-0.2.38 - 0.2.40
+0.2.38 - 0.2.41
 - Change `enable_memory` to `memory_file` to enable more control over what the memory is called. Allow users to load memory as well.
+- Make `get_text_from_page` simpler.
 
 
 0.2.26 - 0.2.37

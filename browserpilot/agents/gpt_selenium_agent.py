@@ -414,7 +414,7 @@ class GPTSeleniumAgent:
         time.sleep(1)
         if self.memory_file:
             # Get all the visible text from the page and add it to the memory.
-            text = self.get_text_from_page(entire_page=False)
+            text = self.get_text_from_page()
             self.memory.add(text)
 
     @__switch_to_element_iframe
@@ -550,38 +550,28 @@ class GPTSeleniumAgent:
         if self.memory_file and (url_before_click != url_after_click):
             time.sleep(wait_time)
             # Get all the visible text from the page and add it to the memory.
-            text = self.get_text_from_page(entire_page=False)
+            text = self.get_text_from_page()
             self.memory.add(text)
 
-    def get_text_from_page(self, entire_page=False):
+    def get_text_from_page(self):
         """Returns the text from the page."""
-        # First, we get the HTML of the page and use html2text to convert it
-        # to text.
-        if entire_page:
-            html = self.driver.page_source
-            text = html2text.html2text(html)
-        else:
-            text = self.driver.find_element(by=By.TAG_NAME, value="body").text
+        text = self.driver.find_element(by=By.TAG_NAME, value="body").text
 
         # Check for iframes too.
         iframes = self.driver.find_elements(by=By.TAG_NAME, value="iframe")
         for iframe in iframes:
             self.driver.switch_to.frame(iframe)
-            if entire_page:
-                html = self.driver.page_source
-                text = text + "\n" + html2text.html2text(html)
-            else:
-                visible_text = self.driver.find_element(
-                    by=By.TAG_NAME, value="body"
-                ).text
-                text = text + "\n" + visible_text
+            visible_text = self.driver.find_element(
+                by=By.TAG_NAME, value="body"
+            ).text
+            text = text + "\n" + visible_text
             self.driver.switch_to.default_content()
 
         return text
 
-    def retrieve_information(self, prompt, entire_page=False):
+    def retrieve_information(self, prompt):
         """Retrieves information using using GPT-Index embeddings from a page."""
-        text = self.get_text_from_page(entire_page=entire_page)
+        text = self.get_text_from_page()
         llm_predictor = LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
         index = GPTSimpleVectorIndex.from_documents([Document(text)], service_context=service_context)
