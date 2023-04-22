@@ -5,7 +5,6 @@ import re
 import sys
 import time
 import traceback
-import html2text
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 from bs4.element import Tag
@@ -192,7 +191,7 @@ class GPTSeleniumAgent:
         # Get the HTML tag for the entire page, convert into BeautifulSoup.
         html = self.driver.find_element(By.TAG_NAME, "html")
         html_string = html.get_attribute("outerHTML")
-        soup = BeautifulSoup(html_string, "lxml")
+        soup = BeautifulSoup(html_string, "html.parser")
 
         # Remove blacklisted items and attributes in it.
         for blacklisted in blacklisted_elements:
