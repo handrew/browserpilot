@@ -18,17 +18,17 @@ def cli():
 @click.argument("instructions")
 @click.option("--chromedriver_path", default="./chromedriver", help="chromedriver path")
 @click.option("--model", default="gpt-3.5-turbo", help="which model?")
-@click.option("--memory_file", default=None, help="Memory file.")
+@click.option("--memory_folder", default=None, help="Memory folder.")
 @click.option("--debug", is_flag=True, help="Enable debugging.")
 @click.option("--output", default=None, help="Instruction output file.")
-def selenium(instructions, chromedriver_path, model, memory_file, debug, output):
+def selenium(instructions, chromedriver_path, model, memory_folder, debug, output):
     with open(instructions, "r") as instructions:
         agent = GPTSeleniumAgent(
             instructions,
             chromedriver_path,
             instruction_output_file=output,
             model_for_instructions=model,
-            memory_file=memory_file,
+            memory_folder=memory_folder,
             debug=debug,
             retry=True,
         )
@@ -37,12 +37,12 @@ def selenium(instructions, chromedriver_path, model, memory_file, debug, output)
 """🤫
 @cli.command()
 @click.option("--instructions", default=None, help="Instructions file.")
-@click.option("--memory_file", is_flag=True, help="Enable memory.")
-def goal(instructions, memory_file):
+@click.option("--memory_folder", is_flag=True, help="Enable memory.")
+def goal(instructions, memory_folder):
     agent = GoalAgent(
         instructions,
         "./chromedriver",
-        memory_file=memory_file,
+        memory_folder=memory_folder,
         debug=True,
     )
     agent.run()

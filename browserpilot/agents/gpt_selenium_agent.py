@@ -8,7 +8,7 @@ import traceback
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 from bs4.element import Tag
-from llama_index import Document, GPTSimpleVectorIndex
+from llama_index import Document, GPTVectorStoreIndex
 from llama_index import ServiceContext, LLMPredictor
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -53,7 +53,7 @@ class GPTSeleniumAgent:
         retry=False,
         model_for_instructions="gpt-3.5-turbo",
         model_for_responses="gpt-3.5-turbo",
-        memory_file=None,
+        memory_folder=None,
         debug=False,
         debug_html_folder="",
         instruction_output_file=None,
@@ -75,7 +75,7 @@ class GPTSeleniumAgent:
                 Selenium.
             headless (bool): Whether to run the browser in headless mode.
             retry (bool): Whether to retry failed actions.
-            memory_file (str): Path to the memory file to load or output to.
+            memory_folder (str): Path to the memory folder to load or output to.
             debug (bool): Whether to start an interactive debug session if
                 there is an Exception thrown.
             debug_html_folder (str): Path to the folder where debug HTML files
@@ -102,7 +102,7 @@ class GPTSeleniumAgent:
         self.should_retry = retry
         self.debug = debug
         self.debug_html_folder = debug_html_folder
-        self.memory_file = memory_file
+        self.memory_folder = memory_folder
         self.close_after_completion = close_after_completion
 
         """Fire up the compiler."""
@@ -113,9 +113,9 @@ class GPTSeleniumAgent:
 
         """Set up the memory."""
         self.memory = None
-        if self.memory_file:
+        if self.memory_folder:
             logger.info("Enabling memory.")
-            self.memory = Memory(memory_file=self.memory_file)
+            self.memory = Memory(memory_folder=self.memory_folder)
 
         """Set up the driver."""
         _chrome_options = webdriver.ChromeOptions()
@@ -227,8 +227,8 @@ class GPTSeleniumAgent:
 
     def __complete(self):
         """What to run when the agent is done."""
-        if self.memory_file:
-            self.memory.save(self.memory_file)
+        if self.memory_folder:
+            self.memory.save(self.memory_folder)
 
         if self.close_after_completion:
             self.driver.quit()
@@ -411,7 +411,7 @@ class GPTSeleniumAgent:
             url = "http://" + url
         self.driver.get(url)
         time.sleep(1)
-        if self.memory_file:
+        if self.memory_folder:
             # Get all the visible text from the page and add it to the memory.
             text = self.get_text_from_page()
             self.memory.add(text)
@@ -546,7 +546,7 @@ class GPTSeleniumAgent:
         url_after_click = self.driver.current_url
 
         # If the URL changed, then add the page to memory.
-        if self.memory_file and (url_before_click != url_after_click):
+        if self.memory_folder and (url_before_click != url_after_click):
             time.sleep(wait_time)
             # Get all the visible text from the page and add it to the memory.
             text = self.get_text_from_page()
@@ -573,13 +573,14 @@ class GPTSeleniumAgent:
         text = self.get_text_from_page()
         llm_predictor = LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
-        index = GPTSimpleVectorIndex.from_documents([Document(text)], service_context=service_context)
+        index = GPTVectorStoreIndex.from_documents([Document(text)], service_context=service_context)
         logger.info(
             'Retrieving information from web page with prompt: "{prompt}"'.format(
                 prompt=prompt
             )
         )
-        resp = index.query(prompt)
+        query_engine = index.as_query_engine()
+        resp = query_engine.query(prompt)
         return resp.response.strip()
 
     def get_llm_response(self, prompt, temperature=0.7, model=None):
@@ -595,7 +596,7 @@ class GPTSeleniumAgent:
 
     def query_memory(self, prompt):
         """Queries the memory of the LLM."""
-        if self.memory_file:
+        if self.memory_folder:
             resp = self.memory.query(prompt)
             return resp
         logger.error("Memory is disabled.")
@@ -631,23 +632,24 @@ class GPTSeleniumAgent:
         # Construct and query index.
         llm_predictor = LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
-        index = GPTSimpleVectorIndex.from_documents(docs, service_context=service_context)
+        index = GPTVectorStoreIndex.from_documents(docs, service_context=service_context)
         query = "Find element that matches description: {element_description}. If no element matches, return {no_resp_token}.".format(
             element_description=element_description, no_resp_token=NO_RESPONSE_TOKEN
         )
         query = (
             query + " Please be as succinct as possible, with no additional commentary."
         )
-        resp = index.query(query)
-        doc_id = resp.source_nodes[0].doc_id
+        query_engine = index.as_query_engine()
+        resp = query_engine.query(query)
+        doc_id = resp.source_nodes[0].node.ref_doc_id
 
         resp_text = resp.response.strip()
         if NO_RESPONSE_TOKEN in resp_text:
-            logger.info("GPT-Index could not find element. Returning None.")
+            logger.info("Llama Index could not find element. Returning None.")
             return None
 
         logger.info(
-            "Asked GPT-Index to find element. Response: {resp}".format(resp=resp_text)
+            "Asked Llama Index to find element. Response: {resp}".format(resp=resp_text)
         )
 
         # Find the iframe that the element is from.

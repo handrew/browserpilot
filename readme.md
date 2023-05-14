@@ -99,6 +99,10 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ## 🎉 Finished
+0.2.42 - 0.2.44
+- Small changes in `examples.py` and dependencies.
+- Refactor for the big Llama Index upgrade.
+
 0.2.38 - 0.2.41
 - Change `enable_memory` to `memory_file` to enable more control over what the memory is called. Allow users to load memory as well.
 - Make `get_text_from_page` simpler.

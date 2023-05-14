@@ -1,7 +1,8 @@
 """Memory for agents."""
 import os
-from llama_index import GPTSimpleVectorIndex, GPTListIndex
+from llama_index import GPTVectorStoreIndex, GPTListIndex
 from llama_index import Document, LLMPredictor, ServiceContext
+from llama_index import StorageContext, load_index_from_storage
 from langchain.chat_models import ChatOpenAI
 
 import logging
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 # https://gpt-index.readthedocs.io/en/latest/guides/index_guide.html
 INDEX_TYPES = {
     # Good for retrieval, because of top_k and embeddings.
-    "simple": GPTSimpleVectorIndex,
+    "vector": GPTVectorStoreIndex,
     # Good for aggregate summaries, but slow.
     "list": GPTListIndex,
 }
@@ -21,18 +22,9 @@ LLM_PREDICTOR_TYPES = {
     "gpt-3.5-turbo": ChatOpenAI,
 }
 
-# Not sure if we need this level of granularity, but leaving it here for now.
-# https://gpt-index.readthedocs.io/en/latest/guides/usage_pattern.html
-SYNTHESIS_TYPES = {
-    "default": "default",
-    "compact": "compact",
-    "summarize": "tree_summarize",
-}
-
 
 class Memory:
-    def __init__(self, memory_file=None, index_type="simple", llm_predictor="gpt-3.5-turbo", synthesis_type="default"):
-        assert synthesis_type in SYNTHESIS_TYPES, f"Invalid synthesis type: {synthesis_type}"
+    def __init__(self, memory_folder=None, index_type="vector", llm_predictor="gpt-3.5-turbo"):
         assert index_type in INDEX_TYPES, f"Invalid index type: {index_type}"
         assert llm_predictor in LLM_PREDICTOR_TYPES, f"Invalid LLM predictor: {llm_predictor}"
 
@@ -42,18 +34,17 @@ class Memory:
         llm = LLMPredictor(llm=predictor_constructor(**llm_kwargs))
         service_context = ServiceContext.from_defaults(llm_predictor=llm)
 
-        if memory_file and os.path.exists(memory_file):
+        if memory_folder and os.path.exists(memory_folder):
             logger.info("Loading memory from disk.")
-            self.index = INDEX_TYPES[index_type].load_from_disk(memory_file, service_context=service_context)
+            storage_context = StorageContext.from_defaults(persist_dir='./storage')
+            self.index = load_index_from_storage(storage_context)
         else:
             self.index = INDEX_TYPES[index_type].from_documents([], service_context=service_context)
         self.llm_predictor = llm_predictor
-        self.synthesis_type = SYNTHESIS_TYPES[synthesis_type]
 
-    def query(self, prompt):
-        return self.index.query(
-            prompt, response_mode=self.synthesis_type
-        )
+    def query(self, prompt, similarity_top_k=3):
+        query_engine = self.index.as_query_engine(similarity_top_k=similarity_top_k)
+        return query_engine.query(prompt)
 
     def add(self, text):
         if text in self.texts:
@@ -63,4 +54,4 @@ class Memory:
         self.index.insert(Document(text))
 
     def save(self, path):
-        self.index.save_to_disk(path)
+        self.index.storage_context.persist(path)
