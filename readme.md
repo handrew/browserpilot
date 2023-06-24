@@ -21,9 +21,9 @@ The form factor is fairly simple (see below).
 from browserpilot.agents.gpt_selenium_agent import GPTSeleniumAgent
 
 instructions = """Go to Google.com
-Find all text boxes.
-Find the first visible text box.
-Click on the first visible text box.
+Find all textareas.
+Find the first visible textarea.
+Click on the first visible textarea.
 Type in "buffalo buffalo buffalo buffalo buffalo" and press enter.
 Wait 2 seconds.
 Find all anchor elements that link to Wikipedia.
@@ -39,7 +39,7 @@ The harder (but funner) part is writing the natural language prompts.
 
 ### 📑 Writing Prompts
 
-It helps if you are familiar with how Selenium works and programming in general. This is because this project uses GPT-3 to translate natural language into code, so you should be as precise as you can. In this way, it is more like writing code with Copilot than it is talking to a friend; for instance, it helps to refer to things as text boxes (vs. "search box") or "button which says 'Log in'" rather than "the login button". Sometimes, it will also not pick up on specific words that are important, so it helps to break them out into separate lines. Instead of "find all the visible text boxes", you do "find all the text boxes" and then "find the first visible text box".
+It helps if you are familiar with how Selenium works and programming in general. This is because this project uses GPT-3 to translate natural language into code, so you should be as precise as you can. In this way, it is more like writing code with Copilot than it is talking to a friend; for instance, it helps to refer to things as `input`s or `textareas` (vs. "text box" "search box") or "button which says 'Log in'" rather than "the login button". Sometimes, it will also not pick up on specific words that are important, so it helps to break them out into separate lines. Instead of "find all the visible textareas", you do "find all the textareas" and then "find the first visible textarea".
 
 You can look at some examples in `prompts/examples` to get started.
 
@@ -48,9 +48,9 @@ Create "functions" by enclosing instructions in `BEGIN_FUNCTION func_name` and `
 ```
 BEGIN_FUNCTION search_buffalo
 Go to Google.com
-Find all text boxes.
-Find the first visible text box.
-Click on the first visible text box.
+Find all textareas.
+Find the first visible textarea.
+Click on the first visible textarea.
 Type in "buffalo buffalo buffalo buffalo buffalo" and press enter.
 Wait 2 seconds.
 Get all anchors on the page that contain the word "buffalo".

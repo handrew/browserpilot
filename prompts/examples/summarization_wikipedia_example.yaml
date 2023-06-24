@@ -18,9 +18,9 @@ compiled:
 - print(summary)
 instructions:
 - Go to Google.com
-- Find all text boxes.
-- Find the first visible text box.
-- Click on the first visible text box.
+- Find all text areas.
+- Find the first visible textarea.
+- Click on the first visible textarea.
 - Type in "buttered cat paradox" and press enter.
 - Wait 2 seconds.
 - Find all anchor elements that link to Wikipedia.
