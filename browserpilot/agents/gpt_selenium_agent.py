@@ -28,7 +28,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 NO_RESPONSE_TOKEN = "<NONE>"  # To denote that empty response from model.
-CHATGPT_KWARGS = {"temperature": 0, "model_name": "gpt-3.5-turbo"}
 
 
 class GPTWebElement(webdriver.remote.webelement.WebElement):
@@ -571,7 +570,8 @@ class GPTSeleniumAgent:
     def retrieve_information(self, prompt):
         """Retrieves information using using GPT-Index embeddings from a page."""
         text = self.get_text_from_page()
-        llm_predictor = LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS))
+        chatgpt_kwargs = {"temperature": 0, "model_name": self.model_for_instructions}
+        llm_predictor = LLMPredictor(llm=ChatOpenAI(**chatgpt_kwargs))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
         index = GPTVectorStoreIndex.from_documents([Document(text)], service_context=service_context)
         logger.info(
@@ -630,7 +630,8 @@ class GPTSeleniumAgent:
         doc_id_to_element = {doc.get_doc_id(): doc.get_text() for doc in docs}
 
         # Construct and query index.
-        llm_predictor = LLMPredictor(llm=ChatOpenAI(**CHATGPT_KWARGS))
+        chatgpt_kwargs = {"temperature": 0, "model_name": self.model_for_instructions}
+        llm_predictor = LLMPredictor(llm=ChatOpenAI(**chatgpt_kwargs))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
         index = GPTVectorStoreIndex.from_documents(docs, service_context=service_context)
         query = "Find element that matches description: {element_description}. If no element matches, return {no_resp_token}.".format(

@@ -20,6 +20,8 @@ INDEX_TYPES = {
 
 LLM_PREDICTOR_TYPES = {
     "gpt-3.5-turbo": ChatOpenAI,
+    "gpt-3.5-turbo-16k": ChatOpenAI,
+    "gpt-4": ChatOpenAI,
 }
 
 
@@ -29,7 +31,7 @@ class Memory:
         assert llm_predictor in LLM_PREDICTOR_TYPES, f"Invalid LLM predictor: {llm_predictor}"
 
         self.texts = []
-        llm_kwargs = {"temperature": 0, "model_name": "gpt-3.5-turbo"}
+        llm_kwargs = {"temperature": 0, "model_name": llm_predictor}
         predictor_constructor = LLM_PREDICTOR_TYPES[llm_predictor]
         llm = LLMPredictor(llm=predictor_constructor(**llm_kwargs))
         service_context = ServiceContext.from_defaults(llm_predictor=llm)

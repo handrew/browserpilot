@@ -26,7 +26,7 @@ RETRY_SUFFIX = "\n\nPlease try again keeping in mind the above stack trace. Only
 BASE_PROMPT = """You have an instance `env` with methods:
 - `env.driver`, the Selenium webdriver.
 - `env.get(url)` goes to url.
-- `env.find_elements(by='class name', value=None)` finds and returns list `WebElement`. The argument `by` is a string that specifies the locator strategy. The argument `value` is a string that specifies the locator value. `by` is usually `xpath` and `value` is the xpath of the element.
+- `env.find_elements(by='class name', value=None)` finds and returns list `WebElement`. The argument `by` is a string that specifies the locator strategy. The argument `value` is a string that specifies the locator value. Use `xpath` for `by` and the xpath of the element for `value`.
 - `env.find_element(by='class name', value=None)` is like `env.find_elements()` but only returns the first element.
 - `env.find_nearest(e, xpath, direction="above")` can be used to locate a WebElement that matches the xpath near WebElement e. Direction is "above", "below", "left", or "right".
 - `env.send_keys(element, text)` sends `text` to element. Be mindful of special keys, like "enter" (use Keys.ENTER) and "tab" (use Keys.TAB).
@@ -53,6 +53,7 @@ Your code must obey the following constraints:
 - In xpaths, to get the text of an element, do NOT use `text()` (use `normalize-space()` instead), and don't use "normalize-space() = 'text'", use "contains(normalize-space(), 'text')" instead. For instance, the xpath for a button element that contains text is "//button[contains(normalize-space(), 'text')]".
 - Do NOT use `element.text` to get text. Use `env.get_text_of_element(element)` instead.
 - Do NOT use `element.send_keys(text)` or `element.click()`. Use `env.send_keys(text)` and `env.click(element)` instead.
+- Don't use list comprehensions. They make it hard to debug.
 - Only do what I instruct you to do.
 - Only write code, no comments.
 - Has correct indentation.
@@ -279,7 +280,7 @@ class InstructionCompiler:
             return text
 
         try:
-            if "gpt-3.5-turbo" in model:
+            if "gpt-3.5-turbo" in model or "gpt-4" in model:
                 response = openai.ChatCompletion.create(
                     model=model,
                     messages=[{"role": "user", "content": prompt}],
