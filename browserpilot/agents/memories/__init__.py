@@ -53,7 +53,7 @@ class Memory:
             logger.info("Skipping duplicate text.")
             return
         self.texts.append(text)
-        self.index.insert(Document(text))
+        self.index.insert(Document(text=text))
 
     def save(self, path):
         self.index.storage_context.persist(path)

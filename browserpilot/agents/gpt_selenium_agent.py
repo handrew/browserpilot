@@ -573,7 +573,7 @@ class GPTSeleniumAgent:
         chatgpt_kwargs = {"temperature": 0, "model_name": self.model_for_instructions}
         llm_predictor = LLMPredictor(llm=ChatOpenAI(**chatgpt_kwargs))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
-        index = GPTVectorStoreIndex.from_documents([Document(text)], service_context=service_context)
+        index = GPTVectorStoreIndex.from_documents([Document(text=text)], service_context=service_context)
         logger.info(
             'Retrieving information from web page with prompt: "{prompt}"'.format(
                 prompt=prompt
@@ -626,8 +626,8 @@ class GPTSeleniumAgent:
 
         # Create the docs and a dict of doc_id to element, which will help
         # us find the element that GPT Index returns.
-        docs = [Document(element.prettify()) for element in elements]
-        doc_id_to_element = {doc.get_doc_id(): doc.get_text() for doc in docs}
+        docs = [Document(text=element.prettify()) for element in elements]
+        doc_id_to_element = {doc.get_doc_id(): elements[i].prettify() for i, doc in enumerate(docs)}
 
         # Construct and query index.
         chatgpt_kwargs = {"temperature": 0, "model_name": self.model_for_instructions}
