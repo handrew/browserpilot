@@ -3,7 +3,7 @@ import os
 import openai
 import click
 from browserpilot.agents.gpt_selenium_agent import GPTSeleniumAgent
-from browserpilot.agents.goal_agent import GoalAgent
+# from browserpilot.agents.goal_agent import GoalAgent
 
 # Set OpenAI API key.
 openai.api_key = os.environ["OPENAI_API_KEY"]
