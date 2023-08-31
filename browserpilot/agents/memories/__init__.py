@@ -38,7 +38,7 @@ class Memory:
 
         if memory_folder and os.path.exists(memory_folder):
             logger.info("Loading memory from disk.")
-            storage_context = StorageContext.from_defaults(persist_dir='./storage')
+            storage_context = StorageContext.from_defaults(persist_dir=memory_folder)
             self.index = load_index_from_storage(storage_context)
         else:
             self.index = INDEX_TYPES[index_type].from_documents([], service_context=service_context)
