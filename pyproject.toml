@@ -8,12 +8,12 @@ readme = "README.md"
 [tool.poetry.dependencies]
 click = "^8.1.3" 
 python = "^3.10"
-openai = "^0.27.1"
+openai = ">0.27, <2.0"
 selenium = "^4.8.2"
 tqdm = "^4.64.1"
 beautifulsoup4 = "^4.11.2"
 pyyaml = "^6.0"
-llama-index = "^0.8.14"
+llama-index = ">=0.8, <1.0"
 
 
 [build-system]
