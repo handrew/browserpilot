@@ -6,14 +6,11 @@ import sys
 import time
 import traceback
 from bs4 import BeautifulSoup
-from bs4.element import NavigableString
-from bs4.element import Tag
 from llama_index import Document, GPTVectorStoreIndex
 from llama_index import ServiceContext, LLMPredictor
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.relative_locator import locate_with
 from langchain.chat_models import ChatOpenAI
@@ -45,8 +42,8 @@ class GPTSeleniumAgent:
     def __init__(
         self,
         instructions="",
-        chromedriver_path=None,
-        chrome_options={},
+        browser_driver_path=None,
+        browser_options={},
         user_data_dir="user_data",
         headless=False,
         retry=False,
@@ -63,9 +60,9 @@ class GPTSeleniumAgent:
         Args:
             instructions (list): List of instructions to run or
                 io.TextIOWrapper of a YAML file containing instructions.
-            chromedriver_path (str): Path to the chromedriver executable.
-            chrome_options (dict): Dictionary of options to pass to the
-                ChromeDriver.
+            browser_driver_path (str): Path to the browser executable.
+            browser_options (dict): Dictionary of options to pass to the
+                browser driver Chrome or Firefox.
             model_for_instructions (str): OpenAI model to use for generating
                 instructions.
             model_for_responses (str): OpenAI model to use for generating
@@ -89,14 +86,15 @@ class GPTSeleniumAgent:
             instruction_output_file is None
             or instruction_output_file.endswith(".yaml")
             or instruction_output_file.endswith(".json")
-        ), "Instruction output file must be a YAML or JSON file or None." 
-        assert (
-            chromedriver_path is not None
-        ), "Please provide a path to the chromedriver executable."
+        ), "Instruction output file must be a YAML or JSON file or None."
         self.model_for_instructions = model_for_instructions
         self.model_for_responses = model_for_responses
-        logger.info("Using model for instructions: {model}".format(model=model_for_instructions))
-        logger.info("Using model for responses: {model}".format(model=model_for_responses))
+        logger.info(
+            "Using model for instructions: {model}".format(model=model_for_instructions)
+        )
+        logger.info(
+            "Using model for responses: {model}".format(model=model_for_responses)
+        )
         self.instruction_output_file = instruction_output_file
         self.should_retry = retry
         self.debug = debug
@@ -119,24 +117,27 @@ class GPTSeleniumAgent:
         """Set up the driver."""
         _chrome_options = webdriver.ChromeOptions()
         _chrome_options.add_argument(f"user-data-dir={user_data_dir}")
-        # 🤫 Evade detection. 
+        # 🤫 Evade detection.
         # https://stackoverflow.com/questions/53039551/selenium-webdriver-modifying-navigator-webdriver-flag-to-prevent-selenium-detec
-        _chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-        _chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        _chrome_options.add_experimental_option('useAutomationExtension', False)
+        _chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        _chrome_options.add_experimental_option(
+            "excludeSwitches", ["enable-automation"]
+        )
+        _chrome_options.add_experimental_option("useAutomationExtension", False)
 
         self.headless = headless
         if headless:
             _chrome_options.add_argument("--headless")
-        for option in chrome_options:
-            _chrome_options.add_argument(f"{option}={chrome_options[option]}")
+        for option in browser_options:
+            _chrome_options.add_argument(f"{option}={browser_options[option]}")
 
         # Instantiate Service with the path to the chromedriver and the options.
-        service = Service(chromedriver_path)
-        self.driver = webdriver.Chrome(service=service, options=_chrome_options)
+        service = Service()
+        self.driver = webdriver.Firefox(service=service)
         # 🤫 Evade detection.
-        self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-
+        self.driver.execute_script(
+            "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+        )
 
     """Helper functions"""
 
@@ -434,9 +435,7 @@ class GPTSeleniumAgent:
 
     def scroll(self, direction=None, iframe=None):
         allowed_dirs = ["up", "down", "top", "bottom", "left", "right"]
-        assert direction in allowed_dirs, "Invalid direction: {}".format(
-            direction
-        )
+        assert direction in allowed_dirs, "Invalid direction: {}".format(direction)
         assert (iframe is None) or isinstance(iframe, GPTWebElement)
         if iframe is not None:
             # Switch to the iframe of the element.
@@ -454,7 +453,9 @@ class GPTSeleniumAgent:
         elif direction == "top":
             self.driver.execute_script("window.scrollTo(0, 0);")
         elif direction == "bottom":
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            self.driver.execute_script(
+                "window.scrollTo(0, document.body.scrollHeight);"
+            )
         elif direction == "left":
             self.driver.execute_script("window.scrollBy(-window.innerWidth, 0);")
         elif direction == "right":
@@ -466,7 +467,7 @@ class GPTSeleniumAgent:
     def find_element(self, by="id", value=None):
         found_elements = self.find_elements(by, value)
         if len(found_elements) == 0:
-            raise Exception("No elements found.")
+            raise Exception(f"No elements found by={by} value={value}")
 
         # Iterate through until the first displayed one is found, then return that one.
         for element in found_elements:
@@ -508,9 +509,13 @@ class GPTSeleniumAgent:
 
     @__switch_to_element_iframe
     def find_nearest(self, element: GPTWebElement, xpath=None, direction="above"):
-        assert direction in ["near", "above", "below", "left", "right"], (
-            "Invalid direction: {}".format(direction)
-        )
+        assert direction in [
+            "near",
+            "above",
+            "below",
+            "left",
+            "right",
+        ], "Invalid direction: {}".format(direction)
         if direction == "above":
             locator = locate_with(By.XPATH, xpath).above(element)
         elif direction == "below":
@@ -559,9 +564,7 @@ class GPTSeleniumAgent:
         iframes = self.driver.find_elements(by=By.TAG_NAME, value="iframe")
         for iframe in iframes:
             self.driver.switch_to.frame(iframe)
-            visible_text = self.driver.find_element(
-                by=By.TAG_NAME, value="body"
-            ).text
+            visible_text = self.driver.find_element(by=By.TAG_NAME, value="body").text
             text = text + "\n" + visible_text
             self.driver.switch_to.default_content()
 
@@ -573,7 +576,9 @@ class GPTSeleniumAgent:
         chatgpt_kwargs = {"temperature": 0, "model_name": self.model_for_instructions}
         llm_predictor = LLMPredictor(llm=ChatOpenAI(**chatgpt_kwargs))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
-        index = GPTVectorStoreIndex.from_documents([Document(text=text)], service_context=service_context)
+        index = GPTVectorStoreIndex.from_documents(
+            [Document(text=text)], service_context=service_context
+        )
         logger.info(
             'Retrieving information from web page with prompt: "{prompt}"'.format(
                 prompt=prompt
@@ -627,13 +632,17 @@ class GPTSeleniumAgent:
         # Create the docs and a dict of doc_id to element, which will help
         # us find the element that GPT Index returns.
         docs = [Document(text=element.prettify()) for element in elements]
-        doc_id_to_element = {doc.get_doc_id(): elements[i].prettify() for i, doc in enumerate(docs)}
+        doc_id_to_element = {
+            doc.get_doc_id(): elements[i].prettify() for i, doc in enumerate(docs)
+        }
 
         # Construct and query index.
         chatgpt_kwargs = {"temperature": 0, "model_name": self.model_for_instructions}
         llm_predictor = LLMPredictor(llm=ChatOpenAI(**chatgpt_kwargs))
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
-        index = GPTVectorStoreIndex.from_documents(docs, service_context=service_context)
+        index = GPTVectorStoreIndex.from_documents(
+            docs, service_context=service_context
+        )
         query = "Find element that matches description: {element_description}. If no element matches, return {no_resp_token}.".format(
             element_description=element_description, no_resp_token=NO_RESPONSE_TOKEN
         )

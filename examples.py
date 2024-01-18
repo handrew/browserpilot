@@ -6,7 +6,7 @@ from browserpilot.agents.gpt_selenium_agent import GPTSeleniumAgent
 # from browserpilot.agents.goal_agent import GoalAgent
 
 # Set OpenAI API key.
-openai.api_key = os.environ["OPENAI_API_KEY"]
+
 
 # Set up multiple command CLI.
 @click.group()
@@ -33,6 +33,7 @@ def selenium(instructions, chromedriver_path, model, memory_folder, debug, outpu
             retry=True,
         )
         agent.run()
+
 
 """🤫
 @cli.command()

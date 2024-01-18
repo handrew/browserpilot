@@ -19,16 +19,20 @@ INDEX_TYPES = {
 }
 
 LLM_PREDICTOR_TYPES = {
-    "gpt-3.5-turbo": ChatOpenAI,
+    "gpt-3.5-turbo-1106": ChatOpenAI,
     "gpt-3.5-turbo-16k": ChatOpenAI,
-    "gpt-4": ChatOpenAI,
+    "gpt-4-1106-preview": ChatOpenAI,
 }
 
 
 class Memory:
-    def __init__(self, memory_folder=None, index_type="vector", llm_predictor="gpt-3.5-turbo"):
+    def __init__(
+        self, memory_folder=None, index_type="vector", llm_predictor="gpt-3.5-turbo-1106"
+    ):
         assert index_type in INDEX_TYPES, f"Invalid index type: {index_type}"
-        assert llm_predictor in LLM_PREDICTOR_TYPES, f"Invalid LLM predictor: {llm_predictor}"
+        assert (
+            llm_predictor in LLM_PREDICTOR_TYPES
+        ), f"Invalid LLM predictor: {llm_predictor}"
 
         self.texts = []
         llm_kwargs = {"temperature": 0, "model_name": llm_predictor}
@@ -41,7 +45,9 @@ class Memory:
             storage_context = StorageContext.from_defaults(persist_dir=memory_folder)
             self.index = load_index_from_storage(storage_context)
         else:
-            self.index = INDEX_TYPES[index_type].from_documents([], service_context=service_context)
+            self.index = INDEX_TYPES[index_type].from_documents(
+                [], service_context=service_context
+            )
         self.llm_predictor = llm_predictor
 
     def query(self, prompt, similarity_top_k=3):

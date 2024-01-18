@@ -1,14 +1,17 @@
 """InstructionCompiler class."""
 import time
-import openai
+from openai import OpenAI
 import json
+from regex import P
 import yaml
 import io
 import logging
 from typing import Dict, List, Union
+from openai import APIStatusError
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+client = OpenAI()
 
 """Set up all the prompt variables."""
 
@@ -138,9 +141,9 @@ class InstructionCompiler:
             # instructions. Be sure to pre-load the `history` and
             # `finished_instructions` instance variables for `retry`.
             if "compiled" in self.instructions:
-                assert isinstance(self.instructions["compiled"], list), (
-                    "Compiled instructions must be a list of strings."
-                )
+                assert isinstance(
+                    self.instructions["compiled"], list
+                ), "Compiled instructions must be a list of strings."
                 self.compiled_instructions = self.instructions["compiled"]
                 self.history.append(
                     {
@@ -267,21 +270,29 @@ class InstructionCompiler:
         return final_queue
 
     def get_completion(
-        self, prompt, model=None, temperature=0, max_tokens=1024, stop=["```"], use_cache=True
+        self,
+        prompt,
+        model=None,
+        temperature=0,
+        max_tokens=1024,
+        stop=["```"],
+        use_cache=True,
     ):
         """Wrapper over OpenAI's completion API."""
         if model is None:
             model = self.model
 
         # Check if it's in the cache already.
-        if use_cache and prompt in self.api_cache:
-            logger.info("Found prompt in API cache. Saving you money...")
-            text = self.api_cache[prompt]
-            return text
+        # if use_cache and prompt in self.api_cache:
+        #     logger.info("Found prompt in API cache. Saving you money...")
+        #     text = self.api_cache[prompt]
+        #     return text
 
         try:
-            if "gpt-3.5-turbo" in model or "gpt-4" in model:
-                response = openai.ChatCompletion.create(
+            if "gpt-3.5" in model or "gpt-4" in model:
+                print("Using chat API.")
+                print(prompt)
+                response = client.chat.completions.create(
                     model=model,
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=max_tokens,
@@ -291,26 +302,27 @@ class InstructionCompiler:
                     temperature=temperature,
                     stop=stop,
                 )
-                text = response["choices"][0]["message"]["content"]
+                print(response)
+                import pdb; pdb.set_trace()
+                text = response.choices[0].message.content
             else:
-                response = openai.Completion.create(
-                    model=model,
-                    prompt=prompt,
-                    max_tokens=max_tokens,
-                    top_p=1,
-                    frequency_penalty=0,
-                    presence_penalty=0,
-                    best_of=1,
-                    temperature=temperature,
-                    stop=stop,
+                raise NotImplementedError(
+                    "Only GPT-3.5 and GPT-4 are supported at the moment."
                 )
-                text = response["choices"][0]["text"]
-        except (
-            openai.error.RateLimitError,
-            openai.error.APIError,
-            openai.error.Timeout,
-            openai.error.APIConnectionError,
-        ) as exc:
+                # response = client.completions.create(
+                #     model=model,
+                #     prompt=prompt,
+                #     max_tokens=max_tokens,
+                #     top_p=1,
+                #     frequency_penalty=0,
+                #     presence_penalty=0,
+                #     best_of=1,
+                #     temperature=temperature,
+                #     stop=stop,
+                # )
+                # text = response.choices[0].text
+
+        except APIStatusError as exc:
             logger.info(
                 "OpenAI error. Likely a rate limit error, API error, or timeout: {exc}. Sleeping for a few seconds.".format(
                     exc=str(exc)
@@ -324,6 +336,7 @@ class InstructionCompiler:
         # Add to cache.
         self.api_cache[prompt] = text
 
+        logger.warning("Got completion: {text}".format(text=text))
         return text
 
     def get_action_output(self, instructions):
@@ -331,7 +344,9 @@ class InstructionCompiler:
         prompt = self.base_prompt.format(instructions=instructions)
         completion = self.get_completion(prompt).strip()
         action_output = completion.strip()
-        lines = [line for line in action_output.split("\n") if not line.startswith("import ")]
+        lines = [
+            line for line in action_output.split("\n") if not line.startswith("import ")
+        ]
         action_output = "\n".join(lines)
         return {
             "instruction": instructions,
