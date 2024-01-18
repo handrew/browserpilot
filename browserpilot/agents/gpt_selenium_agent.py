@@ -16,6 +16,8 @@ from selenium.webdriver.support.relative_locator import locate_with
 from langchain.chat_models import ChatOpenAI
 from .compilers.instruction_compiler import InstructionCompiler
 from .memories import Memory
+from typing import Callable
+from selenium.webdriver.remote.webelement import WebElement
 
 TIME_BETWEEN_ACTIONS = 0.01
 
@@ -54,6 +56,7 @@ class GPTSeleniumAgent:
         debug_html_folder="",
         instruction_output_file=None,
         close_after_completion=True,
+        additional_context: Callable[[webdriver.Firefox], str] | None = None
     ):
         """Initialize the agent.
 
@@ -106,6 +109,7 @@ class GPTSeleniumAgent:
         self.instruction_compiler = InstructionCompiler(
             instructions=instructions,
             model=self.model_for_instructions,
+            additional_context=additional_context,
         )
 
         """Set up the memory."""

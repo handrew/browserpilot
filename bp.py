@@ -1,5 +1,5 @@
 from browserpilot.agents.gpt_selenium_agent import GPTSeleniumAgent
-
+import selenium_extract
 instructions = """Go to audescribe.de/contact
 Fill Name with "John Doe"
 Fill Email with "john.doe@outlook.de"
@@ -8,5 +8,5 @@ Fill Message with "Hello, this is a test message!"
 Click on "Submit"
 """
 
-agent = GPTSeleniumAgent(instructions, "/opt/homebrew/bin/chromedriver")
+agent = GPTSeleniumAgent(instructions, "/opt/homebrew/bin/chromedriver", debug=True)
 agent.run()

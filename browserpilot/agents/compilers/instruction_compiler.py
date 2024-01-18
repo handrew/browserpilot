@@ -2,11 +2,12 @@
 import time
 from openai import OpenAI
 import json
-from regex import P
 import yaml
 import io
 import logging
 from typing import Dict, List, Union
+from selenium import webdriver
+from typing import Callable
 from openai import APIStatusError
 
 logging.basicConfig(level=logging.INFO)
@@ -64,6 +65,9 @@ Your code must obey the following constraints:
 - Does not call any functions besides those given above and those defined by the base language spec.
 - You may not import any modules. You may not use any external libraries.
 
+HTML CONTEXT TO CHOOSE FROM:
+{html_context}
+
 OUTPUT: ```python"""
 
 PROMPT_TO_FIND_ELEMENT = """Given the HTML below, write the `value` argument to the Python Selenium function `env.find_elements(by='xpath', value=value)` to precisely locate the element.
@@ -82,6 +86,7 @@ class InstructionCompiler:
         base_prompt=BASE_PROMPT,
         model="gpt-3.5-turbo",
         use_compiled=True,
+        additional_context: str = ""
     ):
         """Initialize the compiler. The compiler handles the sequencing of
         each set of instructions which are injected into the base prompt.
@@ -114,6 +119,7 @@ class InstructionCompiler:
         self.model = model
         logger.info(f"Using model {self.model}.")
         self.base_prompt = BASE_PROMPT
+        self.additional_context = additional_context
         self.prompt_to_find_element = PROMPT_TO_FIND_ELEMENT
         self.use_compiled = use_compiled
         self.api_cache = {}  # Instruction string to API response.
@@ -303,7 +309,6 @@ class InstructionCompiler:
                     stop=stop,
                 )
                 print(response)
-                import pdb; pdb.set_trace()
                 text = response.choices[0].message.content
             else:
                 raise NotImplementedError(
@@ -341,7 +346,7 @@ class InstructionCompiler:
 
     def get_action_output(self, instructions):
         """Get the action output for the given instructions."""
-        prompt = self.base_prompt.format(instructions=instructions)
+        prompt = self.base_prompt.format(instructions=instructions, html_context="")
         completion = self.get_completion(prompt).strip()
         action_output = completion.strip()
         lines = [
