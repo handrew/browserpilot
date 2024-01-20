@@ -65,9 +65,6 @@ Your code must obey the following constraints:
 - Does not call any functions besides those given above and those defined by the base language spec.
 - You may not import any modules. You may not use any external libraries.
 
-HTML CONTEXT TO CHOOSE FROM:
-{html_context}
-
 OUTPUT: ```python"""
 
 PROMPT_TO_FIND_ELEMENT = """Given the HTML below, write the `value` argument to the Python Selenium function `env.find_elements(by='xpath', value=value)` to precisely locate the element.
