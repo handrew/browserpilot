@@ -68,7 +68,7 @@ Your code must obey the following constraints:
 OUTPUT: ```python"""
 
 PROMPT_TO_FIND_ELEMENT = """Given the HTML below, write the `value` argument to the Python Selenium function `env.find_elements(by='xpath', value=value)` to precisely locate the element.
-
+In xpaths, be sure to wrap every id, name, and class in single quotes. For instance, the xpath for an element with id 'foo' is "//div[@id='foo']".
 Do not use any other method besides `env.find_elements`. Again, write only the *string argument for `value`* to the function.
 
 HTML: {cleaned_html}
