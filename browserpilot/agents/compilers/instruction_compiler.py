@@ -57,6 +57,7 @@ Your code must obey the following constraints:
 - In xpaths, to get the text of an element, do NOT use `text()` (use `normalize-space()` instead), and don't use "normalize-space() = 'text'", use "contains(normalize-space(), 'text')" instead. For instance, the xpath for a button element that contains text is "//button[contains(normalize-space(), 'text')]".
 - Do NOT use `element.text` to get text. Use `env.get_text_of_element(element)` instead.
 - Do NOT use `element.send_keys(text)` or `element.click()`. Use `env.send_keys(text)` and `env.click(element)` instead.
+- Do NOT go to a url if it is not specified within the instructions.
 - Don't use list comprehensions. They make it hard to debug.
 - Only do what I instruct you to do.
 - Only write code, no comments.
@@ -65,13 +66,10 @@ Your code must obey the following constraints:
 - Does not call any functions besides those given above and those defined by the base language spec.
 - You may not import any modules. You may not use any external libraries.
 
-HTML CONTEXT TO CHOOSE FROM:
-{html_context}
-
 OUTPUT: ```python"""
 
 PROMPT_TO_FIND_ELEMENT = """Given the HTML below, write the `value` argument to the Python Selenium function `env.find_elements(by='xpath', value=value)` to precisely locate the element.
-
+In xpaths, be sure to wrap every id, name, and class in single quotes. For instance, the xpath for an element with id 'foo' is "//div[@id='foo']".
 Do not use any other method besides `env.find_elements`. Again, write only the *string argument for `value`* to the function.
 
 HTML: {cleaned_html}
