@@ -55,15 +55,15 @@ INSTRUCTIONS:
 
 Your code must obey the following constraints:
 - In xpaths, to get the text of an element, do NOT use `text()` (use `normalize-space()` instead), and don't use "normalize-space() = 'text'", use "contains(normalize-space(), 'text')" instead. For instance, the xpath for a button element that contains text is "//button[contains(normalize-space(), 'text')]".
+- You may use xpath without any specific tag name, so you can use "//[@id='foo']" instead of "//div[@id='foo']" if you are unsure of the tag name.
 - Do NOT use `element.text` to get text. Use `env.get_text_of_element(element)` instead.
 - Do NOT use `element.send_keys(text)` or `element.click()`. Use `env.send_keys(text)` and `env.click(element)` instead.
 - Do NOT go to a url if it is not specified within the instructions.
-- Don't use list comprehensions. They make it hard to debug.
+- Don't use list comprehensions.
 - Only do what I instruct you to do.
 - Only write code, no comments.
-- Has correct indentation.
 - Respect case sensitivity in the instructions.
-- Does not call any functions besides those given above and those defined by the base language spec.
+- Do not call any functions besides those given above and those defined by the base language spec.
 - You may not import any modules. You may not use any external libraries.
 
 OUTPUT: ```python"""
