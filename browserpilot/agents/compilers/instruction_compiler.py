@@ -55,7 +55,7 @@ INSTRUCTIONS:
 
 Your code must obey the following constraints:
 - In xpaths, to get the text of an element, do NOT use `text()` (use `normalize-space()` instead), and don't use "normalize-space() = 'text'", use "contains(normalize-space(), 'text')" instead. For instance, the xpath for a button element that contains text is "//button[contains(normalize-space(), 'text')]".
-- You may use xpath without any specific tag name, so you can use "//[@id='foo']" instead of "//div[@id='foo']" if you are unsure of the tag name.
+- Do NOT use xpath with a specific tag name if the name is not given in the instruction, so you should use "//[@id='foo']" instead of "//div[@id='foo']" if the instruction does not specify that the element is a div.
 - Do NOT use `element.text` to get text. Use `env.get_text_of_element(element)` instead.
 - Do NOT use `element.send_keys(text)` or `element.click()`. Use `env.send_keys(text)` and `env.click(element)` instead.
 - Do NOT go to a url if it is not specified within the instructions.
