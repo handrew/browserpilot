@@ -1,11 +1,17 @@
 """Memory for agents."""
-import os
-from llama_index import GPTVectorStoreIndex, GPTListIndex
-from llama_index import Document, LLMPredictor, ServiceContext
-from llama_index import StorageContext, load_index_from_storage
-from langchain.chat_models import ChatOpenAI
-
 import logging
+import os
+
+from langchain.chat_models import ChatOpenAI
+from llama_index.core import (
+    Document,
+    GPTListIndex,
+    GPTVectorStoreIndex,
+    ServiceContext,
+    StorageContext,
+    load_index_from_storage,
+)
+from llama_index.core.service_context import LLMPredictor
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

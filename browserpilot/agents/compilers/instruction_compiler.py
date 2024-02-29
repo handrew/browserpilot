@@ -1,14 +1,13 @@
 """InstructionCompiler class."""
-import time
-from openai import OpenAI
-import json
-import yaml
 import io
+import json
 import logging
-from typing import Dict, List, Union
+import time
+from typing import Callable, Dict, List, Union
+
+import yaml
+from openai import APIStatusError, OpenAI
 from selenium import webdriver
-from typing import Callable
-from openai import APIStatusError
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

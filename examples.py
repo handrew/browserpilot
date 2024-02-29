@@ -1,8 +1,11 @@
-import sys
 import os
-import openai
+import sys
+
 import click
+import openai
+
 from browserpilot.agents.gpt_selenium_agent import GPTSeleniumAgent
+
 # from browserpilot.agents.goal_agent import GoalAgent
 
 # Set OpenAI API key.
