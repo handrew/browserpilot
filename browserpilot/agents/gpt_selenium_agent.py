@@ -8,15 +8,16 @@ import traceback
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 from bs4.element import Tag
-from llama_index import Document, GPTVectorStoreIndex
-from llama_index import ServiceContext, LLMPredictor
+from llama_index.core import Document, GPTVectorStoreIndex
+from llama_index.core import ServiceContext
+from llama_index.legacy import LLMPredictor
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.relative_locator import locate_with
-from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
 from .compilers.instruction_compiler import InstructionCompiler
 from .memories import Memory
 
@@ -89,7 +90,7 @@ class GPTSeleniumAgent:
             instruction_output_file is None
             or instruction_output_file.endswith(".yaml")
             or instruction_output_file.endswith(".json")
-        ), "Instruction output file must be a YAML or JSON file or None." 
+        ), "Instruction output file must be a YAML or JSON file or None."
         assert (
             chromedriver_path is not None
         ), "Please provide a path to the chromedriver executable."
@@ -119,7 +120,7 @@ class GPTSeleniumAgent:
         """Set up the driver."""
         _chrome_options = webdriver.ChromeOptions()
         _chrome_options.add_argument(f"user-data-dir={user_data_dir}")
-        # 🤫 Evade detection. 
+        # 🤫 Evade detection.
         # https://stackoverflow.com/questions/53039551/selenium-webdriver-modifying-navigator-webdriver-flag-to-prevent-selenium-detec
         _chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         _chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -694,3 +695,7 @@ class GPTSeleniumAgent:
                 )
                 return
             f.write(element.screenshot_as_png)
+
+
+if __name__ == "__main__":
+    GPTSeleniumAgent()
