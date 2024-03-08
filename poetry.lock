@@ -710,13 +710,13 @@ typing = ["typing-extensions (>=4.8)"]
 
 [[package]]
 name = "flatbuffers"
-version = "23.5.26"
+version = "24.3.7"
 description = "The FlatBuffers serialization format for Python"
 optional = false
 python-versions = "*"
 files = [
-    {file = "flatbuffers-23.5.26-py2.py3-none-any.whl", hash = "sha256:c0ff356da363087b915fde4b8b45bdda73432fc17cddb3c8157472eab1422ad1"},
-    {file = "flatbuffers-23.5.26.tar.gz", hash = "sha256:9ea1144cac05ce5d86e2859f431c6cd5e66cd9c78c558317c7955fb8d4c78d89"},
+    {file = "flatbuffers-24.3.7-py2.py3-none-any.whl", hash = "sha256:80c4f5dcad0ee76b7e349671a0d657f2fbba927a0244f88dd3f5ed6a3694e1fc"},
+    {file = "flatbuffers-24.3.7.tar.gz", hash = "sha256:0895c22b9a6019ff2f4de2e5e2f7cd15914043e6e7033a94c0c6369422690f22"},
 ]
 
 [[package]]
@@ -1200,18 +1200,18 @@ testing = ["flufl.flake8", "importlib-resources (>=1.3)", "packaging", "pyfakefs
 
 [[package]]
 name = "importlib-resources"
-version = "6.1.2"
+version = "6.1.3"
 description = "Read resources from Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "importlib_resources-6.1.2-py3-none-any.whl", hash = "sha256:9a0a862501dc38b68adebc82970140c9e4209fc99601782925178f8386339938"},
-    {file = "importlib_resources-6.1.2.tar.gz", hash = "sha256:308abf8474e2dba5f867d279237cd4076482c3de7104a40b41426370e891549b"},
+    {file = "importlib_resources-6.1.3-py3-none-any.whl", hash = "sha256:4c0269e3580fe2634d364b39b38b961540a7738c02cb984e98add8b4221d793d"},
+    {file = "importlib_resources-6.1.3.tar.gz", hash = "sha256:56fb4525197b78544a3354ea27793952ab93f935bb4bf746b846bb1015020f2b"},
 ]
 
 [package.extras]
 docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (<7.2.5)", "sphinx (>=3.5)", "sphinx-lint"]
-testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-mypy", "pytest-ruff (>=0.2.1)", "zipp (>=3.17)"]
+testing = ["jaraco.collections", "pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-mypy", "pytest-ruff (>=0.2.1)", "zipp (>=3.17)"]
 
 [[package]]
 name = "joblib"
@@ -1344,13 +1344,13 @@ extended-testing = ["aiosqlite (>=0.19.0,<0.20.0)", "aleph-alpha-client (>=2.15.
 
 [[package]]
 name = "langchain-core"
-version = "0.1.29"
+version = "0.1.30"
 description = "Building applications with LLMs through composability"
 optional = false
 python-versions = ">=3.8.1,<4.0"
 files = [
-    {file = "langchain_core-0.1.29-py3-none-any.whl", hash = "sha256:b96d599ff98810a7fcba726c151d473a4b938e0f90b9907c460b0bf0a1c7a0f7"},
-    {file = "langchain_core-0.1.29.tar.gz", hash = "sha256:6731dabffad03b9213ada2640d54ed7f4ef6b99fce87ade3c71474ae154dd3cc"},
+    {file = "langchain_core-0.1.30-py3-none-any.whl", hash = "sha256:c9643505e41d25ba8f20a2e8bf083d0f0d50b9a098d901511fff8df79f831ada"},
+    {file = "langchain_core-0.1.30.tar.gz", hash = "sha256:e13a016e55e7f082ff3eeeda2d0cb505b89a8830e3a23c1d134d0a89d7871894"},
 ]
 
 [package.dependencies]
@@ -1401,19 +1401,19 @@ requests = ">=2,<3"
 
 [[package]]
 name = "llama-index"
-version = "0.10.16"
+version = "0.10.17"
 description = "Interface between LLMs and your data"
 optional = false
 python-versions = ">=3.8.1,<4.0"
 files = [
-    {file = "llama_index-0.10.16-py3-none-any.whl", hash = "sha256:0c23cfb184445fd1ef428c48978293b05247d78fb85189c726df84ae35fd38c0"},
-    {file = "llama_index-0.10.16.tar.gz", hash = "sha256:7ebf1ee760c8957bd469eefbc4453219b2d94b931720d231b9078566bed7432d"},
+    {file = "llama_index-0.10.17-py3-none-any.whl", hash = "sha256:b5463e57b3bcaa9f9ca19695d3e0f66c21a319d32d50c0e35a9176a69725a87c"},
+    {file = "llama_index-0.10.17.tar.gz", hash = "sha256:a2302e5fff779e4b1a8c5fb2cf97f002a2d9859b945095e40317fb977d11535a"},
 ]
 
 [package.dependencies]
 llama-index-agent-openai = ">=0.1.4,<0.2.0"
 llama-index-cli = ">=0.1.2,<0.2.0"
-llama-index-core = ">=0.10.16,<0.11.0"
+llama-index-core = ">=0.10.17,<0.11.0"
 llama-index-embeddings-openai = ">=0.1.5,<0.2.0"
 llama-index-indices-managed-llama-cloud = ">=0.1.2,<0.2.0"
 llama-index-legacy = ">=0.9.48,<0.10.0"
@@ -1441,13 +1441,13 @@ llama-index-llms-openai = ">=0.1.5,<0.2.0"
 
 [[package]]
 name = "llama-index-cli"
-version = "0.1.7"
+version = "0.1.8"
 description = "llama-index cli"
 optional = false
 python-versions = ">=3.8.1,<4.0"
 files = [
-    {file = "llama_index_cli-0.1.7-py3-none-any.whl", hash = "sha256:48a81fc33d4005dbe91b77ebe840ac69e0102e7e2a59770308f94fae1b792544"},
-    {file = "llama_index_cli-0.1.7.tar.gz", hash = "sha256:55a77e3c370eb760c42cb74a0df6f650e41ec17928b72b07ff8b927cb94b15b4"},
+    {file = "llama_index_cli-0.1.8-py3-none-any.whl", hash = "sha256:4e300f06206862d6d7eedde95632c6b61a5ebb5162454f1ac7a3c3c9b3ebb05f"},
+    {file = "llama_index_cli-0.1.8.tar.gz", hash = "sha256:776a96917965d0df6e7e272d6278394a4f7c922e57973a75e2645609727fa4b1"},
 ]
 
 [package.dependencies]
@@ -1458,13 +1458,13 @@ llama-index-vector-stores-chroma = ">=0.1.1,<0.2.0"
 
 [[package]]
 name = "llama-index-core"
-version = "0.10.16.post1"
+version = "0.10.17"
 description = "Interface between LLMs and your data"
 optional = false
 python-versions = ">=3.8.1,<4.0"
 files = [
-    {file = "llama_index_core-0.10.16.post1-py3-none-any.whl", hash = "sha256:fee1216e218e66b738249401dfa37dd7592ea35b958c55d40cbffa64eb834a93"},
-    {file = "llama_index_core-0.10.16.post1.tar.gz", hash = "sha256:1ea8a08a3a872c435501611a1f6edd2abe6c6208c9e68684ef2078d55914c9d5"},
+    {file = "llama_index_core-0.10.17-py3-none-any.whl", hash = "sha256:da13e609f015e87fbe985a4d607a8368d74e84b002d3c7ba4125ddea54dde452"},
+    {file = "llama_index_core-0.10.17.tar.gz", hash = "sha256:bbc1a0f5e457e6f44769ad70e6398a4f1d233ddf70bfa5dc41a925b360445b55"},
 ]
 
 [package.dependencies]
@@ -1680,13 +1680,13 @@ tokenizers = ">=0.15.1,<0.16.0"
 
 [[package]]
 name = "llama-parse"
-version = "0.3.6"
+version = "0.3.8"
 description = "Parse files into RAG-Optimized formats."
 optional = false
 python-versions = ">=3.8.1,<4.0"
 files = [
-    {file = "llama_parse-0.3.6-py3-none-any.whl", hash = "sha256:dd7be333009333e941a8ead2b43a1122a1588b8bd42abae3eb24a6b6789fe831"},
-    {file = "llama_parse-0.3.6.tar.gz", hash = "sha256:98093e60225e7abd517a5ba245a822432d345d136a5f988b4b4dbda0575802a1"},
+    {file = "llama_parse-0.3.8-py3-none-any.whl", hash = "sha256:2f6222c4f9f8b70622a799fca8438972e3e2f19fa8273e2c8be46af314c9a367"},
+    {file = "llama_parse-0.3.8.tar.gz", hash = "sha256:3d4739726687e6602e7cacbc9f17d438d39989a4a73324fc99122b3aefa384a4"},
 ]
 
 [package.dependencies]
@@ -4168,4 +4168,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "ea7357b3a2f676220193576a6358ed18f5cac6ce36a9ad6acd2a9013548011b4"
+content-hash = "c831a402bf1f1acf5ee0e904f4b6a626d54cc798867dde0dd6387a8670a003f9"
