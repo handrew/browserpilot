@@ -1,14 +1,22 @@
 """InstructionCompiler class."""
 import time
-import openai
 import json
 import yaml
 import io
 import logging
+import traceback
+import os
+
 from typing import Dict, List, Union
+
+from openai import OpenAI
+from openai import RateLimitError, Timeout, APIError, APIConnectionError, OpenAIError
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Instantiate OpenAI with OPENAI_API_KEY.
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 """Set up all the prompt variables."""
 
@@ -281,7 +289,7 @@ class InstructionCompiler:
 
         try:
             if "gpt-3.5-turbo" in model or "gpt-4" in model:
-                response = openai.ChatCompletion.create(
+                response = client.chat.completions.create(
                     model=model,
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=max_tokens,
@@ -291,9 +299,9 @@ class InstructionCompiler:
                     temperature=temperature,
                     stop=stop,
                 )
-                text = response["choices"][0]["message"]["content"]
+                text = response.choices[0].message.content
             else:
-                response = openai.Completion.create(
+                response = client.completions.create(
                     model=model,
                     prompt=prompt,
                     max_tokens=max_tokens,
@@ -304,13 +312,8 @@ class InstructionCompiler:
                     temperature=temperature,
                     stop=stop,
                 )
-                text = response["choices"][0]["text"]
-        except (
-            openai.error.RateLimitError,
-            openai.error.APIError,
-            openai.error.Timeout,
-            openai.error.APIConnectionError,
-        ) as exc:
+                text = response.choices[0].text
+        except OpenAIError as exc:
             logger.info(
                 "OpenAI error. Likely a rate limit error, API error, or timeout: {exc}. Sleeping for a few seconds.".format(
                     exc=str(exc)
@@ -320,6 +323,8 @@ class InstructionCompiler:
             text = self.get_completion(
                 prompt, temperature=temperature, max_tokens=max_tokens, model=model
             )
+        except Exception:
+            traceback.print_exc()
 
         # Add to cache.
         self.api_cache[prompt] = text

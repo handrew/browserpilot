@@ -6,14 +6,16 @@ authors = ["Andrew Han <handrew11@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-click = "^8.1.3" 
+click = "^8.1.3"
 python = "^3.10"
-openai = ">0.27, <2.0"
+openai = "^1.13.3"
 selenium = "^4.8.2"
 tqdm = "^4.64.1"
 beautifulsoup4 = "^4.11.2"
 pyyaml = "^6.0"
-llama-index = ">=0.8, <1.0"
+langchain = "^0.1.11"
+llama-index = "^0.10.16"
+langchain-community = "^0.0.25"
 
 
 [build-system]
