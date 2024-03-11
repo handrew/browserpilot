@@ -1,0 +1,18 @@
+instructions:
+- BEGIN_FUNCTION open_github_issue
+- Go to Google.com
+- Find all textareas.
+- Find the first visible textarea.
+- Click on the first visible textarea.
+- Type in "netbox github" and press enter.
+- Wait 2 seconds.
+- Find all anchor elements that link to GitHub.
+- Click on the first one.
+- Wait 2 seconds.
+- Click on the anchor element with id 'issues-tab'.
+- Wait 2 seconds.
+- Click on the closed issues to filter them.
+- Wait 2 seconds.
+- END_FUNCTION
+- RUN_FUNCTION open_github_issue
+- Wait for 10 seconds.
