@@ -6,7 +6,7 @@ instructions:
 - Click on the first visible textarea.
 - Type in "netbox github" and press enter.
 - Wait 2 seconds.
-- Find all anchor elements that link to GitHub.
+- Find all anchor elements that link to GitHub.com.
 - Click on the first one.
 - Wait 2 seconds.
 - Click on the anchor element with id 'issues-tab'.
