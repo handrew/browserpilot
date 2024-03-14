@@ -96,8 +96,8 @@ class GPTSeleniumAgent:
         ), "Please provide a path to the chromedriver executable."
         self.model_for_instructions = model_for_instructions
         self.model_for_responses = model_for_responses
-        logger.info("Using model for instructions: {model}".format(model=model_for_instructions))
-        logger.info("Using model for responses: {model}".format(model=model_for_responses))
+        logger.info(f"Using model for instructions: {model_for_instructions}")
+        logger.info(f"Using model for responses: {model_for_responses}")
         self.instruction_output_file = instruction_output_file
         self.should_retry = retry
         self.debug = debug
@@ -145,7 +145,7 @@ class GPTSeleniumAgent:
         """Check that the action is not dangerous. If so, just quit."""
         if self._is_potentially_dangerous(action_str):
             logger.warning("Action is potentially dangerous. Exiting.")
-            logger.warning("Action: {action}".format(action=action_str))
+            logger.warning(f"Action: {action_str}")
             sys.exit(1)
 
     def _is_potentially_dangerous(self, code_str):
@@ -246,8 +246,8 @@ class GPTSeleniumAgent:
 
     def __print_instruction_and_action(self, instruction, action):
         """Logging the instruction and action."""
-        info_str = "\nInstruction: {instruction}\n".format(instruction=instruction)
-        info_str = info_str + "\nAction: {action}\n".format(action=action)
+        info_str = f"\nInstruction: {instruction}\n"
+        info_str = info_str + f"\nAction: {action}\n"
         logger.info(info_str)
 
     def __get_relevant_part_of_stack_trace(self):
@@ -288,10 +288,10 @@ class GPTSeleniumAgent:
         # Save screenshots and HTML from each iframe.
         iframes = self.driver.find_elements(by=By.TAG_NAME, value="iframe")
         for i, iframe in enumerate(iframes):
-            screenshot_name = "debug_{iframe_num}.png".format(iframe_num=i)
+            screenshot_name = f"debug_{i}.png"
             screenshot_name = os.path.join(self.debug_html_folder, screenshot_name)
             # iframe.screenshot(screenshot_name)
-            iframe_debug_name = "debug_{iframe_num}.html".format(iframe_num=i)
+            iframe_debug_name = f"debug_{i}.html"
             iframe_debug_name = os.path.join(self.debug_html_folder, iframe_debug_name)
             with open(iframe_debug_name, "w+") as f:
                 self.driver.switch_to.frame(iframe)
@@ -435,9 +435,7 @@ class GPTSeleniumAgent:
 
     def scroll(self, direction=None, iframe=None):
         allowed_dirs = ["up", "down", "top", "bottom", "left", "right"]
-        assert direction in allowed_dirs, "Invalid direction: {}".format(
-            direction
-        )
+        assert direction in allowed_dirs, f"Invalid direction: {direction}"
         assert (iframe is None) or isinstance(iframe, GPTWebElement)
         if iframe is not None:
             # Switch to the iframe of the element.
@@ -493,7 +491,7 @@ class GPTSeleniumAgent:
         # Find all iframes on the page and switch to each one to find
         # their elements.
         iframes = self.driver.find_elements(by=By.TAG_NAME, value="iframe")
-        logger.debug("Found {num} iframes.".format(num=len(iframes)))
+        logger.debug(f"Found {len(iframes)} iframes.")
         for iframe in iframes:
             self.driver.switch_to.frame(iframe)
             iframe_elements = self.driver.find_elements(by, value)
@@ -510,7 +508,7 @@ class GPTSeleniumAgent:
     @__switch_to_element_iframe
     def find_nearest(self, element: GPTWebElement, xpath=None, direction="above"):
         assert direction in ["near", "above", "below", "left", "right"], (
-            "Invalid direction: {}".format(direction)
+            f"Invalid direction: {direction}"
         )
         if direction == "above":
             locator = locate_with(By.XPATH, xpath).above(element)
@@ -576,9 +574,7 @@ class GPTSeleniumAgent:
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
         index = GPTVectorStoreIndex.from_documents([Document(text=text)], service_context=service_context)
         logger.info(
-            'Retrieving information from web page with prompt: "{prompt}"'.format(
-                prompt=prompt
-            )
+            f'Retrieving information from web page with prompt: "{prompt}"'
         )
         query_engine = index.as_query_engine()
         resp = query_engine.query(prompt)
@@ -651,7 +647,7 @@ class GPTSeleniumAgent:
             return None
 
         logger.info(
-            "Asked Llama Index to find element. Response: {resp}".format(resp=resp_text)
+            f"Asked Llama Index to find element. Response: {resp_text}"
         )
 
         # Find the iframe that the element is from.
