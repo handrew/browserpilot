@@ -1,7 +1,6 @@
 import click
 
 from browserpilot.agents.gpt_selenium_agent import GPTSeleniumAgent
-# from browserpilot.agents.goal_agent import GoalAgent
 
 
 # Set up multiple command CLI.
@@ -24,6 +23,7 @@ def selenium(instructions, chromedriver_path, model, memory_folder, debug, outpu
             chromedriver_path,
             instruction_output_file=output,
             model_for_instructions=model,
+            model_for_responses=model,
             memory_folder=memory_folder,
             debug=debug,
             retry=True,

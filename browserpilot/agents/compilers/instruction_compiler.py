@@ -6,6 +6,7 @@ import io
 import logging
 import traceback
 import os
+import re
 
 from typing import Dict, List, Union
 
@@ -297,7 +298,6 @@ class InstructionCompiler:
                     frequency_penalty=0,
                     presence_penalty=0,
                     temperature=temperature,
-                    stop=stop,
                 )
                 text = response.choices[0].message.content
             else:
@@ -325,6 +325,9 @@ class InstructionCompiler:
             )
         except Exception:
             traceback.print_exc()
+
+        # Extract python code
+        text = self._extract_python_code(text)
 
         # Add to cache.
         self.api_cache[prompt] = text
@@ -405,6 +408,15 @@ class InstructionCompiler:
                 json.dump(to_dump, f, indent=4)
             elif filename.endswith(".yaml"):
                 yaml.dump(to_dump, f)
+
+    def _extract_python_code(self, input_string: str) -> str:
+        pattern = r'```python\n(.*?)```'
+        match = re.search(pattern, input_string, re.DOTALL)
+
+        if match:
+            return match.group(1)
+        else:
+            return input_string
 
 
 if __name__ == "__main__":
