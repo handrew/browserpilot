@@ -16,6 +16,7 @@ pyyaml = "^6.0"
 langchain = "^0.1.11"
 llama-index = "^0.10.16"
 langchain-community = "^0.0.25"
+langchain_openai = "^0.1.1"
 
 
 [build-system]

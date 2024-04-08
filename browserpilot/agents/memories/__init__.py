@@ -4,7 +4,7 @@ from llama_index.core import GPTVectorStoreIndex, GPTListIndex
 from llama_index.core import Document, ServiceContext
 from llama_index.legacy import LLMPredictor
 from llama_index.core import StorageContext, load_index_from_storage
-from langchain_community.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 
 import logging
 

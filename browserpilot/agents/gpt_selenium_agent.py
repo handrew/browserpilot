@@ -17,7 +17,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.relative_locator import locate_with
-from langchain_community.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from .compilers.instruction_compiler import InstructionCompiler
 from .memories import Memory
 
@@ -570,9 +570,10 @@ class GPTSeleniumAgent:
         """Retrieves information using using GPT-Index embeddings from a page."""
         text = self.get_text_from_page()
         chatgpt_kwargs = {"temperature": 0, "model_name": self.model_for_instructions}
-        llm_predictor = LLMPredictor(llm=ChatOpenAI(**chatgpt_kwargs))
-        service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
-        index = GPTVectorStoreIndex.from_documents([Document(text=text)], service_context=service_context)
+        # llm_predictor = LLMPredictor(llm=ChatOpenAI(**chatgpt_kwargs))
+        # service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
+        # index = GPTVectorStoreIndex.from_documents([Document(text=text)], service_context=service_context)
+        index = GPTVectorStoreIndex.from_documents([Document(text=text)])
         logger.info(
             f'Retrieving information from web page with prompt: "{prompt}"'
         )
@@ -628,9 +629,10 @@ class GPTSeleniumAgent:
 
         # Construct and query index.
         chatgpt_kwargs = {"temperature": 0, "model_name": self.model_for_instructions}
-        llm_predictor = LLMPredictor(llm=ChatOpenAI(**chatgpt_kwargs))
-        service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
-        index = GPTVectorStoreIndex.from_documents(docs, service_context=service_context)
+        # llm_predictor = LLMPredictor(llm=ChatOpenAI(**chatgpt_kwargs))
+        # service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
+        # index = GPTVectorStoreIndex.from_documents(docs, service_context=service_context)
+        index = GPTVectorStoreIndex.from_documents(docs)
         query = "Find element that matches description: {element_description}. If no element matches, return {no_resp_token}.".format(
             element_description=element_description, no_resp_token=NO_RESPONSE_TOKEN
         )
