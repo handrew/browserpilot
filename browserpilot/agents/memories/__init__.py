@@ -1,10 +1,9 @@
 """Memory for agents."""
 import os
 from llama_index.core import GPTVectorStoreIndex, GPTListIndex
-from llama_index.core import Document, ServiceContext
-from llama_index.legacy import LLMPredictor
+from llama_index.core import Document
 from llama_index.core import StorageContext, load_index_from_storage
-from langchain_community.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 
 import logging
 
@@ -19,31 +18,19 @@ INDEX_TYPES = {
     "list": GPTListIndex,
 }
 
-LLM_PREDICTOR_TYPES = {
-    "gpt-3.5-turbo": ChatOpenAI,
-    "gpt-3.5-turbo-16k": ChatOpenAI,
-    "gpt-4": ChatOpenAI,
-}
-
 
 class Memory:
-    def __init__(self, memory_folder=None, index_type="vector", llm_predictor="gpt-3.5-turbo"):
+    def __init__(self, memory_folder=None, index_type="vector"):
         assert index_type in INDEX_TYPES, f"Invalid index type: {index_type}"
-        assert llm_predictor in LLM_PREDICTOR_TYPES, f"Invalid LLM predictor: {llm_predictor}"
 
         self.texts = []
-        llm_kwargs = {"temperature": 0, "model_name": llm_predictor}
-        predictor_constructor = LLM_PREDICTOR_TYPES[llm_predictor]
-        llm = LLMPredictor(llm=predictor_constructor(**llm_kwargs))
-        service_context = ServiceContext.from_defaults(llm_predictor=llm)
 
         if memory_folder and os.path.exists(memory_folder):
             logger.info("Loading memory from disk.")
             storage_context = StorageContext.from_defaults(persist_dir=memory_folder)
             self.index = load_index_from_storage(storage_context)
         else:
-            self.index = INDEX_TYPES[index_type].from_documents([], service_context=service_context)
-        self.llm_predictor = llm_predictor
+            self.index = INDEX_TYPES[index_type].from_documents([])
 
     def query(self, prompt, similarity_top_k=3):
         query_engine = self.index.as_query_engine(similarity_top_k=similarity_top_k)
