@@ -104,7 +104,6 @@ class GPTSeleniumAgent:
         self.memory_folder = memory_folder
         self.close_after_completion = close_after_completion
         self.remote_url = remote_url
-        self.desired_capabilities = desired_capabilities
 
         """Fire up the compiler."""
         self.instruction_compiler = InstructionCompiler(
@@ -135,12 +134,12 @@ class GPTSeleniumAgent:
         # Check if remote_url is set and conditionally set the driver to a remote endpoint
         if remote_url:
             _chrome_options.add_argument(f"--user-data-dir=/home/seluser/{user_data_dir}")
-            self.driver = webdriver.Remote(command_executor=remote_url, options=_chrome_options, desired_capabilities=desired_capabilities)
+            self.driver = webdriver.Remote(command_executor=remote_url, options=_chrome_options)
         else:
             _chrome_options.add_argument(f"user-data-dir={user_data_dir}")
             # Instantiate Service with the path to the chromedriver and the options.
             service = Service(chromedriver_path)
-            self.driver = webdriver.Chrome(service=service, options=_chrome_options, desired_capabilities=desired_capabilities)
+            self.driver = webdriver.Chrome(service=service, options=_chrome_options )
         # 🤫 Evade detection.
         self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
