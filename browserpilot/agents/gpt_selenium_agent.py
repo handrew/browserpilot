@@ -91,8 +91,8 @@ class GPTSeleniumAgent:
             or instruction_output_file.endswith(".json")
         ), "Instruction output file must be a YAML or JSON file or None."
         assert (
-            (chromedriver_path is not None) or (remote_url is not None)
-        ), "Please provide a path to the chromedriver executable."
+            (chromedriver_path is not None) ^ (remote_url is not None) # XOR
+        ), "Please provide a path to the chromedriver executable or selenium grid target"
         self.model_for_instructions = model_for_instructions
         self.model_for_responses = model_for_responses
         logger.info(f"Using model for instructions: {model_for_instructions}")
@@ -104,6 +104,7 @@ class GPTSeleniumAgent:
         self.memory_folder = memory_folder
         self.close_after_completion = close_after_completion
         self.remote_url = remote_url
+        self.desired_capabilities = desired_capabilities
 
         """Fire up the compiler."""
         self.instruction_compiler = InstructionCompiler(
@@ -133,13 +134,13 @@ class GPTSeleniumAgent:
 
         # Check if remote_url is set and conditionally set the driver to a remote endpoint
         if remote_url:
-            self.driver = webdriver.Remote(command_executor=remote_url, options=_chrome_options)
             _chrome_options.add_argument(f"--user-data-dir=/home/seluser/{user_data_dir}")
+            self.driver = webdriver.Remote(command_executor=remote_url, options=_chrome_options, desired_capabilities=desired_capabilities)
         else:
             _chrome_options.add_argument(f"user-data-dir={user_data_dir}")
             # Instantiate Service with the path to the chromedriver and the options.
             service = Service(chromedriver_path)
-            self.driver = webdriver.Chrome(service=service, options=_chrome_options)
+            self.driver = webdriver.Chrome(service=service, options=_chrome_options, desired_capabilities=desired_capabilities)
         # 🤫 Evade detection.
         self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
