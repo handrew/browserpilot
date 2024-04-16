@@ -18,6 +18,7 @@ from selenium.webdriver.support.relative_locator import locate_with
 from .compilers.instruction_compiler import InstructionCompiler
 from .memories import Memory
 
+
 TIME_BETWEEN_ACTIONS = 0.01
 
 import logging
@@ -56,7 +57,6 @@ class GPTSeleniumAgent:
         instruction_output_file=None,
         close_after_completion=True,
         remote_url=None, 
-        desired_capabilities=None,
     ):
         """Initialize the agent.
 
@@ -124,19 +124,20 @@ class GPTSeleniumAgent:
         _chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         _chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         _chrome_options.add_experimental_option('useAutomationExtension', False)
-
+        _chrome_options.add_argument(f"user-data-dir={user_data_dir}")
         self.headless = headless
         if headless:
             _chrome_options.add_argument("--headless")
         for option in chrome_options:
-            _chrome_options.add_argument(f"{option}={chrome_options[option]}")
+            if chrome_options[option] == None:
+                _chrome_options.add_argument(f"{option}")
+            else: 
+                _chrome_options.add_argument(f"{option}={chrome_options[option]}")
 
         # Check if remote_url is set and conditionally set the driver to a remote endpoint
         if remote_url:
-            _chrome_options.add_argument(f"--user-data-dir=/home/seluser/{user_data_dir}")
             self.driver = webdriver.Remote(command_executor=remote_url, options=_chrome_options)
         else:
-            _chrome_options.add_argument(f"user-data-dir={user_data_dir}")
             # Instantiate Service with the path to the chromedriver and the options.
             service = Service(chromedriver_path)
             self.driver = webdriver.Chrome(service=service, options=_chrome_options )
