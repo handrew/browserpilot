@@ -99,7 +99,10 @@ This repo was inspired by the work of [Yihui He](https://github.com/yihui-he/Act
 
 
 ## 🎉 Finished
-0.2.42 - 0.2.44
+0.2.51 
+- Thanks to @rapatel0, you can now run BrowserPilot with Selenium Grid, remotely.
+
+-0.2.42 - 0.2.44
 - Small changes in `examples.py` and dependencies.
 - Refactor for the big Llama Index upgrade.
 
