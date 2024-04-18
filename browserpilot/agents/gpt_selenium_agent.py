@@ -92,7 +92,7 @@ class GPTSeleniumAgent:
         ), "Instruction output file must be a YAML or JSON file or None."
         assert (
             (chromedriver_path is not None) ^ (remote_url is not None) # XOR
-        ), "Please provide a path to the chromedriver executable or selenium grid target"
+        ), "Please provide a path to the chromedriver executable or Selenium Grid target"
         self.model_for_instructions = model_for_instructions
         self.model_for_responses = model_for_responses
         logger.info(f"Using model for instructions: {model_for_instructions}")
