@@ -18,6 +18,7 @@ from selenium.webdriver.support.relative_locator import locate_with
 from .compilers.instruction_compiler import InstructionCompiler
 from .memories import Memory
 
+
 TIME_BETWEEN_ACTIONS = 0.01
 
 import logging
@@ -55,6 +56,7 @@ class GPTSeleniumAgent:
         debug_html_folder="",
         instruction_output_file=None,
         close_after_completion=True,
+        remote_url=None, 
     ):
         """Initialize the agent.
 
@@ -89,8 +91,8 @@ class GPTSeleniumAgent:
             or instruction_output_file.endswith(".json")
         ), "Instruction output file must be a YAML or JSON file or None."
         assert (
-            chromedriver_path is not None
-        ), "Please provide a path to the chromedriver executable."
+            (chromedriver_path is not None) ^ (remote_url is not None) # XOR
+        ), "Please provide a path to the chromedriver executable or Selenium Grid target"
         self.model_for_instructions = model_for_instructions
         self.model_for_responses = model_for_responses
         logger.info(f"Using model for instructions: {model_for_instructions}")
@@ -101,6 +103,7 @@ class GPTSeleniumAgent:
         self.debug_html_folder = debug_html_folder
         self.memory_folder = memory_folder
         self.close_after_completion = close_after_completion
+        self.remote_url = remote_url
 
         """Fire up the compiler."""
         self.instruction_compiler = InstructionCompiler(
@@ -116,25 +119,30 @@ class GPTSeleniumAgent:
 
         """Set up the driver."""
         _chrome_options = webdriver.ChromeOptions()
-        _chrome_options.add_argument(f"user-data-dir={user_data_dir}")
         # 🤫 Evade detection.
         # https://stackoverflow.com/questions/53039551/selenium-webdriver-modifying-navigator-webdriver-flag-to-prevent-selenium-detec
         _chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         _chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         _chrome_options.add_experimental_option('useAutomationExtension', False)
-
+        _chrome_options.add_argument(f"user-data-dir={user_data_dir}")
         self.headless = headless
         if headless:
             _chrome_options.add_argument("--headless")
         for option in chrome_options:
-            _chrome_options.add_argument(f"{option}={chrome_options[option]}")
+            if chrome_options[option] == None:
+                _chrome_options.add_argument(f"{option}")
+            else: 
+                _chrome_options.add_argument(f"{option}={chrome_options[option]}")
 
-        # Instantiate Service with the path to the chromedriver and the options.
-        service = Service(chromedriver_path)
-        self.driver = webdriver.Chrome(service=service, options=_chrome_options)
+        # Check if remote_url is set and conditionally set the driver to a remote endpoint
+        if remote_url:
+            self.driver = webdriver.Remote(command_executor=remote_url, options=_chrome_options)
+        else:
+            # Instantiate Service with the path to the chromedriver and the options.
+            service = Service(chromedriver_path)
+            self.driver = webdriver.Chrome(service=service, options=_chrome_options )
         # 🤫 Evade detection.
         self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-
 
     """Helper functions"""
 
