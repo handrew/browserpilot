@@ -6,6 +6,7 @@ import io
 import logging
 import traceback
 import os
+import re
 
 from typing import Dict, List, Union
 
@@ -288,8 +289,7 @@ class InstructionCompiler:
             return text
 
         try:
-            
-            if "gpt-3.5-turbo" in model or "gpt-4" in model or ('api.openai.com' not in str(client.base_url)):
+            if "gpt-3.5-turbo" in model or "gpt-4" in model:
                 response = client.chat.completions.create(
                     model=model,
                     messages=[{"role": "user", "content": prompt}],
@@ -301,6 +301,21 @@ class InstructionCompiler:
                     stop=stop,
                 )
                 text = response.choices[0].message.content
+            elif'api.openai.com' not in str(client.base_url):
+                # LLama3 is more aggressive and stops at the first stop token. might want 
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=max_tokens,
+                    top_p=1,
+                    frequency_penalty=0,
+                    presence_penalty=0,
+                    temperature=temperature
+                )
+                raw_text = response.choices[0].message.content
+                text = "\n".join(re.findall(r"```([^`]+)```", raw_text))
+
+
             else:
                 response = client.completions.create(
                     model=model,
@@ -336,6 +351,7 @@ class InstructionCompiler:
         """Get the action output for the given instructions."""
         prompt = self.base_prompt.format(instructions=instructions)
         completion = self.get_completion(prompt).strip()
+
         action_output = completion.strip()
         lines = [line for line in action_output.split("\n") if not line.startswith("import ")]
         action_output = "\n".join(lines)
