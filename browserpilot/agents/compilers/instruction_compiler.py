@@ -16,7 +16,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Instantiate OpenAI with OPENAI_API_KEY.
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"), base_url=os.environ.get("OPENAI_API_BASE_URL", None))
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY").strip(), 
+                base_url=os.environ.get("OPENAI_API_BASE_URL", None))
 """Set up all the prompt variables."""
 
 # Designated tokens.
@@ -287,7 +288,8 @@ class InstructionCompiler:
             return text
 
         try:
-            if "gpt-3.5-turbo" in model or "gpt-4" in model:
+            
+            if "gpt-3.5-turbo" in model or "gpt-4" in model or ('api.openai.com' not in str(client.base_url)):
                 response = client.chat.completions.create(
                     model=model,
                     messages=[{"role": "user", "content": prompt}],
