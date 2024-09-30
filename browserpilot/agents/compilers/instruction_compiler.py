@@ -85,7 +85,7 @@ class InstructionCompiler:
         self,
         instructions=None,
         base_prompt=BASE_PROMPT,
-        model="gpt-3.5-turbo",
+        model="gpt-4o-mini",
         use_compiled=True,
     ):
         """Initialize the compiler. The compiler handles the sequencing of
@@ -288,7 +288,7 @@ class InstructionCompiler:
             return text
 
         try:
-            if "gpt-3.5-turbo" in model or "gpt-4" in model:
+            if "gpt-4" in model:
                 response = client.chat.completions.create(
                     model=model,
                     messages=[{"role": "user", "content": prompt}],
