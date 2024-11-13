@@ -56,7 +56,8 @@ class GPTSeleniumAgent:
         debug_html_folder="",
         instruction_output_file=None,
         close_after_completion=True,
-        remote_url=None, 
+        remote_url=None,
+        disable_danger_check=False,
     ):
         """Initialize the agent.
 
@@ -104,6 +105,7 @@ class GPTSeleniumAgent:
         self.memory_folder = memory_folder
         self.close_after_completion = close_after_completion
         self.remote_url = remote_url
+        self.disable_danger_check = disable_danger_check
 
         """Fire up the compiler."""
         self.instruction_compiler = InstructionCompiler(
@@ -148,7 +150,7 @@ class GPTSeleniumAgent:
 
     def _check_danger(self, action_str):
         """Check that the action is not dangerous. If so, just quit."""
-        if self._is_potentially_dangerous(action_str):
+        if (self.disable_danger_check is False and self._is_potentially_dangerous(action_str)):
             logger.warning("Action is potentially dangerous. Exiting.")
             logger.warning(f"Action: {action_str}")
             sys.exit(1)
