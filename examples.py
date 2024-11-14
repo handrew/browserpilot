@@ -27,6 +27,7 @@ def selenium(instructions, chromedriver_path, model, memory_folder, debug, outpu
             memory_folder=memory_folder,
             debug=debug,
             retry=True,
+            disable_danger_check=True
         )
         agent.run()
 
