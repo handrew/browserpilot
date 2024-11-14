@@ -275,7 +275,7 @@ class InstructionCompiler:
         return final_queue
 
     def get_completion(
-        self, prompt, model=None, temperature=0, max_tokens=1024, stop=["```"], use_cache=True
+        self, prompt, model=None, temperature=0, max_tokens=1024, stop=[], use_cache=True
     ):
         """Wrapper over OpenAI's completion API."""
         if model is None:
@@ -326,6 +326,7 @@ class InstructionCompiler:
         except Exception:
             traceback.print_exc()
 
+        text = text.replace("```python", "").replace("```", "").strip()
         # Add to cache.
         self.api_cache[prompt] = text
 
